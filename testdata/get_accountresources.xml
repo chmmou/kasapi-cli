@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns2="http://xml.apache.org/xml-soap" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <SOAP-ENV:Body>
+        <ns1:KasApiResponse>
+            <return xsi:type="ns2:Map">
+                <item>
+                    <key xsi:type="xsd:string">Request</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestTime</key>
+                            <value xsi:type="xsd:int">1772306082</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestType</key>
+                            <value xsi:type="xsd:string">get_accountresources</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestParams</key>
+                            <value SOAP-ENC:arrayType="xsd:ur-type[0]" xsi:type="SOAP-ENC:Array"/>
+                        </item>
+                    </value>
+                </item>
+                <item>
+                    <key xsi:type="xsd:string">Response</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasFloodDelay</key>
+                            <value xsi:type="xsd:float">0.5</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnString</key>
+                            <value xsi:type="xsd:string">TRUE</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnInfo</key>
+                            <value xsi:type="ns2:Map">
+                                <item>
+                                    <key xsi:type="xsd:string">max_subdomain</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">500</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">13</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">2</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">15</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">485</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_domain</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">-1</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">4</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">1</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">5</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">-1</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_wbk</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">0</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">0</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">0</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">0</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">0</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_ftpuser</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">-1</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">12</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">1</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">13</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">-1</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_sambauser</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">-1</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">0</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">3</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">3</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">-1</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_account</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">500</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">10</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">4</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">14</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">486</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_webspace</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">250000</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">60176</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">87700</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">60176</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">189824</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_database</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">50</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">13</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">4</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">17</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">33</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_mail_account</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">2000</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">39</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">15</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">54</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">1946</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_mail_forward</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">2000</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">37</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">0</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">37</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">1963</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_mailinglist</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">-1</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">11</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">0</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">11</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">-1</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">max_cronjobs</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">max</key>
+                                            <value xsi:type="xsd:int">50</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">exceeded</key>
+                                            <value xsi:type="xsd:boolean">false</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">reserved</key>
+                                            <value xsi:type="xsd:int">15</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">created</key>
+                                            <value xsi:type="xsd:int">0</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">used</key>
+                                            <value xsi:type="xsd:int">15</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">free</key>
+                                            <value xsi:type="xsd:int">35</value>
+                                        </item>
+                                    </value>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+            </return>
+        </ns1:KasApiResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
