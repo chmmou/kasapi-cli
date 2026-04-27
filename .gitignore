@@ -1,0 +1,25 @@
+# Go build artefacts
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+
+# Go module cache (should not normally appear in tree, but be safe)
+/vendor/
+
+# Local config / secrets
+*.env
+.env.*
+config.local.*
+kasctl.local.*
+
+# IDE / editor noise
+/.idea/
+/.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Local Claude Code settings (project-level skills are committed)
+.claude/settings.local.json

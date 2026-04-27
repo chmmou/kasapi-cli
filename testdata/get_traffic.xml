@@ -1,0 +1,1080 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns2="http://xml.apache.org/xml-soap" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <SOAP-ENV:Body>
+        <ns1:KasApiResponse>
+            <return xsi:type="ns2:Map">
+                <item>
+                    <key xsi:type="xsd:string">Request</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestTime</key>
+                            <value xsi:type="xsd:int">1772307640</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestType</key>
+                            <value xsi:type="xsd:string">get_traffic</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestParams</key>
+                            <value SOAP-ENC:arrayType="xsd:ur-type[0]" xsi:type="SOAP-ENC:Array"/>
+                        </item>
+                    </value>
+                </item>
+                <item>
+                    <key xsi:type="xsd:string">Response</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasFloodDelay</key>
+                            <value xsi:type="xsd:float">0.5</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnString</key>
+                            <value xsi:type="xsd:string">TRUE</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnInfo</key>
+                            <value xsi:type="ns2:Map">
+                                <item>
+                                    <key xsi:type="xsd:int">0</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">102273012</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">4552</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">comment</key>
+                                            <value xsi:type="xsd:string">traffic summary for 2026-02</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">01</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">01</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3388727</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">148</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">02</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3584142</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">162</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">03</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">03</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3860522</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">190</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">04</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">04</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">2648779</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">111</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">05</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">05</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">2990692</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">139</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">06</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">06</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">2549804</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">137</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">07</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">07</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3515792</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">141</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">08</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">08</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3622766</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">163</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">09</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">09</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">4200339</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">153</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">10</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">10</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3430941</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">135</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">11</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">11</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3561173</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">171</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">12</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">12</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">5146954</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">300</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">13</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">13</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">5270397</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">247</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">14</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">14</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">4332589</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">194</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">15</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">15</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">2793871</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">100</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">16</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">16</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3239656</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">118</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">17</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">17</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3612550</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">155</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">18</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">18</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3137575</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">121</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">19</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">19</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">5032644</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">202</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">20</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">20</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">5236034</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">238</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">21</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">21</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3116378</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">128</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">22</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">22</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">4226374</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">145</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">23</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">23</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3813857</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">189</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">24</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">24</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3926462</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">170</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">25</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">25</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">4977940</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">235</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">26</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">26</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3676471</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">203</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:int">27</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">********</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">02</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:int">27</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">3379583</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">157</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+            </return>
+        </ns1:KasApiResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
