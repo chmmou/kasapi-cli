@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasAuth>
+            <Params>
+                {
+                    "kas_login": "w0000000",
+                    "kas_auth_type": "plain",
+                    "kas_auth_data": "MyS3cr3tP@$sW0rD",
+                    "session_lifetime": 30000,
+                    "session_update_lifetime": "Y",
+                    "session_2fa": "012345"
+                }
+            </Params>
+        </tns:KasAuth>
+    </soapenv:Body>
+</soapenv:Envelope>
