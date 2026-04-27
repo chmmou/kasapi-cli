@@ -52,4 +52,4 @@ Read `AGENTS.md` and `docs/go/ARCHITECTURE.md` before opening a PR. The git work
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+BSD 3-Clause — see [LICENSE](LICENSE).
