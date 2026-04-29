@@ -14,9 +14,9 @@ When asked to "start" or "bootstrap", expect to be the one creating the module l
 
 There is no predecessor library and no inherited backlog. Do not assume or import patterns from any other KAS client; design from the KAS API docs and the fixtures in `testdata/`.
 
-## What kasctl Is
+## What kasapi-cli Is
 
-`kasctl` is a CLI for the **All-Inkl KAS API** (Kunden-Administrations-System — a SOAP/XML hosting-control API). The only external references for the API surface are:
+`kasapi-cli` is a CLI for the **All-Inkl KAS API** (Kunden-Administrations-System — a SOAP/XML hosting-control API). The only external references for the API surface are:
 
 - The two KAS endpoint URLs (auth and API), to be supplied by the user / config.
     - api: https://kasapi.kasserver.com/soap/KasApi.php
@@ -35,7 +35,7 @@ Go style, architecture, patterns, and linting rules for this repo live in:
 
 - `AGENTS.md` — top-level operating rules (always run `gofmt`/`goimports`, `go vet`, `golangci-lint`, `go test`; clean-architecture layering; no business logic depending on transport).
 - `docs/go/STYLE_GUIDE.md`
-- `docs/go/ARCHITECTURE.md` — clean-architecture layering: `cmd/kasctl` wires; domain/use cases in `internal/<domain>/`; SOAP/HTTP/CLI are outer-layer adapters.
+- `docs/go/ARCHITECTURE.md` — clean-architecture layering: `cmd/kasapi-cli` wires; domain/use cases in `internal/<domain>/`; SOAP/HTTP/CLI are outer-layer adapters.
 - `docs/go/PATTERNS.md`
 - `docs/go/LINTING.md` — CI gate set.
 
@@ -52,7 +52,7 @@ golangci-lint run ./...
 go test ./...
 go test -race ./...                     # for packages with concurrency
 go test ./internal/<pkg> -run TestXxx   # single test
-go build ./cmd/kasctl
+go build ./cmd/kasapi-cli
 ```
 
 There is no build/test runnable yet — running these in the current tree will fail until the module is bootstrapped.

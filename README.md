@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/logo.png" alt="kasctl logo" width="180">
+  <img src="assets/logo.png" alt="kasapi-cli logo" width="180">
 </p>
 
-# kasctl
+# kasapi-cli
 
 > [!IMPORTANT]
 > An independent open-source KAS-API CLI written in Go that communicates with the KAS-API from All-Inkl.com. Not affiliated with All-Inkl.com.
@@ -26,7 +26,7 @@ Early development. No functional Go code yet — the repository currently holds 
 
 ## What it does (planned)
 
-`kasctl` is a command-line client for the All-Inkl KAS-API. It wraps the SOAP/`ns2:Map` wire format the API uses, handles the `KasAuth` credential-token flow (plain or session, optional 2FA), enforces the `KasFloodDelay` between calls, and exposes read and write operations for the resources documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>:
+`kasapi-cli` is a command-line client for the All-Inkl KAS-API. It wraps the SOAP/`ns2:Map` wire format the API uses, handles the `KasAuth` credential-token flow (plain or session, optional 2FA), enforces the `KasFloodDelay` between calls, and exposes read and write operations for the resources documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>:
 
 - accounts, account settings, account resources
 - server information, space, space usage, traffic
@@ -43,29 +43,29 @@ Early development. No functional Go code yet — the repository currently holds 
 
 ## Configuration (planned)
 
-`kasctl` reads credentials from a config file or from environment variables (`KAS_LOGIN`, `KAS_AUTHDATA`, `KAS_AUTHTYPE`). Profiles let you switch between accounts. Secrets never appear in `--help` or in default log output.
+`kasapi-cli` reads credentials from a config file or from environment variables (`KAS_LOGIN`, `KAS_AUTHDATA`, `KAS_AUTHTYPE`). Profiles let you switch between accounts. Secrets never appear in `--help` or in default log output.
 
 ## Building
 
 Once the Go module is bootstrapped:
 
 ```sh
-go build ./cmd/kasctl
+go build ./cmd/kasapi-cli
 go test ./...
 ```
 
 ## Repository layout
 
-- `cmd/kasctl/` — CLI entry point (planned).
+- `cmd/kasapi-cli/` — CLI entry point (planned).
 - `internal/` — domain types, transport, mappers (planned).
 - `testdata/` — recorded KAS-API SOAP responses; the source of truth for response shape, used by offline parser tests.
 - `docs/go/` — Go style, architecture, patterns, and linting reference for this repo.
-- `.claude/skills/kasctl-git-workflow/` — git/PR workflow skill enforced for this project.
+- `.claude/skills/kasapi-cli-git-workflow/` — git/PR workflow skill enforced for this project.
 - `AGENTS.md`, `CLAUDE.md` — agent guidance.
 
 ## Contributing
 
-Read `AGENTS.md` and `docs/go/ARCHITECTURE.md` before opening a PR. The git workflow (branch naming, commit style, PR shape, CI gate) is captured in `.claude/skills/kasctl-git-workflow/SKILL.md`.
+Read `AGENTS.md` and `docs/go/ARCHITECTURE.md` before opening a PR. The git workflow (branch naming, commit style, PR shape, CI gate) is captured in `.claude/skills/kasapi-cli-git-workflow/SKILL.md`.
 
 ## License
 
