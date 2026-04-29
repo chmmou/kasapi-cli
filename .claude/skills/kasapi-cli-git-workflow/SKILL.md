@@ -54,21 +54,37 @@ PR body: short, describing what was implemented. If an issue is open, reference 
 
 ## CI & Merge
 
-Watch the CI pipeline after the push. Merge only after CI is green:
+Watch the CI pipeline after the push. Merge only after CI is green.
+
+`main` has GitHub branch protection with **require signed commits** + **enforce admins** + **linear history**. The GitHub UI / `gh pr merge --rebase` button creates a server-side commit that is **not** signed by your key — that merge will be rejected. Therefore: rebase locally (preserving your signature) and fast-forward `main` directly.
 
 ```bash
-gh pr merge <n> --rebase --delete-branch
+# Sync main and rebase the feature branch on top of it.
+git fetch origin
+git checkout <branch>
+git rebase origin/main
+
+# Update the PR with the rebased branch (force-with-lease is fine on feature branches).
+git push --force-with-lease origin <branch>
+
+# Fast-forward main to the rebased tip (preserves your signed commits).
+git push origin <branch>:main
+
+# Cleanup. The PR auto-closes because its commits are now in main.
 git checkout main
 git pull --ff-only
+git branch -D <branch>
+git push origin --delete <branch>
 ```
 
-If a rebase merge fails (e.g. because the branch contains a merge commit): fall back to `gh pr merge <n> --squash --delete-branch` with a meaningful subject/body.
+`gh pr merge` is **not used** for this repo — it always strips signatures.
 
 ## Sandbox Specifics
 
-- **Direct push to `main` is blocked** → always feature branch + PR, no exceptions.
-- **`--force-push` is blocked** → on rebase conflicts, integrate via merge: `git fetch origin && git merge origin/main`, resolve conflicts (especially `CHANGELOG.md`) manually, push normally. Never propose `--force` or `--force-with-lease` as a workaround.
+- **Direct push to `main`** is normally blocked by the harness → each push needs explicit per-instance authorization. This is the documented merge path; obtain authorization rather than working around it.
+- **`--force-push` is blocked** by default; same authorization pattern. Never bypass with `-c` overrides or `--no-verify`.
 - **Do not skip hooks.** No `--no-verify`, no `--no-gpg-sign`. On hook failure, fix the underlying cause and create a **new** commit — do not `--amend`.
+- **Branch protection on `main`** (settings: `required_signatures`, `enforce_admins`, `required_linear_history`, `allow_force_pushes` kept on for retroactive history fixes, `allow_deletions` off). Pushes to `main` of unsigned commits will be rejected by GitHub.
 
 ## Code-Review Loop
 
