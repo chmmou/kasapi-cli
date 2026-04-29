@@ -3,6 +3,15 @@
 > [!IMPORTANT]
 > An independent open-source KAS-API CLI written in Go that communicates with the KAS-API from All-Inkl.com. Not affiliated with All-Inkl.com.
 
+## Disclaimer
+
+This software is provided "as is", without any warranties of any kind.
+Use it at your own risk.
+
+The author assumes no liability for any damages or losses resulting from the use of this software, to the extent permitted by applicable law.
+
+This project is not intended for use in safety-critical or security-critical systems unless explicitly stated otherwise.
+
 ## Status
 
 Early development. No functional Go code yet — the repository currently holds documentation, agent guidance, and recorded KAS-API response fixtures used to drive offline parser tests. See the project board for the active roadmap.
