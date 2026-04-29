@@ -5,12 +5,16 @@
 
 ## Disclaimer
 
-This software is provided "as is", without any warranties of any kind.
-Use it at your own risk.
-
-The author assumes no liability for any damages or losses resulting from the use of this software, to the extent permitted by applicable law.
-
-This project is not intended for use in safety-critical or security-critical systems unless explicitly stated otherwise.
+> [!IMPORTANT]
+> This tool interacts with the KAS API and can modify domains, DNS records, and other account-related settings.
+>
+> Use this software at your own risk.
+>
+> The author assumes no liability for any damage, data loss, service disruption, or misconfiguration caused by the use of this tool, to the extent permitted by applicable law.
+>
+> Always verify commands and test changes in a safe environment before applying them to production systems.
+>
+> This project is not affiliated with or endorsed by All-Inkl.com.
 
 ## Status
 
