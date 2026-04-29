@@ -12,7 +12,7 @@
 *.env
 .env.*
 config.local.*
-kasctl.local.*
+kasapi-cli.local.*
 
 # IDE / editor noise
 /.idea/

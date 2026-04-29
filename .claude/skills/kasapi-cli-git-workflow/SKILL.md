@@ -1,9 +1,9 @@
 ---
-name: kasctl-git-workflow
-description: Git, commit, and PR workflow for kasctl. TRIGGER on every `git commit` / `git push` / `gh pr create` / `gh pr merge`, when creating a feature or fix branch, on rebase/merge conflicts against `main`, or when the user asks for a code-review pass. Adapted from the libqasapi `qasapi-module` skill, reduced to what applies to a fresh greenfield project.
+name: kasapi-cli-git-workflow
+description: Git, commit, and PR workflow for kasapi-cli. TRIGGER on every `git commit` / `git push` / `gh pr create` / `gh pr merge`, when creating a feature or fix branch, on rebase/merge conflicts against `main`, or when the user asks for a code-review pass. Adapted from the libqasapi `qasapi-module` skill, reduced to what applies to a fresh greenfield project.
 ---
 
-# kasctl Git Workflow
+# kasapi-cli Git Workflow
 
 Mandatory workflow for branches, commits, PRs, and review rounds. Applies only to git actions — the domain-specific module slicing from the libqasapi original is **not** carried over.
 
