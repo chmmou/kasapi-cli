@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="kasctl logo" width="180">
+</p>
+
 # kasctl
 
 > [!IMPORTANT]

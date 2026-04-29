@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg7c" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg7c)"/>
+  <g stroke="#fbbf24" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <polyline points="140,148 72,256 140,364"/>
+    <polyline points="372,148 440,256 372,364"/>
+  </g>
+  <text x="256" y="318" text-anchor="middle" font-family="ui-sans-serif,Inter,sans-serif" font-size="200" font-weight="900" fill="#f8fafc" letter-spacing="-8">kas</text>
+  <text x="256" y="430" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="30" font-weight="600" fill="#fcd34d" letter-spacing="6">API · CLI</text>
+</svg>
