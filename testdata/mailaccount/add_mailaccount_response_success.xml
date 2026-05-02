@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <SOAP-ENV:Body>
+        <ns1:KasApiResponse>
+            <return xsi:type="ns2:Map">
+                <item>
+                    <key xsi:type="xsd:string">Request</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestTime</key>
+                            <value xsi:type="xsd:int">1777736000</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestType</key>
+                            <value xsi:type="xsd:string">add_mailaccount</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestParams</key>
+                            <value xsi:type="ns2:Map">
+                                <item>
+                                    <key xsi:type="xsd:string">local_part</key>
+                                    <value xsi:type="xsd:string">info</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">domain_part</key>
+                                    <value xsi:type="xsd:string">example.com</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">webmail_autologin</key>
+                                    <value xsi:type="xsd:string">Y</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">responder</key>
+                                    <value xsi:type="xsd:string">N</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_responder_content_type</key>
+                                    <value xsi:type="xsd:string">text</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_responder_displayname</key>
+                                    <value xsi:type="xsd:string">Info</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">copy_adress</key>
+                                    <value xsi:type="xsd:string"></value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_sender_alias</key>
+                                    <value xsi:type="xsd:string"></value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_sent</key>
+                                    <value xsi:type="xsd:string">Sent</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_drafts</key>
+                                    <value xsi:type="xsd:string">Drafts</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_trash</key>
+                                    <value xsi:type="xsd:string">Trash</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_spam</key>
+                                    <value xsi:type="xsd:string">Spam</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_archiv</key>
+                                    <value xsi:type="xsd:string">Archive</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_allow_nets</key>
+                                    <value xsi:type="xsd:string"></value>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+                <item>
+                    <key xsi:type="xsd:string">Response</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasFloodDelay</key>
+                            <value xsi:type="xsd:float">0.5</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnString</key>
+                            <value xsi:type="xsd:string">TRUE</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnInfo</key>
+                            <value xsi:type="xsd:string">m0000001</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">Msg</key>
+                            <value SOAP-ENC:arrayType="ns2:Map[1]" xsi:type="SOAP-ENC:Array">
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">type</key>
+                                        <value xsi:type="xsd:string">success</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">text</key>
+                                        <value xsi:type="xsd:string">The mail account has been created. The automatically generated login is: <b>m0000001</b></value>
+                                    </item>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+            </return>
+        </ns1:KasApiResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

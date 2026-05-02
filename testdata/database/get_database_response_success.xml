@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <SOAP-ENV:Body>
+        <ns1:KasApiResponse>
+            <return xsi:type="ns2:Map">
+                <item>
+                    <key xsi:type="xsd:string">Request</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestTime</key>
+                            <value xsi:type="xsd:int">1777400216</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestType</key>
+                            <value xsi:type="xsd:string">get_databases</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestParams</key>
+                            <value xsi:type="ns2:Map">
+                                <item>
+                                    <key xsi:type="xsd:string">database_login</key>
+                                    <value xsi:type="xsd:string">d0123452</value>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+                <item>
+                    <key xsi:type="xsd:string">Response</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasFloodDelay</key>
+                            <value xsi:type="xsd:float">0.5</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnString</key>
+                            <value xsi:type="xsd:string">TRUE</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnInfo</key>
+                            <value SOAP-ENC:arrayType="ns2:Map[1]" xsi:type="SOAP-ENC:Array">
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">database_name</key>
+                                        <value xsi:type="xsd:string">d0123452</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">database_login</key>
+                                        <value xsi:type="xsd:string">d0123452</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">database_password</key>
+                                        <value xsi:type="xsd:string">REDACTED</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">database_comment</key>
+                                        <value xsi:type="xsd:string">my database comment</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">database_allowed_hosts</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_database_space</key>
+                                        <value xsi:type="xsd:float">0.0654296875</value>
+                                    </item>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+            </return>
+        </ns1:KasApiResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

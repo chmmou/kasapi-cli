@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <SOAP-ENV:Body>
+        <ns1:KasApiResponse>
+            <return xsi:type="ns2:Map">
+                <item>
+                    <key xsi:type="xsd:string">Request</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestTime</key>
+                            <value xsi:type="xsd:int">1777752316</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestType</key>
+                            <value xsi:type="xsd:string">get_softwareinstall</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestParams</key>
+                            <value xsi:type="ns2:Map">
+                                <item>
+                                    <key xsi:type="xsd:string">software_id</key>
+                                    <value xsi:type="xsd:string">joomla_v6.1.0</value>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+                <item>
+                    <key xsi:type="xsd:string">Response</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasFloodDelay</key>
+                            <value xsi:type="xsd:float">0.5</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnString</key>
+                            <value xsi:type="xsd:string">TRUE</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnInfo</key>
+                            <value SOAP-ENC:arrayType="ns2:Map[1]" xsi:type="SOAP-ENC:Array">
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Joomla!</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">CMS</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v6.1.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">joomla_v6.1.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,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</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">From a small, straightforward homepage to a large-scale Internet presence: The field of application Joomla provides, is versatile. Joomla allows most diverse solutions and is outstanding in adjusting itself to users needs.</value>
+                                    </item>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+            </return>
+        </ns1:KasApiResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

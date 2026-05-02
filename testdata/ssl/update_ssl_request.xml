@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "hostname": "example.com",
+                    "ssl_certificate_sni_key": "-----BEGIN PRIVATE KEY-----\nMIIE...placeholder...IDAQ==\n-----END PRIVATE KEY-----",
+                    "ssl_certificate_sni_crt": "-----BEGIN CERTIFICATE-----\nMIIF...placeholder...gQAA=\n-----END CERTIFICATE-----",
+                    "ssl_certificate_sni_csr": "",
+                    "ssl_certificate_sni_bundle": "",
+                    "ssl_certificate_is_active": "Y",
+                    "ssl_certificate_force_https": "Y",
+                    "ssl_certificate_hsts_max_age": "31536000"
+                },
+                "kas_action": "update_ssl",
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>

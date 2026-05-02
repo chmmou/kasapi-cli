@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "subdomain_name": "sub3",
+                    "domain_name": "example.com",
+                    "subdomain_path": "/sub3.example.com/",
+                    "redirect_status": "0",
+                    "statistic_version": "5",
+                    "statistic_language": "de",
+                    "php_version": "8.4"
+                },
+                "kas_action": "add_subdomain",
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>

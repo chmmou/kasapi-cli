@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "account_kas_password": "REDACTED",
+                    "account_ftp_password": "REDACTED",
+                    "hostname_art": "subdomain",
+                    "hostname_part1": "share",
+                    "hostname_part2": "example.com",
+                    "max_subdomain": "1",
+                    "max_webspace": "8192",
+                    "max_mail_account": "2",
+                    "max_mail_forward": "0",
+                    "max_mail_list": "0",
+                    "max_database": "1",
+                    "max_ftpuser": "0",
+                    "max_sambauser": "0",
+                    "max_cronjobs": "0",
+                    "max_wbk": "0",
+                    "inst_htaccess": "Y",
+                    "inst_software": "N",
+                    "logging": "kurz",
+                    "logage": "7",
+                    "statistic": "0",
+                    "dns_settings": "Y",
+                    "show_password": "N",
+                    "account_comment": "Demo subaccount",
+                    "account_contact_mail": "noreply@example.org"
+                },
+                "kas_action": "add_account",
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>

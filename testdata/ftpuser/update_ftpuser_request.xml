@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "ftp_login": "f0000004",
+                    "ftp_path": "/restrezept.app/",
+                    "ftp_new_password": "REDACTED",
+                    "ftp_comment": "FTP User Write Only",
+                    "ftp_permission_read": "Y",
+                    "ftp_permission_write": "Y",
+                    "ftp_permission_list": "Y",
+                    "ftp_virus_clamav": "Y"
+                },
+                "kas_action": "update_ftpuser",
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>

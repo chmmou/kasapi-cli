@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "zone_host": "example.com.",
+                    "record_type": "A",
+                    "record_name": "www",
+                    "record_data": "127.0.0.2",
+                    "record_aux": "0"
+                },
+                "kas_action": "add_dns_settings",
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>

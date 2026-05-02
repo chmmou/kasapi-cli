@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns2="http://xml.apache.org/xml-soap" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <SOAP-ENV:Body>
+        <ns1:KasApiResponse>
+            <return xsi:type="ns2:Map">
+                <item>
+                    <key xsi:type="xsd:string">Request</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestTime</key>
+                            <value xsi:type="xsd:int">1777747074</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestType</key>
+                            <value xsi:type="xsd:string">get_traffic</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestParams</key>
+                            <value SOAP-ENC:arrayType="xsd:ur-type[0]" xsi:type="SOAP-ENC:Array"/>
+                        </item>
+                    </value>
+                </item>
+                <item>
+                    <key xsi:type="xsd:string">Response</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasFloodDelay</key>
+                            <value xsi:type="xsd:float">0.5</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnString</key>
+                            <value xsi:type="xsd:string">TRUE</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnInfo</key>
+                            <value xsi:type="ns2:Map">
+                                <item>
+                                    <key xsi:type="xsd:int">0</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">w0000001</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">05</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">4104052</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">216</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">comment</key>
+                                            <value xsi:type="xsd:string">traffic summary for 2026-05</value>
+                                        </item>
+                                    </value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">01</key>
+                                    <value xsi:type="ns2:Map">
+                                        <item>
+                                            <key xsi:type="xsd:string">account_login</key>
+                                            <value xsi:type="xsd:string">w0000002</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">year</key>
+                                            <value xsi:type="xsd:string">2026</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">month</key>
+                                            <value xsi:type="xsd:string">05</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">day</key>
+                                            <value xsi:type="xsd:string">01</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_traffic</key>
+                                            <value xsi:type="xsd:int">4104052</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_traffic</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">http_hits</key>
+                                            <value xsi:type="xsd:int">216</value>
+                                        </item>
+                                        <item>
+                                            <key xsi:type="xsd:string">ftp_hits</key>
+                                            <value xsi:nil="true"/>
+                                        </item>
+                                    </value>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+            </return>
+        </ns1:KasApiResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

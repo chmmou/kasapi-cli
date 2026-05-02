@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "local_part": "info",
+                    "domain_part": "example.com",
+                    "mail_password": "REDACTED",
+                    "webmail_autologin": "Y",
+                    "responder": "N",
+                    "mail_responder_content_type": "text",
+                    "mail_responder_displayname": "Info",
+                    "responder_text": "",
+                    "copy_adress": "",
+                    "mail_sender_alias": "",
+                    "mail_xlist_sent": "Sent",
+                    "mail_xlist_drafts": "Drafts",
+                    "mail_xlist_trash": "Trash",
+                    "mail_xlist_spam": "Spam",
+                    "mail_xlist_archiv": "Archive",
+                    "mail_allow_nets": ""
+                },
+                "kas_action": "add_mailaccount",
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>

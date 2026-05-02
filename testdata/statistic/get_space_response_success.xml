@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <SOAP-ENV:Body>
+        <ns1:KasApiResponse>
+            <return xsi:type="ns2:Map">
+                <item>
+                    <key xsi:type="xsd:string">Request</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestTime</key>
+                            <value xsi:type="xsd:int">1777747366</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestType</key>
+                            <value xsi:type="xsd:string">get_space</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestParams</key>
+                            <value xsi:type="ns2:Map">
+                                <item>
+                                    <key xsi:type="xsd:string">show_subaccounts</key>
+                                    <value xsi:type="xsd:string">Y</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">show_details</key>
+                                    <value xsi:type="xsd:string">Y</value>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+                <item>
+                    <key xsi:type="xsd:string">Response</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasFloodDelay</key>
+                            <value xsi:type="xsd:float">0.5</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnString</key>
+                            <value xsi:type="xsd:string">TRUE</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnInfo</key>
+                            <value SOAP-ENC:arrayType="ns2:Map[5]" xsi:type="SOAP-ENC:Array">
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">account_login</key>
+                                        <value xsi:type="xsd:string">w0000001</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">last_calculation</key>
+                                        <value xsi:type="xsd:string">1777688517</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_htdocs_space</key>
+                                        <value xsi:type="xsd:string">4843107</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_chroot_space</key>
+                                        <value xsi:type="xsd:string">73727</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_database_space</key>
+                                        <value xsi:type="xsd:string">153942</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_mailaccount_space</key>
+                                        <value xsi:type="xsd:string">6877004</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_webspace</key>
+                                        <value xsi:type="xsd:int">11947780</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">max_webspace</key>
+                                        <value xsi:type="xsd:int">36454400</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">account_login</key>
+                                        <value xsi:type="xsd:string">w0000002</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">last_calculation</key>
+                                        <value xsi:type="xsd:string">1777688517</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_htdocs_space</key>
+                                        <value xsi:type="xsd:string">163725</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_chroot_space</key>
+                                        <value xsi:type="xsd:string">173274</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_database_space</key>
+                                        <value xsi:type="xsd:string">0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_mailaccount_space</key>
+                                        <value xsi:type="xsd:string">0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_webspace</key>
+                                        <value xsi:type="xsd:int">336999</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">max_webspace</key>
+                                        <value xsi:type="xsd:int">8388608</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">account_login</key>
+                                        <value xsi:type="xsd:string">w0000003</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">last_calculation</key>
+                                        <value xsi:type="xsd:string">1777688517</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_htdocs_space</key>
+                                        <value xsi:type="xsd:string">230105</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_chroot_space</key>
+                                        <value xsi:type="xsd:string">73739</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_database_space</key>
+                                        <value xsi:type="xsd:string">3708</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_mailaccount_space</key>
+                                        <value xsi:type="xsd:string">0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_webspace</key>
+                                        <value xsi:type="xsd:int">307552</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">max_webspace</key>
+                                        <value xsi:type="xsd:int">8388608</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">account_login</key>
+                                        <value xsi:type="xsd:string">w0000004</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">last_calculation</key>
+                                        <value xsi:type="xsd:string">1777688517</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_htdocs_space</key>
+                                        <value xsi:type="xsd:string">8272</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_chroot_space</key>
+                                        <value xsi:type="xsd:string">134538</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_database_space</key>
+                                        <value xsi:type="xsd:string">0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_mailaccount_space</key>
+                                        <value xsi:type="xsd:string">162</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_webspace</key>
+                                        <value xsi:type="xsd:int">142972</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">max_webspace</key>
+                                        <value xsi:type="xsd:int">8388608</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">account_login</key>
+                                        <value xsi:type="xsd:string">w0000005</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">last_calculation</key>
+                                        <value xsi:type="xsd:string">1777688517</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_htdocs_space</key>
+                                        <value xsi:type="xsd:string">30761</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_chroot_space</key>
+                                        <value xsi:type="xsd:string">121611</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_database_space</key>
+                                        <value xsi:type="xsd:string">0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_mailaccount_space</key>
+                                        <value xsi:type="xsd:string">0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">used_webspace</key>
+                                        <value xsi:type="xsd:int">152372</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">max_webspace</key>
+                                        <value xsi:type="xsd:int">83886080</value>
+                                    </item>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+            </return>
+        </ns1:KasApiResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

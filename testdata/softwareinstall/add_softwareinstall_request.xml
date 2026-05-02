@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "software_id": "joomla_v6.1.0",
+                    "software_database": "d0000000",
+                    "software_database_password": "REDACTED",
+                    "software_hostname": "example.com",
+                    "software_path": "/example.com/joomla/",
+                    "software_admin_mail": "admin@example.com",
+                    "software_admin_user": "admin",
+                    "software_admin_pass": "REDACTED",
+                    "software_install_example_data": "N",
+                    "language": "de"
+                },
+                "kas_action": "add_softwareinstall",
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>

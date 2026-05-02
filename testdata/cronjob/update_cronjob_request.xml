@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "cronjob_id": "324700",
+                    "protocol": "https",
+                    "http_url": "example.de/cron2.php",
+                    "cronjob_comment": "Hourly Cron Updated",
+                    "minute": "3",
+                    "hour": "2",
+                    "day_of_month": "*",
+                    "month": "*",
+                    "day_of_week": "3",
+                    "http_user": "",
+                    "http_password": "",
+                    "mail_adress": "cronjob@example.de",
+                    "mail_condition": "no-mail",
+                    "mail_subject": "comment",
+                    "is_active": "N"
+                },
+                "kas_action": "update_cronjob",
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>

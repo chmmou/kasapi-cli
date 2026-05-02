@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "dyndns_comment": "Home router",
+                    "dyndns_password": "REDACTED",
+                    "dyndns_zone": "example.com",
+                    "dyndns_label": "home",
+                    "dyndns_target_ip": "203.0.113.42",
+                    "dyndns_dual_stack": "Y"
+                },
+                "kas_action": "add_ddnsuser",
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>

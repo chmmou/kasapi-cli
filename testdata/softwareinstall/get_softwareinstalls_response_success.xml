@@ -1,0 +1,1672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns2="http://xml.apache.org/xml-soap" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <SOAP-ENV:Body>
+        <ns1:KasApiResponse>
+            <return xsi:type="ns2:Map">
+                <item>
+                    <key xsi:type="xsd:string">Request</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestTime</key>
+                            <value xsi:type="xsd:int">1777752119</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestType</key>
+                            <value xsi:type="xsd:string">get_softwareinstall</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">KasRequestParams</key>
+                            <value SOAP-ENC:arrayType="xsd:ur-type[0]" xsi:type="SOAP-ENC:Array"/>
+                        </item>
+                    </value>
+                </item>
+                <item>
+                    <key xsi:type="xsd:string">Response</key>
+                    <value xsi:type="ns2:Map">
+                        <item>
+                            <key xsi:type="xsd:string">KasFloodDelay</key>
+                            <value xsi:type="xsd:float">0.5</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnString</key>
+                            <value xsi:type="xsd:string">TRUE</value>
+                        </item>
+                        <item>
+                            <key xsi:type="xsd:string">ReturnInfo</key>
+                            <value SOAP-ENC:arrayType="ns2:Map[22]" xsi:type="SOAP-ENC:Array">
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Concrete CMS</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">CMS</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v9.4.6</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">https://www.concretecms.org/open-source-license</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">concrete5_v9.4.6</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">Using Concrete CMS, websites can be created easily and intuitionally. The administration of contents as well as the site's structure is handled via the frontend, in other words on the website itself.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Joomla!</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">CMS</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v6.1.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">joomla_v6.1.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">From a small, straightforward homepage to a large-scale Internet presence: The field of application Joomla provides, is versatile. Joomla allows most diverse solutions and is outstanding in adjusting itself to users needs.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Joomla!</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">CMS</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v5.4.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">joomla_v5.4.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">From a small, straightforward homepage to a large-scale Internet presence: The field of application Joomla provides, is versatile. Joomla allows most diverse solutions and is outstanding in adjusting itself to users needs.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">MODX Revolution</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">CMS</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">3.1.2</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">modx_v3.1.2</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">10.12</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">MODX is a free to use content management system (CMS) and application framework (CMF) to quickly and efficiently develop and administrate complex websites and applications.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">TYPO3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">CMS</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v13.4.26</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">typo3_v13.4.26</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">TYPO3 is an efficient CMS and is outstanding in adjusting itself to most diverse and strongly customized needs. Especially when it comes to large-scale and complex web projects, Typo3 can fully unfold its advantages.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">TYPO3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">CMS</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v12.4.43</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">typo3_v12.4.43</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">TYPO3 is an efficient CMS and is outstanding in adjusting itself to most diverse and strongly customized needs. Especially when it comes to large-scale and complex web projects, Typo3 can fully unfold its advantages.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">WBCE</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">CMS</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v1.6.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">wbce_v1.6.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">WBCE is a further development of the content management system WebsiteBaker. The open source CMS provides a contemporary backend, a high versatility and is easy to use.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">FlatPress</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Blog</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v1.4.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">https://www.gnu.org/licenses/old-licenses/gpl-2.0.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">flatpress_v1.4.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">With the free blog software FlatPress you can create your own blog quickly and easily - and without a database. Appearance and functionality can be customized with themes and plugins.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">WordPress</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Blog</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v6.9.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">wordpress_v6.9.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">Wordpress is a versatile and easy to use blog software for creating and administrating websites. The graphical user interface (GUI) is user friendly and special skills regarding HTML, PHP or CSS are not needed.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">MyBB</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Forum</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v1.8.39</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">mybb_v1.8.39</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.2</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">MyBB is a free to use board software containing many features. The software is particularly characterized by its ease of handling.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">phpBB</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Forum</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v3.3.15</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">phpbb_v3.3.15</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.2</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">The board software phpBB provides many options to individually create boards using numerous plugins and addons.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Lychee</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Bildergalerie</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v7.3.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">https://raw.githubusercontent.com/LycheeOrg/Lychee/master/LICENSE</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">lychee_v7.3.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">10.12</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAYEBAQFBAYFBQYJBgUGCQsIBgYICwwKCgsKCgwQDAwMDAwMEAwODxAPDgwTExQUExMcGxsbHCAgICAgICAgICD/2wBDAQcHBw0MDRgQEBgaFREVGiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCABkAGQDAREAAhEBAxEB/8QAHQAAAQQDAQEAAAAAAAAAAAAAAAECBAgDBgcFCf/EAD8QAAAFAQQGBgcHAwUAAAAAAAABAgMEBQYHERMSFCExM2EIIkFScYEYI1FTkrHRFjI2VVaRoUNydBc0k5Sy/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AK+OvO5quse8AzOd7xgDOd7xgDOd7xgDOd7xgDOd7xgDOd7xgDOd7xgDOd7xgDOd7xgDOd7xgDOd7xgJcVx3K++e8BEe4qvEBjAAAAAAxAKAQAAAAAABNiH6rzARXuKrxAMAAAAABAGeBAqNRkFHpsN6a+rYlthCl/yWwB0yn9Gm9KTQ5VWlRm6fqzRvJhPn69ZJLSMsCxIjwIBytKsS3YH2pPeR+wwDgAAAEyJwvMBGe4qvEAwAgBDcQRkRn1j3J7TAbzY+5S8y1mC6dSVRohkR63NPIQZH2pxx0gHdbF9EGzsPQkWsnOVR/YerMmbTJH7D7wDt1nLHWXs3FKNQ6axAaIsPVJIjPxPeYD2FJSpJpUWKVFgZH7DAUFvrsadkbyapTkJ0Yco9dh4btB7aZF/aewBowBQCAJsTheYCK9xVeIBgDqtydxiryGpVRkVQoNMgvpZeZbLF9eKdLYe4i8QFobF3HXb2TbQcGktPzE75slJOOnj47P4Ab6lCUJJKCJKS3JLYQBQGk3n3sWau+pGuVJefNd6sSnNqLOdV4HuLmYDULkekJBt447SKwy3TLQoxWyySiy32zPZl47dIu0gGvdL2xCp1noVrYzek/SDyZZpLbq7itqjPkYCqABQCAJsXheYCK9xVeIBgDs/RVtoVEvAcokhWESvpJDeJ7NYQR6P7pIB1rpKXtWjsuim2bsz6urVc+tKwxUhHYlBbsVGA0Fm6TpOPNIe+0Ck5qSXoqkqIy0tuBliAf/o90nP1Ef8A2lfUB4dT6M19lVmnOqkqPNmGWjnvvGtWBdhGYDCx0WL348huTHXEZkMnpMvIdMlpMu0j7AHtz7j+kfUIbsKfWkyoj5aLzDshSkKL2GWIDU630ab0aNSZNUkNRnY8NBuvIaXivQSWKjIuRAOVpUSkkZbjAKAmxOF5gIrx+tV4gGAM9PqMimVOHU4yjRIgvtvtqLf1Fbf4Adzv5rcev2su7rsY8WKnHYkJ5GpW0vIBbaJ/tWf7E/IA1E6GuW5ES8g5TREpxkj6xErcZlzAZwESp1el0qMcmpSmokct7ryiQnZzMBqVm76LvrS2nXZujVDWqghs3tJKDylEW8kubjMB7F4X4Gr3+C//AODAfOZnhl5/MBkATIp+q8wEV7iq8QDAAe0gHv06vTps6y1NfPSZpctCIx9ugtWOj5YAPoYcpmJStafVossMZjij7EoRif8ABAKMvX22kZvak28hOKU2p7KOFpHoOwkdUkH2fd2gLSVm/wCsVT7uo9s23SfKakiiU5K055vn/TUXZonvMBTK2dtrR2yrMirVuU4tT6jNuIS1ZTSOxCU7thAMNjbRv2VtVSq/ELr0+Qha0F1dJBnoqSeHJQC+lq6nHql2NTqMY8WJdMcebPkprEB88meGXn8wDwEyJwvMBGe4qvEAwAAJ1A/EdI/zWfmAu/foisuXPVRmjNuvTnWWm0NslpLNKjIlYF4AKWIsFbpKEpKzlQwIsOCYBfsFbv8ATtQwLaRZJ4EZ7zLxAL9hLd/pyof8JgGrsFbs0/h2oby/on7QF2iYfYuMNl9tTLzdFUlxpZYKSZM7jIBQdnhl5/MBkATInC8wEV7iq8QDAAAk0uS3Fq8CW7jlRpDbrmG/RSe3ABeKL0hLoziM41xsuonFKkniWztIBk9IG6D88Z+E/oAPSBug/PWfhP6AD0gboPz1n4T+gA9IG6D89Z+E/oA8S3N/l1cmx9Xixawl+RIiussstpM1KWtJkkv3AUoaIyQRGAeAmReF5gIz3FV4gGAAAAGZLPu0/sQBMln3afhIAZLPu0/CQAyWfdp+EgBks+7T+xAFJpojxJCSP24EAeAAEyJwvMBFe4qvEAwAAAAAAAAAAAAAAABMicLzAOditZqt+8A3VWuYA1VrmANUa5gDVWuYA1VrmANUa5gDVWuYA1VrmANVa5gDVWuYA1VrmAlxYjRtdu/2gP/Z</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">Using the open source software Lychee you are able to conveniently and securely manage photos and even entire photo albums and to share them publicly.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Piwigo</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Bildergalerie</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v16.2.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">piwigo_v16.2.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/jpeg;base64,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</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">Piwigo (formerly PHPWebGallery) is a free software which allows you to create your own web photo galleries. Piwigo can be easily adjusted to your custom needs.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">PrestaShop</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Shop</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v8.2.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">https://opensource.org/licenses/OSL-3.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">prestashop_v8.2.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">Setting up a professional online shop - it's easy to realize using the shop software PrestaShop. You have access to thousands of professional templates.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Shopware</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Shop</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v6.7.9.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">https://raw.githubusercontent.com/shopware/platform/trunk/LICENSE</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">shopware_v6.7.9.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.11</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string">requires MariaDB 10.11</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">DokuWiki</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Wiki</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v2025-05-14b</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">https://www.gnu.org/licenses/old-licenses/gpl-2.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">dokuwiki_v2025-05-14b</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">DokuWiki is an easy-to-use and extremely versatile wiki software. DokuWiki works on the basis of PHP and does not require a database.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">MediaWiki</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Wiki</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v1.45.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">mediawiki_v1.45.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">The MediaWiki software is an open source Wiki software for gathering and recording experiences and knowledge.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Nextcloud</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Cloud</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v33.0.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/agpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">nextcloud_v33.0.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.2</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">Nextcloud allows you to easily and quickly create a cloud environment. Data can be obtained and transferred anytime and from anywhere as well as it can be shared with other users.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Kanboard</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Sonstiges</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v1.2.50</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">https://raw.githubusercontent.com/kanboard/kanboard/main/LICENSE</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">kanboard_v1.2.50</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">Always keep an eye on the current project status - it's no big deal with Kanboard, the easy to use project management software.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Mantis Bug Tracker</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Sonstiges</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v2.26.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">mantisbt_v2.26.1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.2</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.2</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">The bugtracking system Mantis Bugtracker can be used for detecting and logging errors as well as for the administration of feature requests.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">Matomo</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Sonstiges</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v5.6.2</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">http://www.gnu.org/licenses/gpl.html</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">matomo_v5.6.2</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.4</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">For all website owners who stress web analysis and data protection, Matomo is an alternative solution to other analyzing tools. All data is stored on your own server.</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">software_name</key>
+                                        <value xsi:type="xsd:string">phpMyFAQ</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_category</key>
+                                        <value xsi:type="xsd:string">Sonstiges</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_has_example_data</key>
+                                        <value xsi:type="xsd:string">N</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version</key>
+                                        <value xsi:type="xsd:string">v4.1.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_licence</key>
+                                        <value xsi:type="xsd:string">https://raw.githubusercontent.com/thorsten/phpMyFAQ/main/LICENSE</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_id</key>
+                                        <value xsi:type="xsd:string">phpmyfaq_v4.1.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_upto</key>
+                                        <value xsi:type="xsd:string">8.3</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_htaccess</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_php_want_cgi</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mysql_upto</key>
+                                        <value xsi:type="xsd:string">0.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb</key>
+                                        <value xsi:type="xsd:string">10.5</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_version_mariadb_upto</key>
+                                        <value xsi:type="xsd:string">12.0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_installed</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">software_can_be_message</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">image</key>
+                                        <value xsi:type="xsd:string">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAeImBZsAAAAASUVORK5CYII=</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">description</key>
+                                        <value xsi:type="xsd:string">phpMyFAQ is a multilingual, database-based and scalable FAQ system. It provides numerous features such as the management of users, groups, news, categories, FAQ entries and comments.</value>
+                                    </item>
+                                </item>
+                            </value>
+                        </item>
+                    </value>
+                </item>
+            </return>
+        </ns1:KasApiResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

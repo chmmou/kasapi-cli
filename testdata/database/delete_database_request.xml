@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
+    <soapenv:Body>
+        <tns:KasApi>
+            <Params>
+            {
+                "KasRequestParams": {
+                    "database_login": "d0123456"
+                },
+                "kas_action": "delete_database",
+                "kas_auth_data": "{{kas_auth_data_session}}",
+                "kas_auth_type": "{{kas_auth_type_session}}",
+                "kas_login": "{{kas_login}}"
+            }
+            </Params>
+        </tns:KasApi>
+    </soapenv:Body>
+</soapenv:Envelope>
