@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/auth` KasAuth.php credential-token client: separate codec
+  (`tns:KasAuth` envelope, bare `xsd:string` token in `<return>`),
+  `Client.GetCredentialToken(ctx)` returning the 40-character token,
+  `Options{Lifetime, UpdateLifetime, OTP}` for the optional
+  `session_lifetime`, `session_update_lifetime`, and 2FA
+  `session_2fa` parameters. Faults surface as typed `*Error` with
+  helpers `IsLoginFailed`, `IsLoginLocked`, `IsOTPPinIncorrect`,
+  `IsUnknownSession`. `SessionTokenSource` adapts the client to the
+  `api.TokenSource` interface, caching the token and re-fetching on
+  `Invalidate` so `api.Client` can refresh transparently after an
+  auth failure. (Closes #5.)
 - `internal/api` generic KasApi.php call surface composing the soap codec
   with the http transport: `Client.Call(ctx, action, params)` encodes,
   posts, decodes, and feeds the server-reported `KasFloodDelay` back to
