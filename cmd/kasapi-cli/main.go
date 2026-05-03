@@ -17,6 +17,7 @@ func main() {
 	root.AddCommand(
 		cli.NewAccountCmd(opts),
 		cli.NewServerCmd(opts),
+		cli.NewConfigCmd(opts),
 	)
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, "kasapi-cli:", err)

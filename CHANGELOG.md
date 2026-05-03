@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `kasapi-cli config` subcommand tree for first-run bootstrap and
+  inspection without hand-writing TOML: `config init` interactively
+  prompts for `login`, `auth_type` (`session`|`plain`, defaulting to
+  `session`), and `auth_data` (hidden via `golang.org/x/term.ReadPassword`),
+  writes the profile to the resolved config path with mode `0600`
+  (parent dirs created `0700`, atomic temp+rename), refuses to
+  overwrite an existing profile unless `--force`, and offers to set
+  `default_profile` when none is configured. `--profile` selects the
+  profile name (default `main`). Non-TTY stdin fails fast with a clear
+  error so CI and pipes do not hang. `config show` prints the resolved
+  effective configuration after the flag/env/profile merge with
+  `auth_data` redacted via `Credentials.String`. `config path` prints
+  the resolved config-file path. `config.Save` is the new persistence
+  helper that backs `config init`. (Closes #34.)
 - `--otp`, `--session-lifetime`, and `--session-update-lifetime`
   persistent flags on the root command, exposing the optional KasAuth
   parameters (`session_2fa`, `session_lifetime`, and

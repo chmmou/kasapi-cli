@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -65,6 +66,57 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("config: %s: %w", path, err)
 	}
 	return &cfg, nil
+}
+
+// Save writes c as TOML to path. Empty path resolves to DefaultPath.
+// Parent directories are created with mode 0700; the file is written
+// with mode 0600. The write goes through a temp file in the same
+// directory and an atomic rename so a crash mid-write cannot corrupt
+// an existing config.
+func (c *Config) Save(path string) error {
+	if path == "" {
+		var err error
+		path, err = DefaultPath()
+		if err != nil {
+			return err
+		}
+	}
+	if err := c.validate(); err != nil {
+		return fmt.Errorf("config: %w", err)
+	}
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return fmt.Errorf("config: create dir %s: %w", dir, err)
+	}
+	tmp, err := os.CreateTemp(dir, ".config-*.toml")
+	if err != nil {
+		return fmt.Errorf("config: create temp: %w", err)
+	}
+	tmpPath := tmp.Name()
+	cleanup := func() { _ = os.Remove(tmpPath) }
+	if err := tmp.Chmod(0o600); err != nil {
+		_ = tmp.Close()
+		cleanup()
+		return fmt.Errorf("config: chmod %s: %w", tmpPath, err)
+	}
+	if err := c.encode(tmp); err != nil {
+		_ = tmp.Close()
+		cleanup()
+		return fmt.Errorf("config: encode: %w", err)
+	}
+	if err := tmp.Close(); err != nil {
+		cleanup()
+		return fmt.Errorf("config: close temp: %w", err)
+	}
+	if err := os.Rename(tmpPath, path); err != nil {
+		cleanup()
+		return fmt.Errorf("config: rename to %s: %w", path, err)
+	}
+	return nil
+}
+
+func (c *Config) encode(w io.Writer) error {
+	return toml.NewEncoder(w).Encode(c)
 }
 
 func (c *Config) validate() error {
