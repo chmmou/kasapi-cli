@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/config` profile-aware credentials loader: TOML config under
+  the OS-specific user-config path (XDG on Linux), multi-profile, with
+  resolution precedence flag > env > profile > default profile. Env
+  fallback via `KAS_LOGIN`, `KAS_AUTHDATA`, `KAS_AUTHTYPE`. Auth-data
+  is redacted by `Credentials.String` so secrets do not surface in
+  logs or `--help`. Validates `auth_type` (`plain` or `session`) and
+  reports missing required fields. (Closes #2.)
 - `internal/soap` codec for the KAS-API envelope: `Value` discriminated
   union mirroring the Apache xml-soap `ns2:Map` shape (xsi:type:
   string/int/float/boolean, ns2:Map, SOAP-ENC:Array), `Decode` for
