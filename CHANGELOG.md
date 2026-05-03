@@ -28,6 +28,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `kasapi-cli config init`: rename the local `--profile` flag to
+  `--name` so it no longer shadows the persistent root `--profile`
+  flag. Previously `kasapi-cli --profile X config init` silently
+  reverted to the local default `main` instead of writing profile `X`.
+  The persistent `--profile` flag continues to select which profile is
+  *used* at runtime; `--name` selects which profile is *written*.
+- Replace the legacy direct `err == io.EOF` / `err != io.EOF`
+  comparisons in `internal/cli/confirm.go` and `internal/auth/codec.go`
+  with `errors.Is(err, io.EOF)` so wrapped EOF values are still
+  recognised.
+
 - `internal/transport`: drop the manual `Accept-Encoding: gzip`
   request header. `net/http` only decompresses gzip responses
   transparently when the caller has *not* set that header; the manual

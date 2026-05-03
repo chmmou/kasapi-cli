@@ -113,7 +113,7 @@ func newConfigInitCmd(opts *RootOptions) *cobra.Command {
 			return runConfigInit(opts.ConfigPath, profileName, force, cio)
 		},
 	}
-	cmd.Flags().StringVar(&profileName, "profile", "main", "profile name to write")
+	cmd.Flags().StringVar(&profileName, "name", "main", "profile name to write (the persistent --profile flag selects which profile is *used* at runtime)")
 	cmd.Flags().BoolVar(&force, "force", false, "overwrite an existing profile of the same name")
 	return cmd
 }
@@ -148,7 +148,7 @@ func runConfigInit(configPath, profileName string, force bool, cio configIO) err
 		return UserError(errors.New("kasapi-cli config init requires an interactive terminal (stdin is not a TTY)"), "")
 	}
 	if profileName == "" {
-		return UserError(errors.New("--profile must not be empty"), "")
+		return UserError(errors.New("--name must not be empty"), "")
 	}
 	path, err := resolveConfigPath(configPath)
 	if err != nil {

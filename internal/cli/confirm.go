@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -20,7 +21,7 @@ func Confirm(in io.Reader, out io.Writer, prompt string) (bool, error) {
 	}
 	r := bufio.NewReader(in)
 	line, err := r.ReadString('\n')
-	if err != nil && err != io.EOF {
+	if err != nil && !errors.Is(err, io.EOF) {
 		return false, err
 	}
 	switch strings.ToLower(strings.TrimSpace(line)) {

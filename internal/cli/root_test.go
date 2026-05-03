@@ -101,6 +101,28 @@ func TestRootRejectsUnknownFlag(t *testing.T) {
 	}
 }
 
+// TestConfigInitDoesNotShadowRootProfile guards against the local
+// --profile flag on `config init` reappearing and silently overriding
+// the persistent root --profile. The local flag is now --name; the
+// root --profile must still bind to opts.Profile when the subcommand
+// runs.
+func TestConfigInitDoesNotShadowRootProfile(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewConfigCmd(opts))
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	// `config init` requires a TTY → it will exit with a user error before
+	// any prompt. We only need to assert that flag parsing succeeded and
+	// the root --profile reached opts.
+	root.SetArgs([]string{"--profile", "prod", "config", "init", "--name", "staging"})
+	_ = root.Execute()
+	if opts.Profile != "prod" {
+		t.Errorf("root --profile = %q, want prod (was the local --name flag shadowing it?)", opts.Profile)
+	}
+}
+
 func TestRootDefaultOutputIsTable(t *testing.T) {
 	t.Parallel()
 	root, opts := cli.NewRootCmd()

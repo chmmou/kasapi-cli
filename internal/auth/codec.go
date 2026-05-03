@@ -76,7 +76,7 @@ func DecodeResponse(r io.Reader) (string, error) {
 	dec := xml.NewDecoder(r)
 	for {
 		tok, err := dec.Token()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			return "", errors.New("auth: empty document")
 		}
 		if err != nil {
