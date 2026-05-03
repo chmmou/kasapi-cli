@@ -12,9 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--otp` persistent flag on the root command for the optional 2FA
   one-time PIN. The value is plumbed through `BuildAPIClient` into
   `auth.Options{OTP: ...}` so `auth.SessionTokenSource` forwards it
-  to KasAuth on the credential-token request. Combining `--otp` with
-  `auth_type=plain` is rejected up front with a user-error exit code,
-  since plain auth bypasses KasAuth entirely.
+  to KasAuth as `session_2fa` on the credential-token request. The
+  `--auth-type` and `--otp` help texts spell out that the KAS docs
+  only cover `session_2fa` on the KasAuth bootstrap (i.e. our
+  `auth_type=session` strategy), so combining `--otp` with
+  `auth_type=plain` is rejected up front with a user-error exit
+  code and a message that points to the correct strategy.
 - `internal/account` and `internal/server` read modules with the first
   end-to-end CLI subcommands: `kasapi-cli accounts list` (`get_accounts`),
   `kasapi-cli accounts get` (`get_accountsettings`), `kasapi-cli accounts

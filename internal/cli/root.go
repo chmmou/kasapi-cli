@@ -70,8 +70,12 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 	pf.StringVar(&opts.Profile, "profile", "", "profile to select from the config file (overrides default_profile)")
 	pf.StringVar(&opts.Login, "login", "", "KAS login (overrides config and KAS_LOGIN)")
 	pf.StringVar(&opts.AuthData, "auth-data", "", "KAS auth data (overrides config and KAS_AUTHDATA)")
-	pf.StringVar(&opts.AuthType, "auth-type", "", "KAS auth type, plain or session (overrides config and KAS_AUTHTYPE)")
-	pf.StringVar(&opts.OTP, "otp", "", "2FA one-time PIN passed to KasAuth (only used with auth_type=session)")
+	pf.StringVar(&opts.AuthType, "auth-type", "",
+		"KAS auth strategy: 'plain' = send password on each KasApi call (no KasAuth, no 2FA support); "+
+			"'session' = bootstrap via KasAuth and reuse the credential token. Overrides config and KAS_AUTHTYPE.")
+	pf.StringVar(&opts.OTP, "otp", "",
+		"2FA one-time PIN — sent to KasAuth as session_2fa during the credential-token bootstrap. "+
+			"Requires auth_type=session; the KAS API does not document 2FA on direct kas_auth_type=plain calls.")
 	pf.StringVarP(&opts.OutputRaw, "output", "o", "", fmt.Sprintf("output format: %s (default %s)", joinFormats(), DefaultFormat))
 	pf.BoolVar(&opts.NoColor, "no-color", false, "disable coloured output")
 	pf.BoolVarP(&opts.Verbose, "verbose", "v", false, "enable verbose logging on stderr")
