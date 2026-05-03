@@ -63,6 +63,15 @@ func (s *SessionTokenSource) Credentials(ctx context.Context) (string, string, s
 			s.token = e.Token
 			s.expiresAt = e.ExpiresAt
 			if s.cachedValid() {
+				// Adopt the server-side properties of this session so
+				// later Heartbeats use the lifetime the session was
+				// created with, not whatever flags the current CLI run
+				// happens to carry. session_update_lifetime is a
+				// KasAuth-time decision, not a runtime knob.
+				if e.LifetimeSeconds > 0 {
+					s.Lifetime = time.Duration(e.LifetimeSeconds) * time.Second
+				}
+				s.UpdateLifetime = e.UpdateLifetime
 				return s.Client.Login, s.token, soap.AuthSession, nil
 			}
 			s.token = ""

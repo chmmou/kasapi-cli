@@ -50,6 +50,7 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 
 	tr := transport.New()
 	ts, err := tokenSource(tr, creds, sessionOpts{
+		ConfigPath:     opts.ConfigPath,
 		OTP:            opts.OTP,
 		Lifetime:       opts.SessionLifetime,
 		UpdateLifetime: opts.SessionUpdateLifetime,
@@ -61,8 +62,11 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 }
 
 // sessionOpts groups the KasAuth-only flag values plumbed through to
-// auth.Options. All fields are optional; zero values mean "omit".
+// auth.Options plus the resolved --config path so the session store
+// can live next to a custom config file. All fields are optional;
+// zero values mean "omit" / "default location".
 type sessionOpts struct {
+	ConfigPath     string
 	OTP            string
 	Lifetime       int
 	UpdateLifetime string
@@ -93,7 +97,11 @@ func tokenSource(tr *transport.Client, creds config.Credentials, s sessionOpts) 
 		}
 		authClient := auth.New(tr, creds.Login, creds.AuthData, soap.AuthPlain, authOpts)
 		src := auth.NewSessionTokenSource(authClient)
-		store, serr := session.New("")
+		storePath, serr := session.PathFor(s.ConfigPath)
+		if serr != nil {
+			return nil, fmt.Errorf("session store: %w", serr)
+		}
+		store, serr := session.New(storePath)
 		if serr != nil {
 			return nil, fmt.Errorf("session store: %w", serr)
 		}

@@ -150,6 +150,31 @@ func TestDeleteMissingIsNoop(t *testing.T) {
 	}
 }
 
+func TestPathForCustomConfig(t *testing.T) {
+	got, err := session.PathFor("/tmp/custom/config.toml")
+	if err != nil {
+		t.Fatalf("PathFor: %v", err)
+	}
+	want := "/tmp/custom/sessions.toml"
+	if got != want {
+		t.Errorf("PathFor = %q, want %q", got, want)
+	}
+}
+
+func TestPathForEmptyFallsBackToDefault(t *testing.T) {
+	got, err := session.PathFor("")
+	if err != nil {
+		t.Fatalf("PathFor: %v", err)
+	}
+	def, err := session.DefaultPath()
+	if err != nil {
+		t.Fatalf("DefaultPath: %v", err)
+	}
+	if got != def {
+		t.Errorf("PathFor(\"\") = %q, want %q", got, def)
+	}
+}
+
 func TestSaveWritesMode0600(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("file mode bits not meaningful on Windows")

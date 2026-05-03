@@ -78,6 +78,17 @@ func DefaultPath() (string, error) {
 	return filepath.Join(dir, "kasapi-cli", "sessions.toml"), nil
 }
 
+// PathFor returns the sessions file path that pairs with configPath.
+// Empty configPath resolves to DefaultPath. Otherwise the file lives
+// next to the config file as sessions.toml so a custom --config flag
+// keeps both halves of the on-disk state colocated.
+func PathFor(configPath string) (string, error) {
+	if configPath == "" {
+		return DefaultPath()
+	}
+	return filepath.Join(filepath.Dir(configPath), "sessions.toml"), nil
+}
+
 // Load returns the entry stored for login. nil is returned (without
 // error) when the file is absent, the login is not present, or the
 // entry has expired; expired entries are best-effort removed.

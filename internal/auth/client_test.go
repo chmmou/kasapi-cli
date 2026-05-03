@@ -283,6 +283,49 @@ func TestSessionTokenSourceHeartbeatExtendsExpiry(t *testing.T) {
 	}
 }
 
+func TestSessionTokenSourceAdoptsLifetimeFromCachedEntry(t *testing.T) {
+	// Source created with no lifetime / update flags (e.g. a CLI run
+	// without the KasAuth flags). It picks up a token persisted by an
+	// earlier run that *did* enable session_update_lifetime, and must
+	// honour those server-side properties on Heartbeat.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		t.Error("server should not be reached when a valid cached token exists")
+	}))
+	defer srv.Close()
+
+	tNow := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	store := newStore(t, tNow)
+	if err := store.Save("w0", session.Entry{
+		Token:           "cached",
+		ExpiresAt:       tNow.Add(time.Hour),
+		LifetimeSeconds: 3600,
+		UpdateLifetime:  true,
+	}); err != nil {
+		t.Fatalf("seed Save: %v", err)
+	}
+
+	src := auth.NewSessionTokenSource(newAuthClient(srv, "w0", "secret", soap.AuthPlain, auth.Options{}))
+	src.Store = store
+	src.Now = func() time.Time { return tNow }
+
+	if _, _, _, err := src.Credentials(context.Background()); err != nil {
+		t.Fatalf("Credentials: %v", err)
+	}
+
+	tNow = tNow.Add(15 * time.Minute)
+	store.Now = func() time.Time { return tNow }
+	src.Heartbeat()
+
+	got, _ := store.Load("w0")
+	if got == nil {
+		t.Fatal("expected entry after Heartbeat")
+	}
+	want := tNow.Add(time.Hour)
+	if !got.ExpiresAt.Equal(want) {
+		t.Errorf("ExpiresAt after adopted-Heartbeat = %v, want %v (lifetime should come from cached entry)", got.ExpiresAt, want)
+	}
+}
+
 func TestSessionTokenSourceHeartbeatNoopWithoutUpdateLifetime(t *testing.T) {
 	body := loadFixture(t, "session/add_session_response_success.xml")
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
