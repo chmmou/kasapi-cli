@@ -16,15 +16,14 @@ import (
 // source matching the requested auth_type.
 //
 // auth_type=plain  → credentials are passed verbatim to KasApi each
-// call via api.StaticTokenSource. KasAuth is not contacted; --otp
-// is therefore not supported in this mode (the KAS docs only cover
-// session_2fa on the KasAuth bootstrap, not on direct KasApi-plain
-// calls).
+// call via api.StaticTokenSource. KasAuth is not contacted; --otp,
+// --session-lifetime, and --session-update-lifetime are therefore
+// not supported in this mode (these are KasAuth-only parameters).
 // auth_type=session → the configured AuthData is treated as the
 // account password; auth.SessionTokenSource fetches a 40-char session
-// token from KasAuth on first use (sending --otp as session_2fa when
-// set) and refreshes it transparently after no_auth / unknown_session
-// faults.
+// token from KasAuth on first use (forwarding --otp, --session-lifetime,
+// and --session-update-lifetime when set) and refreshes it
+// transparently after no_auth / unknown_session faults.
 //
 // Errors are wrapped as *ExitError with ExitUserError so cmd/kasapi-cli
 // surfaces them with the expected exit code.
@@ -48,21 +47,37 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 	}
 
 	tr := transport.New()
-	ts, err := tokenSource(tr, creds, opts.OTP)
+	ts, err := tokenSource(tr, creds, sessionOpts{
+		OTP:            opts.OTP,
+		Lifetime:       opts.SessionLifetime,
+		UpdateLifetime: opts.SessionUpdateLifetime,
+	})
 	if err != nil {
 		return nil, UserError(err, "")
 	}
 	return api.New(tr, ts), nil
 }
 
-func tokenSource(tr *transport.Client, creds config.Credentials, otp string) (api.TokenSource, error) {
+// sessionOpts groups the KasAuth-only flag values plumbed through to
+// auth.Options. All fields are optional; zero values mean "omit".
+type sessionOpts struct {
+	OTP            string
+	Lifetime       int
+	UpdateLifetime string
+}
+
+func (s sessionOpts) any() bool {
+	return s.OTP != "" || s.Lifetime != 0 || s.UpdateLifetime != ""
+}
+
+func tokenSource(tr *transport.Client, creds config.Credentials, s sessionOpts) (api.TokenSource, error) {
 	switch creds.AuthType {
 	case config.AuthPlain:
-		if otp != "" {
+		if s.any() {
 			return nil, fmt.Errorf(
-				"--otp cannot be used with auth_type=plain: the KAS API only accepts session_2fa " +
-					"on the KasAuth bootstrap call, which is performed in auth_type=session mode " +
-					"(switch to auth_type=session for 2FA-enabled accounts)")
+				"--otp / --session-lifetime / --session-update-lifetime cannot be used with " +
+					"auth_type=plain: these are KasAuth-only parameters and KasAuth is not " +
+					"contacted in plain mode (switch to auth_type=session)")
 		}
 		return &api.StaticTokenSource{
 			Login:    creds.Login,
@@ -70,9 +85,36 @@ func tokenSource(tr *transport.Client, creds config.Credentials, otp string) (ap
 			AuthType: soap.AuthPlain,
 		}, nil
 	case config.AuthSession:
-		authClient := auth.New(tr, creds.Login, creds.AuthData, soap.AuthPlain, auth.Options{OTP: otp})
+		authOpts, err := buildAuthOptions(s)
+		if err != nil {
+			return nil, err
+		}
+		authClient := auth.New(tr, creds.Login, creds.AuthData, soap.AuthPlain, authOpts)
 		return auth.NewSessionTokenSource(authClient), nil
 	default:
 		return nil, fmt.Errorf("config: unsupported auth_type %q", creds.AuthType)
 	}
+}
+
+func buildAuthOptions(s sessionOpts) (auth.Options, error) {
+	out := auth.Options{OTP: s.OTP}
+	if s.Lifetime != 0 {
+		if s.Lifetime < 1 || s.Lifetime > 30000 {
+			return auth.Options{}, fmt.Errorf("--session-lifetime must be between 1 and 30000 seconds, got %d", s.Lifetime)
+		}
+		out.Lifetime = s.Lifetime
+	}
+	switch s.UpdateLifetime {
+	case "":
+		// omit
+	case "Y":
+		v := true
+		out.UpdateLifetime = &v
+	case "N":
+		v := false
+		out.UpdateLifetime = &v
+	default:
+		return auth.Options{}, fmt.Errorf("--session-update-lifetime must be 'Y' or 'N', got %q", s.UpdateLifetime)
+	}
+	return out, nil
 }

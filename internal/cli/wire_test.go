@@ -121,3 +121,108 @@ func TestBuildAPIClientPlainWithOTPRejected(t *testing.T) {
 		t.Errorf("got %v, want ExitUserError", err)
 	}
 }
+
+func TestBuildAPIClientSessionWithLifetimeFlags(t *testing.T) {
+	t.Setenv("KAS_LOGIN", "")
+	t.Setenv("KAS_AUTHDATA", "")
+	t.Setenv("KAS_AUTHTYPE", "")
+
+	for _, ulv := range []string{"Y", "N", ""} {
+		ulv := ulv
+		t.Run("update-lifetime="+ulv, func(t *testing.T) {
+			t.Parallel()
+			opts := &cli.RootOptions{
+				ConfigPath:            filepath.Join(t.TempDir(), "missing-config.toml"),
+				Login:                 "w0000000",
+				AuthData:              "secret-password",
+				AuthType:              "session",
+				SessionLifetime:       1800,
+				SessionUpdateLifetime: ulv,
+			}
+			c, err := cli.BuildAPIClient(opts)
+			if err != nil {
+				t.Fatalf("BuildAPIClient: %v", err)
+			}
+			if c == nil || c.Tokens == nil {
+				t.Fatalf("client incomplete: %+v", c)
+			}
+		})
+	}
+}
+
+func TestBuildAPIClientPlainWithLifetimeFlagsRejected(t *testing.T) {
+	t.Setenv("KAS_LOGIN", "")
+	t.Setenv("KAS_AUTHDATA", "")
+	t.Setenv("KAS_AUTHTYPE", "")
+
+	cases := []struct {
+		name string
+		opts *cli.RootOptions
+	}{
+		{"lifetime", &cli.RootOptions{
+			Login: "w0000000", AuthData: "p", AuthType: "plain",
+			SessionLifetime: 1800,
+		}},
+		{"update-lifetime", &cli.RootOptions{
+			Login: "w0000000", AuthData: "p", AuthType: "plain",
+			SessionUpdateLifetime: "Y",
+		}},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			tc.opts.ConfigPath = filepath.Join(t.TempDir(), "missing-config.toml")
+			_, err := cli.BuildAPIClient(tc.opts)
+			if err == nil {
+				t.Fatal("expected error")
+			}
+			var ee *cli.ExitError
+			if !errors.As(err, &ee) || ee.Code != cli.ExitUserError {
+				t.Errorf("got %v, want ExitUserError", err)
+			}
+		})
+	}
+}
+
+func TestBuildAPIClientLifetimeRangeRejected(t *testing.T) {
+	t.Setenv("KAS_LOGIN", "")
+	t.Setenv("KAS_AUTHDATA", "")
+	t.Setenv("KAS_AUTHTYPE", "")
+
+	for _, lt := range []int{-1, 30001} {
+		lt := lt
+		t.Run("lifetime", func(t *testing.T) {
+			t.Parallel()
+			opts := &cli.RootOptions{
+				ConfigPath:      filepath.Join(t.TempDir(), "missing-config.toml"),
+				Login:           "w0000000",
+				AuthData:        "secret-password",
+				AuthType:        "session",
+				SessionLifetime: lt,
+			}
+			_, err := cli.BuildAPIClient(opts)
+			if err == nil {
+				t.Fatalf("expected error for lifetime=%d", lt)
+			}
+		})
+	}
+}
+
+func TestBuildAPIClientUpdateLifetimeInvalidRejected(t *testing.T) {
+	t.Setenv("KAS_LOGIN", "")
+	t.Setenv("KAS_AUTHDATA", "")
+	t.Setenv("KAS_AUTHTYPE", "")
+
+	opts := &cli.RootOptions{
+		ConfigPath:            filepath.Join(t.TempDir(), "missing-config.toml"),
+		Login:                 "w0000000",
+		AuthData:              "secret-password",
+		AuthType:              "session",
+		SessionUpdateLifetime: "yes",
+	}
+	_, err := cli.BuildAPIClient(opts)
+	if err == nil {
+		t.Fatal("expected error for invalid update-lifetime")
+	}
+}

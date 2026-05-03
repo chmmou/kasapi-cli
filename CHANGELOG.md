@@ -9,15 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `--otp` persistent flag on the root command for the optional 2FA
-  one-time PIN. The value is plumbed through `BuildAPIClient` into
-  `auth.Options{OTP: ...}` so `auth.SessionTokenSource` forwards it
-  to KasAuth as `session_2fa` on the credential-token request. The
-  `--auth-type` and `--otp` help texts spell out that the KAS docs
-  only cover `session_2fa` on the KasAuth bootstrap (i.e. our
-  `auth_type=session` strategy), so combining `--otp` with
-  `auth_type=plain` is rejected up front with a user-error exit
-  code and a message that points to the correct strategy.
+- `--otp`, `--session-lifetime`, and `--session-update-lifetime`
+  persistent flags on the root command, exposing the optional KasAuth
+  parameters (`session_2fa`, `session_lifetime`, and
+  `session_update_lifetime`). All three are plumbed through
+  `BuildAPIClient` into `auth.Options` so `auth.SessionTokenSource`
+  forwards them on the credential-token bootstrap. `--session-lifetime`
+  is range-checked client-side (1..30000 seconds);
+  `--session-update-lifetime` accepts `Y` or `N` and maps to the tri-state
+  `*bool` field. The `--auth-type` help text spells out that these flags
+  are KasAuth-only (the KAS docs do not cover them on direct
+  `kas_auth_type=plain` calls), so combining any of them with
+  `auth_type=plain` is rejected up front with a user-error exit code and
+  a message that points to `auth_type=session`.
 - `internal/account` and `internal/server` read modules with the first
   end-to-end CLI subcommands: `kasapi-cli accounts list` (`get_accounts`),
   `kasapi-cli accounts get` (`get_accountsettings`), `kasapi-cli accounts

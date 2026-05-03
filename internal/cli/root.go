@@ -22,6 +22,9 @@ type RootOptions struct {
 	AuthType   string
 	OTP        string
 
+	SessionLifetime       int
+	SessionUpdateLifetime string
+
 	OutputRaw string
 	Output    Format
 
@@ -76,6 +79,12 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 	pf.StringVar(&opts.OTP, "otp", "",
 		"2FA one-time PIN — sent to KasAuth as session_2fa during the credential-token bootstrap. "+
 			"Requires auth_type=session; the KAS API does not document 2FA on direct kas_auth_type=plain calls.")
+	pf.IntVar(&opts.SessionLifetime, "session-lifetime", 0,
+		"session_lifetime in seconds passed to KasAuth (1..30000); 0 keeps the server default. "+
+			"Requires auth_type=session.")
+	pf.StringVar(&opts.SessionUpdateLifetime, "session-update-lifetime", "",
+		"session_update_lifetime passed to KasAuth ('Y' = sliding window, 'N' = fixed). "+
+			"Empty omits the parameter. Requires auth_type=session.")
 	pf.StringVarP(&opts.OutputRaw, "output", "o", "", fmt.Sprintf("output format: %s (default %s)", joinFormats(), DefaultFormat))
 	pf.BoolVar(&opts.NoColor, "no-color", false, "disable coloured output")
 	pf.BoolVarP(&opts.Verbose, "verbose", "v", false, "enable verbose logging on stderr")
