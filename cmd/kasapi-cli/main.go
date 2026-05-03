@@ -6,22 +6,16 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
-	"github.com/chmmou/kasapi-cli/internal/version"
+	"github.com/chmmou/kasapi-cli/internal/cli"
 )
 
 func main() {
-	showVersion := flag.Bool("version", false, "print version and exit")
-	flag.Parse()
-
-	if *showVersion {
-		fmt.Println(version.String())
-		return
+	root, _ := cli.NewRootCmd()
+	if err := root.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, "kasapi-cli:", err)
+		os.Exit(cli.CodeFor(err))
 	}
-
-	fmt.Fprintln(os.Stderr, "kasapi-cli: no subcommand wired up yet (see issues #2-#13)")
-	os.Exit(1)
 }

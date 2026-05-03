@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/cli` CLI scaffold built on [spf13/cobra](https://github.com/spf13/cobra):
+  `NewRootCmd()` returns the `kasapi-cli` root command with persistent
+  global flags `--config`, `--profile`, `--login`, `--auth-data`,
+  `--auth-type`, `--output`, `--no-color`, `--verbose`, `--yes`, plus the
+  built-in `--help` and `--version`. Output renderers (`json`, `yaml`,
+  `table`) live behind a single `Render(w, format, v)` entry point;
+  `--output=table` requires the value to implement the `Tabular`
+  interface. A `Confirm(in, out, prompt)` helper covers the `[y/N]`
+  prompt for future destructive write commands. `ExitError`,
+  `UserError(...)`, `APIError(...)`, and `CodeFor(err)` translate failures
+  to the documented exit codes (`0` ok, `1` user error, `2` API error);
+  flag-parsing errors are routed through `UserError`. The binary is
+  intentionally without subcommands until #7 — `kasapi-cli` prints help
+  and `kasapi-cli --version` prints the build banner. Adds the
+  `goccy/go-yaml` (active fork replacing the archived `gopkg.in/yaml.v3`)
+  and `spf13/cobra` dependencies. (Closes #12.)
 - `internal/auth` KasAuth.php credential-token client: separate codec
   (`tns:KasAuth` envelope, bare `xsd:string` token in `<return>`),
   `Client.GetCredentialToken(ctx)` returning the 40-character token,

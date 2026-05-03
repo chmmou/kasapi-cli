@@ -46,8 +46,9 @@ Patterns here draw from Effective Go, Uber's Go Style Guide, Go Code Review Comm
 - Golden files only when output is stable and reviewed; keep them small and checked in.
 
 ## CLI/Tools Patterns
-- Use the standard `flag` package or minimal wrappers; avoid complex global state.
-- Provide `-help` output and reasonable defaults; exit codes should reflect success/failure.
+- For small, single-purpose tools the standard `flag` package is enough; avoid complex global state.
+- For multi-resource CLIs that follow a `<binary> <resource> <verb>` scheme (e.g. kasapi-cli, hcloud), use [spf13/cobra](https://github.com/spf13/cobra). Build the root command in an `internal/cli` package; bind global flags to a `RootOptions` struct that subcommands read.
+- Provide `--help` output and reasonable defaults; exit codes should reflect success/failure (e.g. `0` ok, `1` user error, `2` API/runtime error).
 
 ## Library Selection (Awesome Go)
 - Use the Awesome Go catalog to find libraries by category (web, database, testing, logging, crypto, etc.).
