@@ -120,7 +120,12 @@ func (c *Client) doOnce(ctx context.Context, endpoint string, body []byte) ([]by
 	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
 	req.Header.Set("SOAPAction", "")
 	req.Header.Set("User-Agent", c.UserAgent)
-	req.Header.Set("Accept-Encoding", "gzip")
+	// Intentionally no Accept-Encoding here. net/http sets it to "gzip"
+	// itself and transparently decodes the response only when the
+	// caller has *not* set the header. Setting it manually disables
+	// automatic decompression and hands the gzip stream to the XML
+	// decoder, which surfaces as `XML syntax error: invalid character
+	// entity` on the first kasserver response that comes back compressed.
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {

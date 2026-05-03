@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `internal/transport`: drop the manual `Accept-Encoding: gzip`
+  request header. `net/http` only decompresses gzip responses
+  transparently when the caller has *not* set that header; the manual
+  set turned automatic decoding off and leaked raw gzip bytes into the
+  XML decoder, surfacing as `XML syntax error: invalid character
+  entity &…` on the first kasserver response that came back compressed.
+  Removing the header lets `net/http` add it (and decode the response)
+  itself.
+
 ### Added
 
 - `kasapi-cli config` subcommand tree for first-run bootstrap and

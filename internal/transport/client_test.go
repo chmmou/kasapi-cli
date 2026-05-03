@@ -1,11 +1,14 @@
 package transport_test
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -93,6 +96,46 @@ func TestDoSuccess(t *testing.T) {
 	}
 	if string(got.body) != sampleEnvelope {
 		t.Errorf("server received %q, want %q", got.body, sampleEnvelope)
+	}
+}
+
+// Regression for kasserver responses returned with Content-Encoding:
+// gzip. net/http only decompresses transparently when the caller has
+// *not* set Accept-Encoding; an explicit Accept-Encoding: gzip header
+// disables that and leaks raw gzip bytes into the XML decoder
+// ("invalid character entity &…").
+func TestDoTransparentlyDecompressesGzip(t *testing.T) {
+	const payload = `<?xml version="1.0"?><soapenv:Envelope><Body>ok</Body></soapenv:Envelope>`
+
+	var sentAcceptEncoding string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sentAcceptEncoding = r.Header.Get("Accept-Encoding")
+		// Only gzip-encode if the client claims to accept gzip — net/http
+		// adds it automatically when the caller did not set the header.
+		if !strings.Contains(sentAcceptEncoding, "gzip") {
+			_, _ = io.WriteString(w, payload)
+			return
+		}
+		var buf bytes.Buffer
+		gz := gzip.NewWriter(&buf)
+		_, _ = gz.Write([]byte(payload))
+		_ = gz.Close()
+		w.Header().Set("Content-Encoding", "gzip")
+		w.Header().Set("Content-Type", "text/xml")
+		_, _ = w.Write(buf.Bytes())
+	}))
+	defer srv.Close()
+
+	c := newClient(srv, newFakeClock())
+	resp, err := c.Do(context.Background(), srv.URL, []byte(sampleEnvelope))
+	if err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+	if string(resp) != payload {
+		t.Errorf("body = %q, want %q", resp, payload)
+	}
+	if !strings.Contains(sentAcceptEncoding, "gzip") {
+		t.Errorf("Accept-Encoding = %q, want it to contain gzip (net/http auto-adds it)", sentAcceptEncoding)
 	}
 }
 
