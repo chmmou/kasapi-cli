@@ -104,7 +104,7 @@ func decodeBody(d *xml.Decoder, parent xml.StartElement) (string, error) {
 			case "KasAuthResponse":
 				return decodeKasAuthResponse(d, t)
 			case "Fault":
-				fault, err := decodeFault(d, t)
+				fault, err := soap.DecodeFault(d, t)
 				if err != nil {
 					return "", err
 				}
@@ -146,37 +146,6 @@ func decodeKasAuthResponse(d *xml.Decoder, parent xml.StartElement) (string, err
 		case xml.EndElement:
 			if t.Name == parent.Name {
 				return "", errors.New("auth: missing <return> element")
-			}
-		}
-	}
-}
-
-func decodeFault(d *xml.Decoder, parent xml.StartElement) (*soap.Fault, error) {
-	out := &soap.Fault{}
-	for {
-		tok, err := d.Token()
-		if err != nil {
-			return nil, err
-		}
-		switch t := tok.(type) {
-		case xml.StartElement:
-			var s string
-			if err := d.DecodeElement(&s, &t); err != nil {
-				return nil, err
-			}
-			switch t.Name.Local {
-			case "faultcode":
-				out.Code = s
-			case "faultstring":
-				out.String = s
-			case "faultactor":
-				out.Actor = s
-			case "detail":
-				out.Detail = s
-			}
-		case xml.EndElement:
-			if t.Name == parent.Name {
-				return out, nil
 			}
 		}
 	}

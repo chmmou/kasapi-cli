@@ -79,7 +79,7 @@ func decodeBody(d *xml.Decoder, parent xml.StartElement) (*Response, error) {
 			case "KasApiResponse":
 				return decodeKasApiResponse(d, t)
 			case "Fault":
-				fault, err := decodeFault(d, t)
+				fault, err := DecodeFault(d, t)
 				if err != nil {
 					return nil, err
 				}
@@ -164,7 +164,11 @@ func buildResponseBody(v Value) (ResponseBody, error) {
 	return out, nil
 }
 
-func decodeFault(d *xml.Decoder, parent xml.StartElement) (*Fault, error) {
+// DecodeFault parses a <SOAP-ENV:Fault> element. The decoder must be
+// positioned just past the start element, which is passed as parent so
+// the function knows when to stop. It is exported so other packages
+// (e.g. auth) can decode KAS faults from their own envelope layouts.
+func DecodeFault(d *xml.Decoder, parent xml.StartElement) (*Fault, error) {
 	out := &Fault{}
 	for {
 		tok, err := d.Token()
