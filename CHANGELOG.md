@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/transport` HTTP client wrapping the KAS SOAP endpoints:
+  POST with the SOAP 1.1 content type, version-stamped User-Agent,
+  exponential backoff on 5xx and network errors (4xx and SOAP faults
+  are returned without retry), context-aware cancellation, and a
+  per-client `RecordDelay`/gate pair so callers can honour the
+  server-side `KasFloodDelay`. `Now`/`Sleep` are injectable for
+  deterministic tests via `httptest.Server`. (Closes #4.)
 - `internal/config` profile-aware credentials loader: TOML config under
   the OS-specific user-config path (XDG on Linux), multi-profile, with
   resolution precedence flag > env > profile > default profile. Env
