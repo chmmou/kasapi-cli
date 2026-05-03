@@ -1,0 +1,242 @@
+package api_test
+
+import (
+	"context"
+	"errors"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/chmmou/kasapi-cli/internal/api"
+	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/transport"
+)
+
+func repoRoot(t *testing.T) string {
+	t.Helper()
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("runtime.Caller failed")
+	}
+	dir := filepath.Dir(file)
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			t.Fatalf("repo root not found from %q", file)
+		}
+		dir = parent
+	}
+}
+
+func loadFixture(t *testing.T, rel string) []byte {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join(repoRoot(t), "testdata", rel))
+	if err != nil {
+		t.Fatalf("load %s: %v", rel, err)
+	}
+	return b
+}
+
+func newAPIClient(srv *httptest.Server, ts api.TokenSource) *api.Client {
+	tr := transport.New()
+	tr.HTTPClient = srv.Client()
+	tr.MaxRetries = 0
+	tr.Now = time.Now
+	tr.Sleep = func(_ context.Context, _ time.Duration) error { return nil }
+	c := api.New(tr, ts)
+	c.Endpoint = srv.URL
+	return c
+}
+
+func staticTokens() *api.StaticTokenSource {
+	return &api.StaticTokenSource{
+		Login:    "w0000000",
+		AuthData: "secret",
+		AuthType: soap.AuthSession,
+	}
+}
+
+func TestCallSuccess(t *testing.T) {
+	body := loadFixture(t, "account/get_accounts_response_success.xml")
+	var got struct {
+		method string
+		body   []byte
+	}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got.method = r.Method
+		got.body, _ = io.ReadAll(r.Body)
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	c := newAPIClient(srv, staticTokens())
+	resp, err := c.Call(context.Background(), "get_accounts", nil)
+	if err != nil {
+		t.Fatalf("Call: %v", err)
+	}
+	if resp.Body.ReturnString != "TRUE" {
+		t.Errorf("ReturnString = %q, want TRUE", resp.Body.ReturnString)
+	}
+	if got.method != http.MethodPost {
+		t.Errorf("method = %q, want POST", got.method)
+	}
+	if !strings.Contains(string(got.body), `"kas_action":"get_accounts"`) {
+		t.Errorf("encoded request missing kas_action: %s", got.body)
+	}
+}
+
+func TestCallFeedsKasFloodDelayToTransport(t *testing.T) {
+	body := loadFixture(t, "account/get_accounts_response_success.xml")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	tr := transport.New()
+	tr.HTTPClient = srv.Client()
+	tr.MaxRetries = 0
+	tr.Now = time.Now
+	var slept atomic.Int64
+	tr.Sleep = func(_ context.Context, d time.Duration) error {
+		slept.Add(int64(d))
+		return nil
+	}
+	c := api.New(tr, staticTokens())
+	c.Endpoint = srv.URL
+
+	if _, err := c.Call(context.Background(), "get_accounts", nil); err != nil {
+		t.Fatalf("Call 1: %v", err)
+	}
+	if slept.Load() != 0 {
+		t.Errorf("first call slept %v, want 0", time.Duration(slept.Load()))
+	}
+	if _, err := c.Call(context.Background(), "get_accounts", nil); err != nil {
+		t.Fatalf("Call 2: %v", err)
+	}
+	if got := time.Duration(slept.Load()); got < 400*time.Millisecond || got > 600*time.Millisecond {
+		t.Errorf("second call gate slept %v, want ~500ms (KasFloodDelay=0.5)", got)
+	}
+}
+
+func TestCallReturnsTypedFault(t *testing.T) {
+	body := loadFixture(t, "account/add_account_response_failed_max_account_reached.xml")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	c := newAPIClient(srv, staticTokens())
+	_, err := c.Call(context.Background(), "add_account", nil)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	apiErr := api.AsError(err)
+	if apiErr == nil {
+		t.Fatalf("expected *api.Error, got %T: %v", err, err)
+	}
+	if apiErr.Code != "max_account_reached" {
+		t.Errorf("Code = %q, want max_account_reached", apiErr.Code)
+	}
+	if apiErr.Action != "add_account" {
+		t.Errorf("Action = %q, want add_account", apiErr.Action)
+	}
+	if !api.IsMaxReached(err) {
+		t.Error("IsMaxReached(err) = false, want true")
+	}
+	// Underlying SOAP fault must still be reachable via errors.As.
+	var fe *soap.FaultError
+	if !errors.As(err, &fe) {
+		t.Error("errors.As to *soap.FaultError failed")
+	}
+}
+
+func TestCallRetriesOnAuthFailure(t *testing.T) {
+	authBody := loadFixture(t, "response_failed_no_auth.xml")
+	okBody := loadFixture(t, "account/get_accounts_response_success.xml")
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		if calls.Add(1) == 1 {
+			_, _ = w.Write(authBody)
+			return
+		}
+		_, _ = w.Write(okBody)
+	}))
+	defer srv.Close()
+
+	ts := &countingTokens{login: "w0", data: "tok-1", typ: soap.AuthSession, refresh: "tok-2"}
+	c := newAPIClient(srv, ts)
+	resp, err := c.Call(context.Background(), "get_accounts", nil)
+	if err != nil {
+		t.Fatalf("Call: %v", err)
+	}
+	if resp.Body.ReturnString != "TRUE" {
+		t.Errorf("ReturnString = %q, want TRUE", resp.Body.ReturnString)
+	}
+	if calls.Load() != 2 {
+		t.Errorf("server calls = %d, want 2", calls.Load())
+	}
+	if ts.invalidations != 1 {
+		t.Errorf("invalidations = %d, want 1", ts.invalidations)
+	}
+	if ts.lastData != "tok-2" {
+		t.Errorf("retry used data = %q, want tok-2", ts.lastData)
+	}
+}
+
+func TestCallNoRetryOnNonAuthFault(t *testing.T) {
+	body := loadFixture(t, "account/add_account_response_failed_max_account_reached.xml")
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	c := newAPIClient(srv, staticTokens())
+	if _, err := c.Call(context.Background(), "add_account", nil); err == nil {
+		t.Fatal("expected error")
+	}
+	if calls.Load() != 1 {
+		t.Errorf("server calls = %d, want 1 (no retry on max_account_reached)", calls.Load())
+	}
+}
+
+func TestCallRejectsEmptyAction(t *testing.T) {
+	c := newAPIClient(httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		t.Error("server should not be reached")
+	})), staticTokens())
+	if _, err := c.Call(context.Background(), "", nil); err == nil {
+		t.Fatal("expected error on empty action")
+	}
+}
+
+// countingTokens is a TokenSource that swaps AuthData on Invalidate so
+// tests can confirm the retry pulled fresh credentials.
+type countingTokens struct {
+	login         string
+	data          string
+	typ           soap.AuthType
+	refresh       string
+	lastData      string
+	invalidations int
+}
+
+func (c *countingTokens) Credentials(_ context.Context) (string, string, soap.AuthType, error) {
+	c.lastData = c.data
+	return c.login, c.data, c.typ, nil
+}
+
+func (c *countingTokens) Invalidate() {
+	c.invalidations++
+	c.data = c.refresh
+}

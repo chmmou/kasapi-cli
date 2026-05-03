@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/api` generic KasApi.php call surface composing the soap codec
+  with the http transport: `Client.Call(ctx, action, params)` encodes,
+  posts, decodes, and feeds the server-reported `KasFloodDelay` back to
+  the transport gate. SOAP-ENV:Fault bodies surface as typed `*Error`
+  values whose `Code` is the stable KAS error string, with predicates
+  (`IsAuthFailure`, `IsFloodProtection`, `IsNotFound`, `IsSyntaxError`,
+  `IsMaxReached`, `IsInProgress`, `IsMissingParameter`, `IsNothingToDo`).
+  A `TokenSource` interface plus `StaticTokenSource` provide credentials;
+  `no_auth` and `unknown_session` trigger one token refresh and retry.
+  (Closes #6.)
 - `internal/transport` HTTP client wrapping the KAS SOAP endpoints:
   POST with the SOAP 1.1 content type, version-stamped User-Agent,
   exponential backoff on 5xx and network errors (4xx and SOAP faults
