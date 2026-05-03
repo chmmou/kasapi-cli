@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/soap` codec for the KAS-API envelope: `Value` discriminated
+  union mirroring the Apache xml-soap `ns2:Map` shape (xsi:type:
+  string/int/float/boolean, ns2:Map, SOAP-ENC:Array), `Decode` for
+  `KasApiResponse`/`SOAP-ENV:Fault` envelopes returning `*Response` or
+  `*FaultError`, and `EncodeRequest` for the JSON-in-`<Params>` request
+  envelope. Table-driven tests cover 471 response fixtures plus shape
+  pins and encoder validation. (`testdata/session/` is left for the
+  KasAuth client in issue #5.)
 - Bootstrap Go module `github.com/chmmou/kasapi-cli` (Go 1.23).
 - `cmd/kasapi-cli` entry point with build-stamped `--version`.
 - `internal/` package skeleton mirroring the clean-architecture layering in
