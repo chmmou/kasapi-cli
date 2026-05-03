@@ -78,3 +78,46 @@ func TestBuildAPIClientNilOpts(t *testing.T) {
 		t.Errorf("got %v, want ExitUserError", err)
 	}
 }
+
+func TestBuildAPIClientSessionWithOTP(t *testing.T) {
+	t.Setenv("KAS_LOGIN", "")
+	t.Setenv("KAS_AUTHDATA", "")
+	t.Setenv("KAS_AUTHTYPE", "")
+
+	opts := &cli.RootOptions{
+		ConfigPath: filepath.Join(t.TempDir(), "missing-config.toml"),
+		Login:      "w0000000",
+		AuthData:   "secret-password",
+		AuthType:   "session",
+		OTP:        "123456",
+	}
+	c, err := cli.BuildAPIClient(opts)
+	if err != nil {
+		t.Fatalf("BuildAPIClient: %v", err)
+	}
+	if c == nil || c.Tokens == nil {
+		t.Fatalf("client incomplete: %+v", c)
+	}
+}
+
+func TestBuildAPIClientPlainWithOTPRejected(t *testing.T) {
+	t.Setenv("KAS_LOGIN", "")
+	t.Setenv("KAS_AUTHDATA", "")
+	t.Setenv("KAS_AUTHTYPE", "")
+
+	opts := &cli.RootOptions{
+		ConfigPath: filepath.Join(t.TempDir(), "missing-config.toml"),
+		Login:      "w0000000",
+		AuthData:   "secret-password",
+		AuthType:   "plain",
+		OTP:        "123456",
+	}
+	_, err := cli.BuildAPIClient(opts)
+	if err == nil {
+		t.Fatal("expected error when --otp combined with auth_type=plain")
+	}
+	var ee *cli.ExitError
+	if !errors.As(err, &ee) || ee.Code != cli.ExitUserError {
+		t.Errorf("got %v, want ExitUserError", err)
+	}
+}

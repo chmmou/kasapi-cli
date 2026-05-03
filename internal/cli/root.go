@@ -20,6 +20,7 @@ type RootOptions struct {
 	Login      string
 	AuthData   string
 	AuthType   string
+	OTP        string
 
 	OutputRaw string
 	Output    Format
@@ -70,6 +71,7 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 	pf.StringVar(&opts.Login, "login", "", "KAS login (overrides config and KAS_LOGIN)")
 	pf.StringVar(&opts.AuthData, "auth-data", "", "KAS auth data (overrides config and KAS_AUTHDATA)")
 	pf.StringVar(&opts.AuthType, "auth-type", "", "KAS auth type, plain or session (overrides config and KAS_AUTHTYPE)")
+	pf.StringVar(&opts.OTP, "otp", "", "2FA one-time PIN passed to KasAuth (only used with auth_type=session)")
 	pf.StringVarP(&opts.OutputRaw, "output", "o", "", fmt.Sprintf("output format: %s (default %s)", joinFormats(), DefaultFormat))
 	pf.BoolVar(&opts.NoColor, "no-color", false, "disable coloured output")
 	pf.BoolVarP(&opts.Verbose, "verbose", "v", false, "enable verbose logging on stderr")

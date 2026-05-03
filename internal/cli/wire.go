@@ -44,23 +44,26 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 	}
 
 	tr := transport.New()
-	ts, err := tokenSource(tr, creds)
+	ts, err := tokenSource(tr, creds, opts.OTP)
 	if err != nil {
 		return nil, UserError(err, "")
 	}
 	return api.New(tr, ts), nil
 }
 
-func tokenSource(tr *transport.Client, creds config.Credentials) (api.TokenSource, error) {
+func tokenSource(tr *transport.Client, creds config.Credentials, otp string) (api.TokenSource, error) {
 	switch creds.AuthType {
 	case config.AuthPlain:
+		if otp != "" {
+			return nil, fmt.Errorf("--otp is only valid with auth_type=session")
+		}
 		return &api.StaticTokenSource{
 			Login:    creds.Login,
 			AuthData: creds.AuthData,
 			AuthType: soap.AuthPlain,
 		}, nil
 	case config.AuthSession:
-		authClient := auth.New(tr, creds.Login, creds.AuthData, soap.AuthPlain, auth.Options{})
+		authClient := auth.New(tr, creds.Login, creds.AuthData, soap.AuthPlain, auth.Options{OTP: otp})
 		return auth.NewSessionTokenSource(authClient), nil
 	default:
 		return nil, fmt.Errorf("config: unsupported auth_type %q", creds.AuthType)
