@@ -13,7 +13,11 @@ import (
 )
 
 func main() {
-	root, _ := cli.NewRootCmd()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(
+		cli.NewAccountCmd(opts),
+		cli.NewServerCmd(opts),
+	)
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, "kasapi-cli:", err)
 		os.Exit(cli.CodeFor(err))

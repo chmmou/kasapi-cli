@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/account` and `internal/server` read modules with the first
+  end-to-end CLI subcommands: `kasapi-cli accounts list` (`get_accounts`),
+  `kasapi-cli accounts get` (`get_accountsettings`), `kasapi-cli accounts
+  resources` (`get_accountresources`), and `kasapi-cli server info`
+  (`get_server_information`). Domain types `Account`, `AccountSettings`
+  (with SSH fingerprints, user_prefs, direct-link flags), `AccountResources`
+  / `ResourceQuota`, and `Service` / `ServiceList` decode the KAS Map/Array
+  payloads into typed Go values; `ResourceQuota.Max == -1` is rendered as
+  `∞` in the table view to match the documented "unlimited" sentinel.
+  Mapping tests run against the shipped `testdata/account/get_*_response_success.xml`
+  fixtures. `cli.BuildAPIClient(opts)` is the new wiring helper that reads
+  config + env + flags, picks `api.StaticTokenSource` for `auth_type=plain`
+  and `auth.SessionTokenSource` for `auth_type=session`, and returns an
+  `*api.Client` that subcommands consume. (Closes #7.)
 - `internal/cli` CLI scaffold built on [spf13/cobra](https://github.com/spf13/cobra):
   `NewRootCmd()` returns the `kasapi-cli` root command with persistent
   global flags `--config`, `--profile`, `--login`, `--auth-data`,
