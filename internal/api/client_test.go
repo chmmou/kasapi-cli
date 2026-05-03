@@ -220,6 +220,40 @@ func TestCallRejectsEmptyAction(t *testing.T) {
 	}
 }
 
+func TestCallHeartbeatsTokenSourceOnSuccess(t *testing.T) {
+	body := loadFixture(t, "account/get_accounts_response_success.xml")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	ts := &beatingTokens{login: "w0", data: "tok", typ: soap.AuthSession}
+	c := newAPIClient(srv, ts)
+	if _, err := c.Call(context.Background(), "get_accounts", nil); err != nil {
+		t.Fatalf("Call: %v", err)
+	}
+	if ts.heartbeats != 1 {
+		t.Errorf("heartbeats = %d, want 1", ts.heartbeats)
+	}
+}
+
+func TestCallNoHeartbeatOnFailure(t *testing.T) {
+	body := loadFixture(t, "account/add_account_response_failed_max_account_reached.xml")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	ts := &beatingTokens{login: "w0", data: "tok", typ: soap.AuthSession}
+	c := newAPIClient(srv, ts)
+	if _, err := c.Call(context.Background(), "add_account", nil); err == nil {
+		t.Fatal("expected error")
+	}
+	if ts.heartbeats != 0 {
+		t.Errorf("heartbeats = %d, want 0 on fault", ts.heartbeats)
+	}
+}
+
 // countingTokens is a TokenSource that swaps AuthData on Invalidate so
 // tests can confirm the retry pulled fresh credentials.
 type countingTokens struct {
@@ -240,3 +274,18 @@ func (c *countingTokens) Invalidate() {
 	c.invalidations++
 	c.data = c.refresh
 }
+
+// beatingTokens implements TokenSource + Heartbeater to verify the
+// post-success hook in Client.Call.
+type beatingTokens struct {
+	login      string
+	data       string
+	typ        soap.AuthType
+	heartbeats int
+}
+
+func (b *beatingTokens) Credentials(_ context.Context) (string, string, soap.AuthType, error) {
+	return b.login, b.data, b.typ, nil
+}
+func (b *beatingTokens) Invalidate() {}
+func (b *beatingTokens) Heartbeat()  { b.heartbeats++ }

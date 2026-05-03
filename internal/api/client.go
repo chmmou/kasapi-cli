@@ -29,6 +29,14 @@ type TokenSource interface {
 	Invalidate()
 }
 
+// Heartbeater is an optional TokenSource extension. After every
+// successful Call, Client invokes Heartbeat so a session-token source
+// configured with session_update_lifetime=Y can extend its locally
+// cached expiry to mirror the rolling window the server applies.
+type Heartbeater interface {
+	Heartbeat()
+}
+
 // StaticTokenSource is a TokenSource that returns the same credentials
 // every call. Suitable for plain auth and for tests; session-token
 // callers should use the source provided by the auth package once the
@@ -85,12 +93,15 @@ func (c *Client) Call(ctx context.Context, action string, params map[string]any)
 		return nil, errors.New("api: action is required")
 	}
 	resp, err := c.callOnce(ctx, action, params)
-	if err == nil {
-		return resp, nil
-	}
-	if IsAuthFailure(err) {
+	if err != nil && IsAuthFailure(err) {
 		c.Tokens.Invalidate()
-		return c.callOnce(ctx, action, params)
+		resp, err = c.callOnce(ctx, action, params)
+	}
+	if err == nil {
+		if hb, ok := c.Tokens.(Heartbeater); ok {
+			hb.Heartbeat()
+		}
+		return resp, nil
 	}
 	return nil, err
 }

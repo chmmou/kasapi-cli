@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `internal/session` persistent session-token cache so a successful
+  KasAuth login (including 2FA via `--otp`) survives across CLI
+  invocations: a new `sessions.toml` next to the config file (mode
+  `0600`, atomic temp+rename) stores `{token, expires_at,
+  lifetime_seconds, update_lifetime}` keyed by login.
+  `auth.SessionTokenSource` now loads the cached entry on first use,
+  reuses it while `expires_at` has not been reached, persists every
+  fresh KasAuth response, and deletes the entry on `Invalidate`.
+  Lifetime defaults to `session.DefaultLifetime` (24 h, matching the
+  KasAuth `session_lifetime` default) when `--session-lifetime` was
+  not set; otherwise it mirrors the flag value. With
+  `--session-update-lifetime Y`, `api.Client.Call` now invokes a new
+  optional `Heartbeater` interface on the token source after every
+  successful call so the local `expires_at` rolls forward in lockstep
+  with the server-side window. Practical effect: rerun a command and
+  no `--otp` prompt is needed for as long as the session is alive.
+
 ### Fixed
 
 - `internal/transport`: drop the manual `Accept-Encoding: gzip`

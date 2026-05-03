@@ -3,10 +3,12 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/auth"
 	"github.com/chmmou/kasapi-cli/internal/config"
+	"github.com/chmmou/kasapi-cli/internal/session"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 	"github.com/chmmou/kasapi-cli/internal/transport"
 )
@@ -90,7 +92,19 @@ func tokenSource(tr *transport.Client, creds config.Credentials, s sessionOpts) 
 			return nil, err
 		}
 		authClient := auth.New(tr, creds.Login, creds.AuthData, soap.AuthPlain, authOpts)
-		return auth.NewSessionTokenSource(authClient), nil
+		src := auth.NewSessionTokenSource(authClient)
+		store, serr := session.New("")
+		if serr != nil {
+			return nil, fmt.Errorf("session store: %w", serr)
+		}
+		src.Store = store
+		if s.Lifetime > 0 {
+			src.Lifetime = time.Duration(s.Lifetime) * time.Second
+		}
+		if authOpts.UpdateLifetime != nil && *authOpts.UpdateLifetime {
+			src.UpdateLifetime = true
+		}
+		return src, nil
 	default:
 		return nil, fmt.Errorf("config: unsupported auth_type %q", creds.AuthType)
 	}

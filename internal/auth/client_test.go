@@ -4,12 +4,14 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/chmmou/kasapi-cli/internal/auth"
+	"github.com/chmmou/kasapi-cli/internal/session"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 	"github.com/chmmou/kasapi-cli/internal/transport"
 )
@@ -145,6 +147,181 @@ func TestSessionTokenSourcePropagatesAuthError(t *testing.T) {
 	if !auth.IsOTPPinIncorrect(err) {
 		t.Errorf("expected IsOTPPinIncorrect, got %v", err)
 	}
+}
+
+func TestSessionTokenSourceLoadsFromStore(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		t.Error("server should not be reached when a valid cached token exists")
+	}))
+	defer srv.Close()
+
+	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	store := newStore(t, now)
+	if err := store.Save("w0", session.Entry{
+		Token:           "cached-tok",
+		ExpiresAt:       now.Add(time.Hour),
+		LifetimeSeconds: 3600,
+	}); err != nil {
+		t.Fatalf("seed Save: %v", err)
+	}
+
+	src := auth.NewSessionTokenSource(newAuthClient(srv, "w0", "secret", soap.AuthPlain, auth.Options{}))
+	src.Store = store
+	src.Now = func() time.Time { return now }
+
+	login, data, typ, err := src.Credentials(context.Background())
+	if err != nil {
+		t.Fatalf("Credentials: %v", err)
+	}
+	if login != "w0" || data != "cached-tok" || typ != soap.AuthSession {
+		t.Errorf("Credentials = (%q,%q,%q), want (w0, cached-tok, session)", login, data, typ)
+	}
+}
+
+func TestSessionTokenSourceFetchesWhenStoredEntryExpired(t *testing.T) {
+	body := loadFixture(t, "session/add_session_response_success.xml")
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	store := newStore(t, now)
+	if err := store.Save("w0", session.Entry{
+		Token:     "stale",
+		ExpiresAt: now.Add(-time.Second),
+	}); err != nil {
+		t.Fatalf("seed Save: %v", err)
+	}
+
+	src := auth.NewSessionTokenSource(newAuthClient(srv, "w0", "secret", soap.AuthPlain, auth.Options{}))
+	src.Store = store
+	src.Lifetime = time.Hour
+	src.Now = func() time.Time { return now }
+
+	_, data, _, err := src.Credentials(context.Background())
+	if err != nil {
+		t.Fatalf("Credentials: %v", err)
+	}
+	if data == "stale" {
+		t.Error("expected fresh token, got the stale cached one")
+	}
+	if calls.Load() != 1 {
+		t.Errorf("KasAuth calls = %d, want 1", calls.Load())
+	}
+	saved, err := store.Load("w0")
+	if err != nil || saved == nil {
+		t.Fatalf("expected fresh entry persisted, got %v %v", saved, err)
+	}
+	if !saved.ExpiresAt.Equal(now.Add(time.Hour)) {
+		t.Errorf("ExpiresAt = %v, want %v", saved.ExpiresAt, now.Add(time.Hour))
+	}
+}
+
+func TestSessionTokenSourceInvalidateDeletesPersisted(t *testing.T) {
+	body := loadFixture(t, "session/add_session_response_success.xml")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	store := newStore(t, now)
+	src := auth.NewSessionTokenSource(newAuthClient(srv, "w0", "secret", soap.AuthPlain, auth.Options{}))
+	src.Store = store
+	src.Lifetime = time.Hour
+	src.Now = func() time.Time { return now }
+
+	if _, _, _, err := src.Credentials(context.Background()); err != nil {
+		t.Fatalf("Credentials: %v", err)
+	}
+	if got, _ := store.Load("w0"); got == nil {
+		t.Fatal("expected entry persisted after fresh fetch")
+	}
+	src.Invalidate()
+	if got, _ := store.Load("w0"); got != nil {
+		t.Errorf("expected entry deleted after Invalidate, got %+v", got)
+	}
+}
+
+func TestSessionTokenSourceHeartbeatExtendsExpiry(t *testing.T) {
+	body := loadFixture(t, "session/add_session_response_success.xml")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	tNow := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	store := newStore(t, tNow)
+	src := auth.NewSessionTokenSource(newAuthClient(srv, "w0", "secret", soap.AuthPlain, auth.Options{}))
+	src.Store = store
+	src.Lifetime = time.Hour
+	src.UpdateLifetime = true
+	src.Now = func() time.Time { return tNow }
+
+	if _, _, _, err := src.Credentials(context.Background()); err != nil {
+		t.Fatalf("Credentials: %v", err)
+	}
+	first, _ := store.Load("w0")
+	if first == nil {
+		t.Fatal("expected initial entry")
+	}
+
+	tNow = tNow.Add(15 * time.Minute)
+	store.Now = func() time.Time { return tNow }
+	src.Heartbeat()
+
+	got, _ := store.Load("w0")
+	if got == nil {
+		t.Fatal("expected entry after Heartbeat")
+	}
+	want := tNow.Add(time.Hour)
+	if !got.ExpiresAt.Equal(want) {
+		t.Errorf("ExpiresAt after Heartbeat = %v, want %v", got.ExpiresAt, want)
+	}
+}
+
+func TestSessionTokenSourceHeartbeatNoopWithoutUpdateLifetime(t *testing.T) {
+	body := loadFixture(t, "session/add_session_response_success.xml")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	tNow := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	store := newStore(t, tNow)
+	src := auth.NewSessionTokenSource(newAuthClient(srv, "w0", "secret", soap.AuthPlain, auth.Options{}))
+	src.Store = store
+	src.Lifetime = time.Hour
+	src.Now = func() time.Time { return tNow }
+
+	if _, _, _, err := src.Credentials(context.Background()); err != nil {
+		t.Fatalf("Credentials: %v", err)
+	}
+	original, _ := store.Load("w0")
+	if original == nil {
+		t.Fatal("expected initial entry")
+	}
+
+	tNow = tNow.Add(15 * time.Minute)
+	src.Heartbeat()
+
+	got, _ := store.Load("w0")
+	if got == nil || !got.ExpiresAt.Equal(original.ExpiresAt) {
+		t.Errorf("ExpiresAt changed without UpdateLifetime: %+v", got)
+	}
+}
+
+func newStore(t *testing.T, now time.Time) *session.Store {
+	t.Helper()
+	s, err := session.New(filepath.Join(t.TempDir(), "sessions.toml"))
+	if err != nil {
+		t.Fatalf("session.New: %v", err)
+	}
+	s.Now = func() time.Time { return now }
+	return s
 }
 
 func readAll(r *http.Request) []byte {
