@@ -40,6 +40,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `internal/usage`: drop the action name from `DecodeSpace` /
+  `DecodeSpaceUsage` / `DecodeTraffic` error strings. The Client
+  wrappers already prepend `usage: get_space:` / `usage: get_traffic:`
+  etc., so leaving the action in the decoder produced a doubled prefix
+  (`usage: get_space: usage: get_space: ReturnInfo[0] is not a Map`).
+  Decoders now use `"usage: …"` only, matching the established
+  `account` / `server` pattern.
+
 - `kasapi-cli config init`: rename the local `--profile` flag to
   `--name` so it no longer shadows the persistent root `--profile`
   flag. Previously `kasapi-cli --profile X config init` silently

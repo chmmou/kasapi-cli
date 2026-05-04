@@ -151,7 +151,7 @@ func DecodeSpace(returnInfo soap.Value) (SpaceList, error) {
 	out := make(SpaceList, 0, len(returnInfo.Array))
 	for i, item := range returnInfo.Array {
 		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("usage: get_space: ReturnInfo[%d] is not a Map", i)
+			return nil, fmt.Errorf("usage: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, Space{
 			AccountLogin:         getString(item, "account_login"),
@@ -176,7 +176,7 @@ func DecodeSpaceUsage(returnInfo soap.Value) (SpaceUsageList, error) {
 	out := make(SpaceUsageList, 0, len(returnInfo.Array))
 	for i, item := range returnInfo.Array {
 		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("usage: get_space_usage: ReturnInfo[%d] is not a Map", i)
+			return nil, fmt.Errorf("usage: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, SpaceUsage{
 			Directory:       getString(item, "directory"),
@@ -200,7 +200,7 @@ func DecodeTraffic(returnInfo soap.Value) (TrafficList, error) {
 	out := make(TrafficList, 0, len(returnInfo.Map))
 	for _, kv := range returnInfo.Map {
 		if kv.Value.Kind != soap.KindMap {
-			return nil, fmt.Errorf("usage: get_traffic: entry %q is not a Map", kv.Key)
+			return nil, fmt.Errorf("usage: ReturnInfo entry %q is not a Map", kv.Key)
 		}
 		out = append(out, Traffic{
 			AccountLogin: getString(kv.Value, "account_login"),
