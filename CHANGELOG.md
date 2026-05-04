@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `kasapi-cli subdomains get <name>` calls `get_subdomains` with a
+  `subdomain_name` filter and unwraps the single-entry result, mirroring
+  the existing `domains get` flow; the singular `Subdomain` value
+  renders as a key/value table with the SSL cert/key/CSR PEM bodies
+  summarised as `<bytes,lines>`.
+
 - `internal/domain`, `internal/subdomain`, and `internal/dns` read
   modules with the matching CLI subcommand trees: `kasapi-cli domains
   list` and `domains get <name>` (`get_domains`, the latter passing a

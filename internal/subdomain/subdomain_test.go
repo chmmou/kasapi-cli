@@ -104,12 +104,75 @@ func TestClientList(t *testing.T) {
 	}
 }
 
+func TestClientGet(t *testing.T) {
+	t.Parallel()
+	resp := decodeFixture(t, "get_subdomains_response_success.xml")
+	fc := &fakeCaller{resp: resp}
+	s, err := subdomain.NewClient(fc).Get(context.Background(), "sub1.example.com")
+	if err != nil {
+		t.Fatalf("Get: %v", err)
+	}
+	if fc.gotAction != "get_subdomains" {
+		t.Errorf("action = %q, want get_subdomains", fc.gotAction)
+	}
+	if name, _ := fc.gotParams["subdomain_name"].(string); name != "sub1.example.com" {
+		t.Errorf("params[subdomain_name] = %v, want sub1.example.com", fc.gotParams["subdomain_name"])
+	}
+	// The fixture is the list-view payload; Get unwraps the first entry.
+	if s.Name != "sub1.example.com" {
+		t.Errorf("Name = %q", s.Name)
+	}
+}
+
+func TestClientGetEmptyName(t *testing.T) {
+	t.Parallel()
+	c := subdomain.NewClient(&fakeCaller{})
+	if _, err := c.Get(context.Background(), ""); err == nil {
+		t.Errorf("Get(\"\") err = nil, want validation error")
+	}
+}
+
+func TestClientGetNotFound(t *testing.T) {
+	t.Parallel()
+	resp := &soap.Response{Body: soap.ResponseBody{ReturnInfo: soap.Value{Kind: soap.KindArray}}}
+	c := subdomain.NewClient(&fakeCaller{resp: resp})
+	if _, err := c.Get(context.Background(), "missing.example.com"); err == nil {
+		t.Errorf("Get on empty result err = nil, want not-found")
+	}
+}
+
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
 	c := subdomain.NewClient(&fakeCaller{err: want})
 	if _, err := c.List(context.Background()); !errors.Is(err, want) {
 		t.Errorf("List err = %v, want %v wrapped", err, want)
+	}
+	if _, err := c.Get(context.Background(), "x.example.com"); !errors.Is(err, want) {
+		t.Errorf("Get err = %v, want %v wrapped", err, want)
+	}
+}
+
+func TestSubdomainTabularKeyValue(t *testing.T) {
+	t.Parallel()
+	resp := decodeFixture(t, "get_subdomains_response_success.xml")
+	list, _ := subdomain.DecodeSubdomains(resp.Body.ReturnInfo)
+	if len(list) == 0 {
+		t.Fatal("fixture empty")
+	}
+	headers := list[0].TableHeaders()
+	if len(headers) != 2 || headers[0] != "FIELD" || headers[1] != "VALUE" {
+		t.Errorf("headers = %v, want [FIELD VALUE]", headers)
+	}
+	rows := list[0].TableRows()
+	var seen bool
+	for _, row := range rows {
+		if row[0] == "subdomain_name" && row[1] == "sub1.example.com" {
+			seen = true
+		}
+	}
+	if !seen {
+		t.Errorf("subdomain_name row missing or wrong: %v", rows)
 	}
 }
 

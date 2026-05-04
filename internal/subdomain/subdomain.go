@@ -16,9 +16,12 @@ type Caller interface {
 	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
 }
 
-// Subdomain is one entry of get_subdomains. The shape mirrors the
-// domain list view (same SSL summary, same lifecycle flags) but is
-// keyed on subdomain_* fields.
+// Subdomain is one entry of get_subdomains. The KAS list view exposes
+// the account/server placement and a flattened SSL summary; the
+// singular view (get_subdomains with a subdomain_name filter) returns
+// the same Map shape but additionally fills the SSL cert/key/CSR PEM
+// bodies that the list view leaves as xsi:nil. We model both shapes
+// with one struct and rely on `omitempty` for the cert bodies.
 type Subdomain struct {
 	Name           string `json:"subdomain_name" yaml:"subdomain_name"`
 	RedirectStatus int    `json:"subdomain_redirect_status" yaml:"subdomain_redirect_status"`
@@ -60,7 +63,8 @@ type SSL struct {
 // cli.Tabular.
 type SubdomainList []Subdomain
 
-// Client groups the read endpoints scoped to subdomains: get_subdomains.
+// Client groups the read endpoints scoped to subdomains:
+// get_subdomains (list and singular).
 type Client struct {
 	API Caller
 }
@@ -68,8 +72,9 @@ type Client struct {
 // NewClient returns a Client backed by the given Caller.
 func NewClient(c Caller) *Client { return &Client{API: c} }
 
-// List calls get_subdomains and decodes the response into a
-// SubdomainList. The KAS API accepts no parameters on this endpoint.
+// List calls get_subdomains without parameters and decodes the
+// response into a SubdomainList covering every subdomain visible to
+// the login.
 func (c *Client) List(ctx context.Context) (SubdomainList, error) {
 	resp, err := c.API.Call(ctx, "get_subdomains", nil)
 	if err != nil {
@@ -80,6 +85,28 @@ func (c *Client) List(ctx context.Context) (SubdomainList, error) {
 		return nil, fmt.Errorf("subdomain: get_subdomains: %w", err)
 	}
 	return list, nil
+}
+
+// Get calls get_subdomains with a subdomain_name filter and returns
+// the single matching Subdomain. The KAS API still wraps the result
+// in an array; we unwrap it here so callers do not have to. An empty
+// array surfaces as a not-found error.
+func (c *Client) Get(ctx context.Context, name string) (Subdomain, error) {
+	if name == "" {
+		return Subdomain{}, fmt.Errorf("subdomain: name is required")
+	}
+	resp, err := c.API.Call(ctx, "get_subdomains", map[string]any{"subdomain_name": name})
+	if err != nil {
+		return Subdomain{}, err
+	}
+	list, err := DecodeSubdomains(resp.Body.ReturnInfo)
+	if err != nil {
+		return Subdomain{}, fmt.Errorf("subdomain: get_subdomains: %w", err)
+	}
+	if len(list) == 0 {
+		return Subdomain{}, fmt.Errorf("subdomain: %q not found", name)
+	}
+	return list[0], nil
 }
 
 // DecodeSubdomains maps the ReturnInfo of a get_subdomains response
@@ -180,4 +207,55 @@ func (l SubdomainList) TableRows() [][]string {
 		})
 	}
 	return rows
+}
+
+// TableHeaders for the singular Subdomain view: a key/value layout,
+// since the record may carry an SSL cert PEM blob and is too tall for
+// a row.
+func (Subdomain) TableHeaders() []string {
+	return []string{"FIELD", "VALUE"}
+}
+
+// TableRows emits the scalar fields. The SSL cert PEM bodies are
+// summarised; consumers that need them should use --output=json|yaml.
+func (s Subdomain) TableRows() [][]string {
+	return [][]string{
+		{"subdomain_name", s.Name},
+		{"subdomain_account", s.Account},
+		{"subdomain_server", s.Server},
+		{"subdomain_path", s.Path},
+		{"subdomain_redirect_status", strconv.Itoa(s.RedirectStatus)},
+		{"fpse_active", s.FPSEActive},
+		{"php_version", s.PHPVersion},
+		{"php_deprecated", s.PHPDeprecated},
+		{"is_active", s.IsActive},
+		{"in_progress", s.InProgress},
+		{"statistic_version", strconv.Itoa(s.StatisticVersion)},
+		{"statistic_language", s.StatisticLanguage},
+		{"ssl_proxy", s.SSL.Proxy},
+		{"ssl_certificate_ip", s.SSL.CertificateIP},
+		{"ssl_certificate_sni", s.SSL.SNI},
+		{"ssl_certificate_sni_is_active", s.SSL.SNIIsActive},
+		{"ssl_certificate_sni_type", s.SSL.SNIType},
+		{"ssl_certificate_sni_force_https", s.SSL.SNIForceHTTPS},
+		{"ssl_certificate_sni_hsts_max_age", s.SSL.SNIHSTSMaxAge},
+		{"ssl_certificate_sni_csr", summarisePEM(s.SSL.SNICSR)},
+		{"ssl_certificate_sni_key", summarisePEM(s.SSL.SNIKey)},
+		{"ssl_certificate_sni_crt", summarisePEM(s.SSL.SNICRT)},
+		{"ssl_certificate_sni_bundle", summarisePEM(s.SSL.SNIBundle)},
+		{"ssl_certificate_sni_chainfile", summarisePEM(s.SSL.SNIChainfile)},
+	}
+}
+
+// summarisePEM collapses a multi-line PEM blob to a single line marker
+// so the key/value table stays readable. Empty input passes through
+// unchanged.
+func summarisePEM(s string) string {
+	if s == "" {
+		return ""
+	}
+	if !strings.Contains(s, "\n") {
+		return s
+	}
+	return fmt.Sprintf("<%d bytes, %d lines>", len(s), strings.Count(s, "\n")+1)
 }
