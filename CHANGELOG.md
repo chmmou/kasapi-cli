@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/domain`, `internal/subdomain`, and `internal/dns` read
+  modules with the matching CLI subcommand trees: `kasapi-cli domains
+  list` and `domains get <name>` (`get_domains`, the latter passing a
+  `domain_name` filter and unwrapping the single-entry result),
+  `kasapi-cli subdomains list` (`get_subdomains`), `kasapi-cli tlds
+  list` (`get_topleveldomains`), and `kasapi-cli dns list --domain <d>
+  [--nameserver <ns>]` (`get_dns_settings`). Domain types `Domain`,
+  `SSL`, `TLD`, `Subdomain`, and DNS `Record` decode the KAS Map/Array
+  payloads into typed Go values; the SSL cert/key/CSR PEM bodies are
+  carried through but summarised as `<bytes,lines>` in the
+  `--output=table` view of `domains get` so the key/value layout stays
+  readable. Mapping tests run against the shipped `testdata/domain/`,
+  `testdata/subdomain/`, and `testdata/dns/` fixtures. Closes #8.
+
 - `internal/usage` package and `kasapi-cli usage` subcommand tree
   covering the three KAS read endpoints around webspace and traffic
   counters: `usage space` (`get_space`) lists per-account webspace

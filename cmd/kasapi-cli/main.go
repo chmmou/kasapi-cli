@@ -17,6 +17,10 @@ func main() {
 	root.AddCommand(
 		cli.NewAccountCmd(opts),
 		cli.NewServerCmd(opts),
+		cli.NewDomainsCmd(opts),
+		cli.NewSubdomainsCmd(opts),
+		cli.NewTLDsCmd(opts),
+		cli.NewDNSCmd(opts),
 		cli.NewUsageCmd(opts),
 		cli.NewConfigCmd(opts),
 	)
