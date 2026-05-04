@@ -1,23 +1,11 @@
 ---
 name: kasapi-cli-git-workflow
-description: Git, commit, and PR workflow for kasapi-cli. TRIGGER on every `git commit` / `git push` / `gh pr create` / `gh pr merge`, when creating a feature or fix branch, on rebase/merge conflicts against `main`, or when the user asks for a code-review pass. Adapted from the libqasapi `qasapi-module` skill, reduced to what applies to a fresh greenfield project.
+description: Git, commit, branch, and PR/merge mechanics for kasapi-cli. TRIGGER on every `git commit` / `git push` / `gh pr create`, when creating a feature or fix branch, on rebase/merge conflicts against `main`, or on the signed-commit fast-forward merge to `main`. For the review-classification loop see the companion skill `kasapi-cli-code-review`.
 ---
 
 # kasapi-cli Git Workflow
 
-Mandatory workflow for branches, commits, PRs, and review rounds. Applies only to git actions — the domain-specific module slicing from the libqasapi original is **not** carried over.
-
-## Precondition
-
-The repo is currently **not a git repository**. Before the first commit:
-
-```bash
-git init -b main
-git add <selective: only the files you want in the initial commit>
-git commit -m "chore: initial commit"
-```
-
-Only after that do the branch/PR rules below apply. The `gh` steps additionally require a configured GitHub remote (`gh repo create …`) — clarify owner / visibility with the user, do not assume.
+Mandatory mechanics for branches, commits, PRs, and the merge to `main`. The review-loop side of the workflow (Blocker/Should/Nice classification, re-review after corrections) lives in the companion skill **`kasapi-cli-code-review`** — invoke that one when the user asks for a review pass or you are about to start a larger new step.
 
 ## Golden Rule
 
@@ -85,16 +73,6 @@ git push origin --delete <branch>
 - **`--force-push` is blocked** by default; same authorization pattern. Never bypass with `-c` overrides or `--no-verify`.
 - **Do not skip hooks.** No `--no-verify`, no `--no-gpg-sign`. On hook failure, fix the underlying cause and create a **new** commit — do not `--amend`.
 - **Branch protection on `main`** (settings: `required_signatures`, `enforce_admins`, `required_linear_history`, `allow_force_pushes` kept on for retroactive history fixes, `allow_deletions` off). Pushes to `main` of unsigned commits will be rejected by GitHub.
-
-## Code-Review Loop
-
-Before any larger new step and after every correction, review the existing code — acting in the role of code reviewer, not implementer. Classify findings:
-
-- **Blocker:** outright wrong (bug, UB, schema mismatch, security) → fix before the next step.
-- **Should:** consistency / readability → fix quickly if cheap.
-- **Nice-to-have:** cosmetic → record but do not block on it.
-
-Corrected findings are committed on a dedicated `fix/<topic>` branch and merged via a separate PR. After merged corrections, **re-review**, because fixes can introduce regressions — the loop ends only when no blocker or should-findings remain.
 
 ## Post-Merge
 

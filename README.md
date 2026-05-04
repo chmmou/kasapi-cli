@@ -60,12 +60,13 @@ go test ./...
 - `internal/` — domain types, transport, mappers (planned).
 - `testdata/` — recorded KAS-API SOAP responses; the source of truth for response shape, used by offline parser tests.
 - `docs/go/` — Go style, architecture, patterns, and linting reference for this repo.
-- `.claude/skills/kasapi-cli-git-workflow/` — git/PR workflow skill enforced for this project.
+- `.claude/skills/kasapi-cli-git-workflow/` — git/PR/merge mechanics enforced for this project.
+- `.claude/skills/kasapi-cli-code-review/` — code-review loop (Blocker/Should/Nice classification, re-review cycle).
 - `AGENTS.md`, `CLAUDE.md` — agent guidance.
 
 ## Contributing
 
-Read `AGENTS.md` and `docs/go/ARCHITECTURE.md` before opening a PR. The git workflow (branch naming, commit style, PR shape, CI gate) is captured in `.claude/skills/kasapi-cli-git-workflow/SKILL.md`.
+Read `AGENTS.md` and `docs/go/ARCHITECTURE.md` before opening a PR. The git workflow (branch naming, commit style, PR shape, CI gate, signed FF-merge) is captured in `.claude/skills/kasapi-cli-git-workflow/SKILL.md`; the review-loop conventions (finding classification, re-review cycle) live next to it in `.claude/skills/kasapi-cli-code-review/SKILL.md`.
 
 ## License
 
