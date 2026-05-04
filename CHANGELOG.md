@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/usage` package and `kasapi-cli usage` subcommand tree
+  covering the three KAS read endpoints around webspace and traffic
+  counters: `usage space` (`get_space`) lists per-account webspace
+  totals with a usage ratio; `usage space-detail [--directory PATH]`
+  (`get_space_usage`) reports per-directory file counts and byte sums;
+  `usage traffic [--year Y --month M]` (`get_traffic`) returns the
+  monthly summary plus per-day rows. The decoder maps the get_traffic
+  Map keyed by `0` / `01..31` into a slice (summary first, then days),
+  treats `xsi:nil` FTP fields as zero, and parses the xsd:string-encoded
+  byte counts into `int64` so 9-digit values survive on 32-bit
+  platforms. Closes #10.
+
 - `internal/session` persistent session-token cache so a successful
   KasAuth login (including 2FA via `--otp`) survives across CLI
   invocations: a new `sessions.toml` next to the config file (mode

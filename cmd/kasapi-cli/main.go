@@ -17,6 +17,7 @@ func main() {
 	root.AddCommand(
 		cli.NewAccountCmd(opts),
 		cli.NewServerCmd(opts),
+		cli.NewUsageCmd(opts),
 		cli.NewConfigCmd(opts),
 	)
 	if err := root.Execute(); err != nil {
