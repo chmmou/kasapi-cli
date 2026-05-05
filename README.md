@@ -22,32 +22,13 @@
 
 ## Status
 
-Early development. No functional Go code yet — the repository currently holds documentation, agent guidance, and recorded KAS-API response fixtures used to drive offline parser tests. See the project board for the active roadmap.
+Early development. The transport, authentication, configuration, and several read modules are wired up; many write paths and the remaining read endpoints are still pending — see [ROADMAP.md](ROADMAP.md) for the current state. The repository also ships recorded KAS-API response fixtures under `testdata/` that drive offline parser tests.
 
-## What it does (planned)
+## What it does
 
-`kasapi-cli` is a command-line client for the All-Inkl KAS-API. It wraps the SOAP/`ns2:Map` wire format the API uses, handles the `KasAuth` credential-token flow (plain or session, optional 2FA), enforces the `KasFloodDelay` between calls, and exposes read and write operations for the resources documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>:
-
-- accounts, account settings, account resources
-- server information, space, space usage, traffic
-- top-level domains, domains, subdomains, DNS settings
-- mail accounts, mail forwards, mail standard filters, mailing lists
-- databases, FTP users, Samba users, DDNS users
-- cronjobs, directory protection, software install entries
-- sessions (`add_session`, `delete_session`)
-
-## Endpoints
-
-- API: <https://kasapi.kasserver.com/soap/KasApi.php>
-- Auth: <https://kasapi.kasserver.com/soap/KasAuth.php>
-
-## Configuration (planned)
-
-`kasapi-cli` reads credentials from a config file or from environment variables (`KAS_LOGIN`, `KAS_AUTHDATA`, `KAS_AUTHTYPE`). Profiles let you switch between accounts. Secrets never appear in `--help` or in default log output.
+`kasapi-cli` is a command-line client for the All-Inkl KAS-API. It wraps the SOAP/`ns2:Map` wire format the API uses, handles the `KasAuth` credential-token flow (plain or session, optional 2FA), enforces the `KasFloodDelay` between calls, and exposes read and write operations for the resources documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>.
 
 ## Building
-
-Once the Go module is bootstrapped:
 
 ```sh
 go build ./cmd/kasapi-cli
@@ -56,8 +37,8 @@ go test ./...
 
 ## Repository layout
 
-- `cmd/kasapi-cli/` — CLI entry point (planned).
-- `internal/` — domain types, transport, mappers (planned).
+- `cmd/kasapi-cli/` — CLI entry point.
+- `internal/` — domain types, transport, mappers, CLI wiring; one package per KAS resource (see `internal/account/`, `internal/domain/`, `internal/dns/`, …) plus shared infrastructure (`internal/soap`, `internal/api`, `internal/auth`, `internal/transport`, `internal/session`, `internal/config`, `internal/cli`).
 - `testdata/` — recorded KAS-API SOAP responses; the source of truth for response shape, used by offline parser tests.
 - `docs/go/` — Go style, architecture, patterns, and linting reference for this repo.
 - `.claude/skills/kasapi-cli-git-workflow/` — git/PR/merge mechanics enforced for this project.
@@ -66,7 +47,11 @@ go test ./...
 
 ## Contributing
 
-Read `AGENTS.md` and `docs/go/ARCHITECTURE.md` before opening a PR. The git workflow (branch naming, commit style, PR shape, CI gate, signed FF-merge) is captured in `.claude/skills/kasapi-cli-git-workflow/SKILL.md`; the review-loop conventions (finding classification, re-review cycle) live next to it in `.claude/skills/kasapi-cli-code-review/SKILL.md`.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, coding conventions, the vertical-slice pattern used per KAS endpoint, the commit/PR workflow, and the code-review loop.
+
+## Roadmap
+
+The current state of the KAS-API surface — implemented vs. pending — is tracked in [ROADMAP.md](ROADMAP.md).
 
 ## License
 
