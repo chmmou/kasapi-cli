@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/chmmou/kasapi-cli/blob/main/CONTRIBUTING.md#reporting-security-issues
+    about: Please do not file public issues for vulnerabilities — see CONTRIBUTING for the private channel.
+  - name: KAS-API documentation
+    url: https://kasapi.kasserver.com/dokumentation/phpdoc/
+    about: Endpoint contracts and parameter shapes (the source of truth for request/response form).
+  - name: Roadmap
+    url: https://github.com/chmmou/kasapi-cli/blob/main/ROADMAP.md
+    about: Check whether the endpoint you want is already tracked before opening a feature request.

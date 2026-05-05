@@ -1,0 +1,57 @@
+name: Feature request
+description: Propose a new KAS-API endpoint, CLI subcommand, or quality-of-life improvement.
+title: "feat: <short summary>"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening: please skim [ROADMAP.md](https://github.com/chmmou/kasapi-cli/blob/main/ROADMAP.md). If the endpoint is already tracked there, comment on the existing issue (or open one referencing the roadmap entry) instead of duplicating it.
+
+  - type: input
+    id: kas_action
+    attributes:
+      label: KAS-API action(s)
+      description: The `kas_action` name(s) from the official documentation that this request would wrap.
+      placeholder: "e.g. add_dns_settings, get_mailaccounts"
+
+  - type: input
+    id: doc_link
+    attributes:
+      label: Link to KAS-API docs
+      description: The page on `kasapi.kasserver.com/dokumentation/phpdoc/` describing the endpoint.
+      placeholder: "https://kasapi.kasserver.com/dokumentation/phpdoc/files/<page>.html"
+
+  - type: textarea
+    id: cli_shape
+    attributes:
+      label: Proposed CLI shape
+      description: How would you invoke this from the command line? Subcommand, flags, expected output.
+      render: shell
+      placeholder: |
+        kasapi-cli dns add --domain example.com --type A --name www --data 1.2.3.4
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation / use case
+      description: What problem does this solve? Concrete scenarios are more useful than abstract requirements.
+    validations:
+      required: true
+
+  - type: textarea
+    id: shape_notes
+    attributes:
+      label: Request / response shape notes
+      description: |
+        Anything noteworthy about the wire format — required vs. optional params, list-vs-singular variants, fields that arrive as `xsi:nil`, etc. A redacted captured response helps a lot.
+
+  - type: checkboxes
+    id: claim
+    attributes:
+      label: Are you offering to implement this?
+      options:
+        - label: Yes — I plan to open a PR following the vertical-slice pattern in CONTRIBUTING.md.
+        - label: No — request only.
