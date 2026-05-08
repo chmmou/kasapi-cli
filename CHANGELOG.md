@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/directoryprotection` read module and
+  `kasapi-cli directoryprotection list [--path PATH]` subcommand
+  wrapping `get_directoryprotection`. The KAS endpoint returns one
+  entry per `(directory_path, directory_user)` tuple, so a directory
+  with N users surfaces as N rows; for that reason this slice is
+  exposed as a list with an optional `--path` filter rather than the
+  usual list+get pair (matching the `dns list --domain` shape).
+  `directory_password` is omitted from the table view but remains
+  available via `--output=json|yaml`. Mapping tests run against
+  `testdata/directoryprotection/get_directoryprotections_response_success.xml`
+  and `get_directoryprotection_response_success.xml`. Refs #11.
+
 - `internal/cronjob` read module and `kasapi-cli cronjobs list|get`
   subcommand tree wrapping `get_cronjobs`. The list variant decodes
   the Array of Maps into a typed `CronjobList`; `get <cronjob-id>`

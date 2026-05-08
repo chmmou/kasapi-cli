@@ -26,6 +26,7 @@ func main() {
 		cli.NewFTPUsersCmd(opts),
 		cli.NewSambaUsersCmd(opts),
 		cli.NewCronjobsCmd(opts),
+		cli.NewDirectoryProtectionCmd(opts),
 		cli.NewUsageCmd(opts),
 		cli.NewConfigCmd(opts),
 	)
