@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/chmmou/kasapi-cli/internal/mailaccount"
+	"github.com/chmmou/kasapi-cli/internal/mailfilter"
 	"github.com/chmmou/kasapi-cli/internal/mailforward"
 )
 
@@ -18,8 +19,40 @@ func NewMailCmd(opts *RootOptions) *cobra.Command {
 	cmd.AddCommand(
 		newMailAccountsCmd(opts),
 		newMailForwardsCmd(opts),
+		newMailFiltersCmd(opts),
 	)
 	return cmd
+}
+
+func newMailFiltersCmd(opts *RootOptions) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "filters",
+		Short: "Inspect mail standard filters (get_mailstandardfilter)",
+	}
+	cmd.AddCommand(newMailFiltersListCmd(opts))
+	return cmd
+}
+
+func newMailFiltersListCmd(opts *RootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "list",
+		Short: "List the available standard mail filters (get_mailstandardfilter)",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			api, err := BuildAPIClient(opts)
+			if err != nil {
+				return err
+			}
+			list, err := mailfilter.NewClient(api).List(cmd.Context())
+			if err != nil {
+				return APIError(err, "get_mailstandardfilter")
+			}
+			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
+				return UserError(err, "render")
+			}
+			return nil
+		},
+	}
 }
 
 func newMailAccountsCmd(opts *RootOptions) *cobra.Command {

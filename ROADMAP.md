@@ -46,7 +46,8 @@ The list is kept in sync with the code on `main`. To claim an unchecked item, pl
 - [ ] Mail account write paths (`add_mailaccount`, `update_mailaccount`, `delete_mailaccount`)
 - [x] `mail forwards list` / `mail forwards get <address>` (`get_mailforwards`, with `mail_forward` filter)
 - [ ] Mail forward write paths (`add_mailforward`, `update_mailforward`, `delete_mailforward`)
-- [ ] Mail standard filters (`get_mailstandardfilter`, `update_mailstandardfilter`)
+- [x] `mail filters list` (`get_mailstandardfilter`)
+- [ ] Mail standard filter write paths (`update_mailstandardfilter`)
 - [ ] Mailing lists (`get_mailinglists`, `add_mailinglist`, `update_mailinglist`, `delete_mailinglist`)
 
 ## Hosting resources

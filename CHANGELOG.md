@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/mailfilter` read module and `kasapi-cli mail filters list`
+  subcommand wrapping `get_mailstandardfilter`. Decodes the Array of
+  `{filter, type, title, recommended}` Maps into a typed
+  `StandardFilterList` so callers can resolve the preset filter ids
+  used by `mail_spamfilter` on accounts/forwards. Mapping test runs
+  against `testdata/mailfilter/get_mailstandardfilter_response_success.xml`.
+  Refs #9.
+
 - `internal/mailforward` read module and `kasapi-cli mail forwards
   list|get` subcommand tree wrapping `get_mailforwards`. The list
   variant decodes the full Map-of-Maps payload into a typed
