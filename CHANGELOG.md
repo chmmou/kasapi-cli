@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/ddns` read module and `kasapi-cli ddnsusers list|get`
+  subcommand tree wrapping `get_ddnsusers`. The list variant decodes
+  the Array of Maps into a typed `DDNSUserList`; `get <dyndns-login>`
+  reuses the same endpoint with a `ddns_login` filter (note: the
+  filter parameter has no `y`, unlike the response keys which use
+  the `dyndns_*` prefix; per the KAS docs at `get-ddnsusers-inc.html`)
+  and unwraps the single-entry result. The list view joins
+  `dyndns_label` and `dyndns_zone` into a single `FQDN` column so
+  the table reflects the hostname clients will actually look up;
+  the explicit `dyndns_target_ipv4` / `dyndns_target_ipv6` fields
+  surface as separate K/V rows in the singular view when the API
+  populated them. `dyndns_password` is omitted from both table
+  views (still available via `--output=json|yaml`). The KAS API
+  signals "filter matched no entry" with a `dyndns_login_not_found`
+  SOAP fault rather than an empty array; that fault propagates as
+  an `*api.Error` and is detected by `api.IsNotFound`. Mapping tests
+  run against `testdata/ddns/get_ddnsusers_response_success.xml` and
+  `get_ddnsuser_response_success.xml`. Refs #11.
+
 - `internal/softwareinstall` read module and `kasapi-cli softwareinstalls
   list|get` subcommand tree wrapping `get_softwareinstall` (note: the
   KAS action name is singular for both variants). The list variant

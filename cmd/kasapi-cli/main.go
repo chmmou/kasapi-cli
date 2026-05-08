@@ -28,6 +28,7 @@ func main() {
 		cli.NewCronjobsCmd(opts),
 		cli.NewDirectoryProtectionCmd(opts),
 		cli.NewSoftwareInstallsCmd(opts),
+		cli.NewDDNSUsersCmd(opts),
 		cli.NewUsageCmd(opts),
 		cli.NewConfigCmd(opts),
 	)
