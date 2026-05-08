@@ -6,6 +6,7 @@ import (
 	"github.com/chmmou/kasapi-cli/internal/mailaccount"
 	"github.com/chmmou/kasapi-cli/internal/mailfilter"
 	"github.com/chmmou/kasapi-cli/internal/mailforward"
+	"github.com/chmmou/kasapi-cli/internal/mailinglist"
 )
 
 // NewMailCmd returns the "kasapi-cli mail" subcommand tree, grouping
@@ -20,8 +21,40 @@ func NewMailCmd(opts *RootOptions) *cobra.Command {
 		newMailAccountsCmd(opts),
 		newMailForwardsCmd(opts),
 		newMailFiltersCmd(opts),
+		newMailListsCmd(opts),
 	)
 	return cmd
+}
+
+func newMailListsCmd(opts *RootOptions) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "lists",
+		Short: "Inspect mailing lists (get_mailinglists)",
+	}
+	cmd.AddCommand(newMailListsListCmd(opts))
+	return cmd
+}
+
+func newMailListsListCmd(opts *RootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "list",
+		Short: "List all mailing lists (get_mailinglists)",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			api, err := BuildAPIClient(opts)
+			if err != nil {
+				return err
+			}
+			list, err := mailinglist.NewClient(api).List(cmd.Context())
+			if err != nil {
+				return APIError(err, "get_mailinglists")
+			}
+			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
+				return UserError(err, "render")
+			}
+			return nil
+		},
+	}
 }
 
 func newMailFiltersCmd(opts *RootOptions) *cobra.Command {

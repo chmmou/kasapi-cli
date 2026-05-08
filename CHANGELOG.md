@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/mailinglist` read module and `kasapi-cli mail lists list`
+  subcommand wrapping `get_mailinglists`. Decodes the Array of
+  `{mailinglist_name, mailinglist_admin, mailinglist_url, in_progress}`
+  Maps into a typed `MailingListList` so callers can inspect the
+  Mailman lists provisioned for the account. Closes #9.
+
 - `internal/mailfilter` read module and `kasapi-cli mail filters list`
   subcommand wrapping `get_mailstandardfilter`. Decodes the Array of
   `{filter, type, title, recommended}` Maps into a typed
