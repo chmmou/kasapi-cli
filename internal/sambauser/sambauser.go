@@ -89,22 +89,14 @@ func DecodeSambaUsers(returnInfo soap.Value) (SambaUserList, error) {
 			return nil, fmt.Errorf("sambauser: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, SambaUser{
-			Login:      getString(item, "samba_login"),
-			Password:   getString(item, "samba_password"),
-			Path:       getString(item, "samba_path"),
-			Comment:    getString(item, "samba_comment"),
-			InProgress: getString(item, "in_progress"),
+			Login:      item.MapString("samba_login"),
+			Password:   item.MapString("samba_password"),
+			Path:       item.MapString("samba_path"),
+			Comment:    item.MapString("samba_comment"),
+			InProgress: item.MapString("in_progress"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
 }
 
 // TableHeaders returns the columns used by --output=table for

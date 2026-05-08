@@ -100,28 +100,20 @@ func DecodeFTPUsers(returnInfo soap.Value) (FTPUserList, error) {
 			return nil, fmt.Errorf("ftpuser: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, FTPUser{
-			Login:           getString(item, "ftp_login"),
-			Password:        getString(item, "ftp_password"),
-			Passwort:        getString(item, "ftp_passwort"),
-			Path:            getString(item, "ftp_path"),
-			Comment:         getString(item, "ftp_comment"),
-			IsMainUser:      getString(item, "ftp_is_main_user"),
-			PermissionList:  getString(item, "ftp_permission_list"),
-			PermissionRead:  getString(item, "ftp_permission_read"),
-			PermissionWrite: getString(item, "ftp_permission_write"),
-			VirusClamAV:     getString(item, "ftp_virus_clamav"),
-			InProgress:      getString(item, "in_progress"),
+			Login:           item.MapString("ftp_login"),
+			Password:        item.MapString("ftp_password"),
+			Passwort:        item.MapString("ftp_passwort"),
+			Path:            item.MapString("ftp_path"),
+			Comment:         item.MapString("ftp_comment"),
+			IsMainUser:      item.MapString("ftp_is_main_user"),
+			PermissionList:  item.MapString("ftp_permission_list"),
+			PermissionRead:  item.MapString("ftp_permission_read"),
+			PermissionWrite: item.MapString("ftp_permission_write"),
+			VirusClamAV:     item.MapString("ftp_virus_clamav"),
+			InProgress:      item.MapString("in_progress"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
 }
 
 // TableHeaders returns the columns used by --output=table for

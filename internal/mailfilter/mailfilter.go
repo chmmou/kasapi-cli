@@ -61,21 +61,13 @@ func DecodeStandardFilters(returnInfo soap.Value) (StandardFilterList, error) {
 			return nil, fmt.Errorf("mailfilter: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, StandardFilter{
-			Filter:      getString(item, "filter"),
-			Type:        getString(item, "type"),
-			Title:       getString(item, "title"),
-			Recommended: getString(item, "recommended"),
+			Filter:      item.MapString("filter"),
+			Type:        item.MapString("type"),
+			Title:       item.MapString("title"),
+			Recommended: item.MapString("recommended"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
 }
 
 // TableHeaders returns the columns used by --output=table for

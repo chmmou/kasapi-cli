@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
@@ -79,49 +78,17 @@ func DecodeRecords(returnInfo soap.Value) (RecordList, error) {
 			return nil, fmt.Errorf("dns: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, Record{
-			Zone:       getString(item, "record_zone"),
-			Name:       getString(item, "record_name"),
-			Type:       getString(item, "record_type"),
-			Data:       getString(item, "record_data"),
-			Aux:        getInt(item, "record_aux"),
-			ID:         getString(item, "record_id"),
-			Changeable: getString(item, "record_changeable"),
-			Deleteable: getString(item, "record_deleteable"),
+			Zone:       item.MapString("record_zone"),
+			Name:       item.MapString("record_name"),
+			Type:       item.MapString("record_type"),
+			Data:       item.MapString("record_data"),
+			Aux:        item.MapInt("record_aux"),
+			ID:         item.MapString("record_id"),
+			Changeable: item.MapString("record_changeable"),
+			Deleteable: item.MapString("record_deleteable"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
-}
-
-func getInt(m soap.Value, key string) int {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	switch v.Kind {
-	case soap.KindInt:
-		return int(v.Int)
-	case soap.KindFloat:
-		return int(v.Float)
-	case soap.KindString:
-		s := strings.TrimSpace(v.String)
-		if s == "" {
-			return 0
-		}
-		n, err := strconv.Atoi(s)
-		if err != nil {
-			return 0
-		}
-		return n
-	}
-	return 0
 }
 
 // TableHeaders returns the columns used by --output=table for

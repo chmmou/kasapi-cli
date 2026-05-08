@@ -78,22 +78,14 @@ func DecodeDirectoryProtections(returnInfo soap.Value) (DirectoryProtectionList,
 			return nil, fmt.Errorf("directoryprotection: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, DirectoryProtection{
-			User:       getString(item, "directory_user"),
-			Path:       getString(item, "directory_path"),
-			AuthName:   getString(item, "directory_authname"),
-			Password:   getString(item, "directory_password"),
-			InProgress: getString(item, "in_progress"),
+			User:       item.MapString("directory_user"),
+			Path:       item.MapString("directory_path"),
+			AuthName:   item.MapString("directory_authname"),
+			Password:   item.MapString("directory_password"),
+			InProgress: item.MapString("in_progress"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
 }
 
 // TableHeaders returns the columns used by --output=table for

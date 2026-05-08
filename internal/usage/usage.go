@@ -154,14 +154,14 @@ func DecodeSpace(returnInfo soap.Value) (SpaceList, error) {
 			return nil, fmt.Errorf("usage: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, Space{
-			AccountLogin:         getString(item, "account_login"),
-			LastCalculation:      getInt64(item, "last_calculation"),
-			UsedHTDocsSpace:      getInt64(item, "used_htdocs_space"),
-			UsedChrootSpace:      getInt64(item, "used_chroot_space"),
-			UsedDatabaseSpace:    getInt64(item, "used_database_space"),
-			UsedMailaccountSpace: getInt64(item, "used_mailaccount_space"),
-			UsedWebspace:         getInt64(item, "used_webspace"),
-			MaxWebspace:          getInt64(item, "max_webspace"),
+			AccountLogin:         item.MapString("account_login"),
+			LastCalculation:      item.MapInt64("last_calculation"),
+			UsedHTDocsSpace:      item.MapInt64("used_htdocs_space"),
+			UsedChrootSpace:      item.MapInt64("used_chroot_space"),
+			UsedDatabaseSpace:    item.MapInt64("used_database_space"),
+			UsedMailaccountSpace: item.MapInt64("used_mailaccount_space"),
+			UsedWebspace:         item.MapInt64("used_webspace"),
+			MaxWebspace:          item.MapInt64("max_webspace"),
 		})
 	}
 	return out, nil
@@ -179,10 +179,10 @@ func DecodeSpaceUsage(returnInfo soap.Value) (SpaceUsageList, error) {
 			return nil, fmt.Errorf("usage: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, SpaceUsage{
-			Directory:       getString(item, "directory"),
-			Count:           getInt64(item, "count"),
-			Bytes:           getInt64(item, "bytes"),
-			LastCalculation: getInt64(item, "last_calculation"),
+			Directory:       item.MapString("directory"),
+			Count:           item.MapInt64("count"),
+			Bytes:           item.MapInt64("bytes"),
+			LastCalculation: item.MapInt64("last_calculation"),
 			HasSubDirs:      getYN(item, "has_sub_dirs"),
 		})
 	}
@@ -203,54 +203,18 @@ func DecodeTraffic(returnInfo soap.Value) (TrafficList, error) {
 			return nil, fmt.Errorf("usage: ReturnInfo entry %q is not a Map", kv.Key)
 		}
 		out = append(out, Traffic{
-			AccountLogin: getString(kv.Value, "account_login"),
-			Year:         getInt(kv.Value, "year"),
-			Month:        getInt(kv.Value, "month"),
-			Day:          getInt(kv.Value, "day"),
-			HTTPTraffic:  getInt64(kv.Value, "http_traffic"),
-			FTPTraffic:   getInt64(kv.Value, "ftp_traffic"),
-			HTTPHits:     getInt64(kv.Value, "http_hits"),
-			FTPHits:      getInt64(kv.Value, "ftp_hits"),
-			Comment:      getString(kv.Value, "comment"),
+			AccountLogin: kv.Value.MapString("account_login"),
+			Year:         kv.Value.MapInt("year"),
+			Month:        kv.Value.MapInt("month"),
+			Day:          kv.Value.MapInt("day"),
+			HTTPTraffic:  kv.Value.MapInt64("http_traffic"),
+			FTPTraffic:   kv.Value.MapInt64("ftp_traffic"),
+			HTTPHits:     kv.Value.MapInt64("http_hits"),
+			FTPHits:      kv.Value.MapInt64("ftp_hits"),
+			Comment:      kv.Value.MapString("comment"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
-}
-
-func getInt(m soap.Value, key string) int {
-	return int(getInt64(m, key))
-}
-
-func getInt64(m soap.Value, key string) int64 {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	switch v.Kind {
-	case soap.KindInt:
-		return v.Int
-	case soap.KindFloat:
-		return int64(v.Float)
-	case soap.KindString:
-		s := strings.TrimSpace(v.String)
-		if s == "" {
-			return 0
-		}
-		n, err := strconv.ParseInt(s, 10, 64)
-		if err != nil {
-			return 0
-		}
-		return n
-	}
-	return 0
 }
 
 func getYN(m soap.Value, key string) bool {

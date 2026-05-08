@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
@@ -124,76 +123,36 @@ func DecodeMailAccounts(returnInfo soap.Value) (MailAccountList, error) {
 			return nil, fmt.Errorf("mailaccount: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, MailAccount{
-			Login:                getString(item, "mail_login"),
-			Password:             getString(item, "mail_password"),
-			Adresses:             getString(item, "mail_adresses"),
-			Addresses:            getString(item, "mail_addresses"),
-			Comment:              getString(item, "mail_comment"),
-			Responder:            getString(item, "mail_responder"),
-			ResponderText:        getString(item, "mail_responder_text"),
-			ResponderDisplayName: getString(item, "mail_responder_displayname"),
-			ResponderContentType: getString(item, "mail_responder_content_type"),
-			CopyAdress:           getString(item, "mail_copy_adress"),
-			CopyAddress:          getString(item, "mail_copy_address"),
-			SenderAlias:          getString(item, "mail_sender_alias"),
-			Spamfilter:           getString(item, "mail_spamfilter"),
-			InProgress:           getString(item, "in_progress"),
-			XListEnabled:         getString(item, "mail_xlist_enabled"),
-			XListSent:            getString(item, "mail_xlist_sent"),
-			XListDrafts:          getString(item, "mail_xlist_drafts"),
-			XListTrash:           getString(item, "mail_xlist_trash"),
-			XListSpam:            getString(item, "mail_xlist_spam"),
-			XListArchiv:          getString(item, "mail_xlist_archiv"),
-			UsedSpace:            getFloat(item, "used_mailaccount_space"),
-			IsActive:             getString(item, "mail_is_active"),
-			ShowPassword:         getString(item, "show_password"),
-			AllowNets:            getString(item, "mail_allow_nets"),
-			TwoFA:                getString(item, "mail_2fa"),
-			QuotaRule:            getInt(item, "quota_rule"),
-			WebmailAutologin:     getString(item, "webmail_autologin"),
+			Login:                item.MapString("mail_login"),
+			Password:             item.MapString("mail_password"),
+			Adresses:             item.MapString("mail_adresses"),
+			Addresses:            item.MapString("mail_addresses"),
+			Comment:              item.MapString("mail_comment"),
+			Responder:            item.MapString("mail_responder"),
+			ResponderText:        item.MapString("mail_responder_text"),
+			ResponderDisplayName: item.MapString("mail_responder_displayname"),
+			ResponderContentType: item.MapString("mail_responder_content_type"),
+			CopyAdress:           item.MapString("mail_copy_adress"),
+			CopyAddress:          item.MapString("mail_copy_address"),
+			SenderAlias:          item.MapString("mail_sender_alias"),
+			Spamfilter:           item.MapString("mail_spamfilter"),
+			InProgress:           item.MapString("in_progress"),
+			XListEnabled:         item.MapString("mail_xlist_enabled"),
+			XListSent:            item.MapString("mail_xlist_sent"),
+			XListDrafts:          item.MapString("mail_xlist_drafts"),
+			XListTrash:           item.MapString("mail_xlist_trash"),
+			XListSpam:            item.MapString("mail_xlist_spam"),
+			XListArchiv:          item.MapString("mail_xlist_archiv"),
+			UsedSpace:            item.MapFloat("used_mailaccount_space"),
+			IsActive:             item.MapString("mail_is_active"),
+			ShowPassword:         item.MapString("show_password"),
+			AllowNets:            item.MapString("mail_allow_nets"),
+			TwoFA:                item.MapString("mail_2fa"),
+			QuotaRule:            item.MapInt("quota_rule"),
+			WebmailAutologin:     item.MapString("webmail_autologin"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
-}
-
-func getInt(m soap.Value, key string) int {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	switch v.Kind {
-	case soap.KindInt:
-		return int(v.Int)
-	case soap.KindFloat:
-		return int(v.Float)
-	case soap.KindString:
-		s := strings.TrimSpace(v.String)
-		if s == "" {
-			return 0
-		}
-		n, err := strconv.Atoi(s)
-		if err != nil {
-			return 0
-		}
-		return n
-	}
-	return 0
-}
-
-func getFloat(m soap.Value, key string) float64 {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	return v.AsFloat()
 }
 
 // TableHeaders returns the columns used by --output=table for

@@ -92,23 +92,15 @@ func DecodeMailForwards(returnInfo soap.Value) (MailForwardList, error) {
 			return nil, fmt.Errorf("mailforward: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, MailForward{
-			Adress:     getString(item, "mail_forward_adress"),
-			Address:    getString(item, "mail_forward_address"),
-			Comment:    getString(item, "mail_forward_comment"),
-			Targets:    getString(item, "mail_forward_targets"),
-			Spamfilter: getString(item, "mail_forward_spamfilter"),
-			InProgress: getString(item, "in_progress"),
+			Adress:     item.MapString("mail_forward_adress"),
+			Address:    item.MapString("mail_forward_address"),
+			Comment:    item.MapString("mail_forward_comment"),
+			Targets:    item.MapString("mail_forward_targets"),
+			Spamfilter: item.MapString("mail_forward_spamfilter"),
+			InProgress: item.MapString("in_progress"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
 }
 
 // TableHeaders returns the columns used by --output=table for

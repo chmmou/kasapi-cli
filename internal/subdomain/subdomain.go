@@ -121,70 +121,38 @@ func DecodeSubdomains(returnInfo soap.Value) (SubdomainList, error) {
 			return nil, fmt.Errorf("subdomain: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, Subdomain{
-			Name:           getString(item, "subdomain_name"),
-			RedirectStatus: getInt(item, "subdomain_redirect_status"),
-			Path:           getString(item, "subdomain_path"),
-			Account:        getString(item, "subdomain_account"),
-			Server:         getString(item, "subdomain_server"),
+			Name:           item.MapString("subdomain_name"),
+			RedirectStatus: item.MapInt("subdomain_redirect_status"),
+			Path:           item.MapString("subdomain_path"),
+			Account:        item.MapString("subdomain_account"),
+			Server:         item.MapString("subdomain_server"),
 
-			FPSEActive:    getString(item, "fpse_active"),
-			PHPVersion:    getString(item, "php_version"),
-			PHPDeprecated: getString(item, "php_deprecated"),
-			IsActive:      getString(item, "is_active"),
-			InProgress:    getString(item, "in_progress"),
+			FPSEActive:    item.MapString("fpse_active"),
+			PHPVersion:    item.MapString("php_version"),
+			PHPDeprecated: item.MapString("php_deprecated"),
+			IsActive:      item.MapString("is_active"),
+			InProgress:    item.MapString("in_progress"),
 
-			StatisticVersion:  getInt(item, "statistic_version"),
-			StatisticLanguage: getString(item, "statistic_language"),
+			StatisticVersion:  item.MapInt("statistic_version"),
+			StatisticLanguage: item.MapString("statistic_language"),
 
 			SSL: SSL{
-				Proxy:         getString(item, "ssl_proxy"),
-				CertificateIP: getString(item, "ssl_certificate_ip"),
-				SNI:           getString(item, "ssl_certificate_sni"),
-				SNIIsActive:   getString(item, "ssl_certificate_sni_is_active"),
-				SNICSR:        getString(item, "ssl_certificate_sni_csr"),
-				SNIKey:        getString(item, "ssl_certificate_sni_key"),
-				SNICRT:        getString(item, "ssl_certificate_sni_crt"),
-				SNIBundle:     getString(item, "ssl_certificate_sni_bundle"),
-				SNIChainfile:  getString(item, "ssl_certificate_sni_chainfile"),
-				SNIType:       getString(item, "ssl_certificate_sni_type"),
-				SNIForceHTTPS: getString(item, "ssl_certificate_sni_force_https"),
-				SNIHSTSMaxAge: getString(item, "ssl_certificate_sni_hsts_max_age"),
+				Proxy:         item.MapString("ssl_proxy"),
+				CertificateIP: item.MapString("ssl_certificate_ip"),
+				SNI:           item.MapString("ssl_certificate_sni"),
+				SNIIsActive:   item.MapString("ssl_certificate_sni_is_active"),
+				SNICSR:        item.MapString("ssl_certificate_sni_csr"),
+				SNIKey:        item.MapString("ssl_certificate_sni_key"),
+				SNICRT:        item.MapString("ssl_certificate_sni_crt"),
+				SNIBundle:     item.MapString("ssl_certificate_sni_bundle"),
+				SNIChainfile:  item.MapString("ssl_certificate_sni_chainfile"),
+				SNIType:       item.MapString("ssl_certificate_sni_type"),
+				SNIForceHTTPS: item.MapString("ssl_certificate_sni_force_https"),
+				SNIHSTSMaxAge: item.MapString("ssl_certificate_sni_hsts_max_age"),
 			},
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
-}
-
-func getInt(m soap.Value, key string) int {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	switch v.Kind {
-	case soap.KindInt:
-		return int(v.Int)
-	case soap.KindFloat:
-		return int(v.Float)
-	case soap.KindString:
-		s := strings.TrimSpace(v.String)
-		if s == "" {
-			return 0
-		}
-		n, err := strconv.Atoi(s)
-		if err != nil {
-			return 0
-		}
-		return n
-	}
-	return 0
 }
 
 // TableHeaders returns the columns used by --output=table for

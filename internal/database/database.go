@@ -88,31 +88,15 @@ func DecodeDatabases(returnInfo soap.Value) (DatabaseList, error) {
 			return nil, fmt.Errorf("database: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, Database{
-			Name:              getString(item, "database_name"),
-			Login:             getString(item, "database_login"),
-			Password:          getString(item, "database_password"),
-			Comment:           getString(item, "database_comment"),
-			AllowedHosts:      getString(item, "database_allowed_hosts"),
-			UsedDatabaseSpace: getFloat(item, "used_database_space"),
+			Name:              item.MapString("database_name"),
+			Login:             item.MapString("database_login"),
+			Password:          item.MapString("database_password"),
+			Comment:           item.MapString("database_comment"),
+			AllowedHosts:      item.MapString("database_allowed_hosts"),
+			UsedDatabaseSpace: item.MapFloat("used_database_space"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
-}
-
-func getFloat(m soap.Value, key string) float64 {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	return v.AsFloat()
 }
 
 // TableHeaders returns the columns used by --output=table for

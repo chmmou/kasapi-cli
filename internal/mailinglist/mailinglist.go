@@ -61,21 +61,13 @@ func DecodeMailingLists(returnInfo soap.Value) (MailingListList, error) {
 			return nil, fmt.Errorf("mailinglist: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, MailingList{
-			Name:       getString(item, "mailinglist_name"),
-			Admin:      getString(item, "mailinglist_admin"),
-			URL:        getString(item, "mailinglist_url"),
-			InProgress: getString(item, "in_progress"),
+			Name:       item.MapString("mailinglist_name"),
+			Admin:      item.MapString("mailinglist_admin"),
+			URL:        item.MapString("mailinglist_url"),
+			InProgress: item.MapString("in_progress"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
 }
 
 // TableHeaders returns the columns used by --output=table for

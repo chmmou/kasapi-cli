@@ -113,35 +113,27 @@ func DecodeSoftwareInstalls(returnInfo soap.Value) (SoftwareInstallList, error) 
 			return nil, fmt.Errorf("softwareinstall: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, SoftwareInstall{
-			ID:                 getString(item, "software_id"),
-			Name:               getString(item, "software_name"),
-			Category:           getString(item, "software_category"),
-			Version:            getString(item, "software_version"),
-			Licence:            getString(item, "software_licence"),
-			Description:        getString(item, "description"),
-			Image:              getString(item, "image"),
-			HasExampleData:     getString(item, "software_has_example_data"),
-			PHPVersion:         getString(item, "software_version_php"),
-			PHPVersionUpto:     getString(item, "software_version_php_upto"),
-			PHPHtaccess:        getString(item, "software_version_php_htaccess"),
-			PHPWantCGI:         getString(item, "software_version_php_want_cgi"),
-			MySQLVersion:       getString(item, "software_version_mysql"),
-			MySQLVersionUpto:   getString(item, "software_version_mysql_upto"),
-			MariaDBVersion:     getString(item, "software_version_mariadb"),
-			MariaDBVersionUpto: getString(item, "software_version_mariadb_upto"),
-			CanBeInstalled:     getString(item, "software_can_be_installed"),
-			CanBeMessage:       getString(item, "software_can_be_message"),
+			ID:                 item.MapString("software_id"),
+			Name:               item.MapString("software_name"),
+			Category:           item.MapString("software_category"),
+			Version:            item.MapString("software_version"),
+			Licence:            item.MapString("software_licence"),
+			Description:        item.MapString("description"),
+			Image:              item.MapString("image"),
+			HasExampleData:     item.MapString("software_has_example_data"),
+			PHPVersion:         item.MapString("software_version_php"),
+			PHPVersionUpto:     item.MapString("software_version_php_upto"),
+			PHPHtaccess:        item.MapString("software_version_php_htaccess"),
+			PHPWantCGI:         item.MapString("software_version_php_want_cgi"),
+			MySQLVersion:       item.MapString("software_version_mysql"),
+			MySQLVersionUpto:   item.MapString("software_version_mysql_upto"),
+			MariaDBVersion:     item.MapString("software_version_mariadb"),
+			MariaDBVersionUpto: item.MapString("software_version_mariadb_upto"),
+			CanBeInstalled:     item.MapString("software_can_be_installed"),
+			CanBeMessage:       item.MapString("software_can_be_message"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
 }
 
 // TableHeaders returns the columns used by --output=table for

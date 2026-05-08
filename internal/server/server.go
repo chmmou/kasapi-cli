@@ -64,23 +64,15 @@ func DecodeServices(returnInfo soap.Value) (ServiceList, error) {
 			return nil, fmt.Errorf("server: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, Service{
-			Service:       getString(item, "service"),
-			Version:       getString(item, "version"),
-			VersionType:   getString(item, "version_type"),
-			Interface:     getString(item, "interface"),
-			FileExtension: getString(item, "file_extension"),
-			Distribution:  getString(item, "distribution"),
+			Service:       item.MapString("service"),
+			Version:       item.MapString("version"),
+			VersionType:   item.MapString("version_type"),
+			Interface:     item.MapString("interface"),
+			FileExtension: item.MapString("file_extension"),
+			Distribution:  item.MapString("distribution"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
 }
 
 // TableHeaders returns the columns used by --output=table.

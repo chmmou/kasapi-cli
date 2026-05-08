@@ -2,7 +2,6 @@ package account
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/chmmou/kasapi-cli/internal/soap"
@@ -81,77 +80,77 @@ func DecodeAccountResources(returnInfo soap.Value) (AccountResources, error) {
 
 func decodeAccount(m soap.Value) Account {
 	return Account{
-		Login:                       getString(m, "account_login"),
-		Password:                    getString(m, "account_password"),
-		MaxAccount:                  getInt(m, "max_account"),
-		MaxDomain:                   getInt(m, "max_domain"),
-		MaxSubdomain:                getInt(m, "max_subdomain"),
-		MaxWebspace:                 getInt(m, "max_webspace"),
-		MaxMailAccount:              getInt(m, "max_mail_account"),
-		MaxMailForward:              getInt(m, "max_mail_forward"),
-		MaxMailList:                 getInt(m, "max_mail_list"),
-		MaxDatabases:                getInt(m, "max_databases"),
-		MaxFTPUser:                  getInt(m, "max_ftpuser"),
-		MaxSambaUser:                getInt(m, "max_sambauser"),
-		MaxCronjobs:                 getInt(m, "max_cronjobs"),
-		MaxWBK:                      getInt(m, "max_wbk"),
-		InstHtaccess:                getString(m, "inst_htaccess"),
-		InstFPSE:                    getString(m, "inst_fpse"),
-		InstSoftware:                getString(m, "inst_software"),
-		KASAccessForbid:             getString(m, "kas_access_forbidden"),
-		Logging:                     getString(m, "logging"),
-		Statistic:                   getString(m, "statistic"),
-		Logage:                      getInt(m, "logage"),
-		ShowPassword:                getString(m, "show_password"),
-		DNSSettings:                 getString(m, "dns_settings"),
-		ShowDirectLinks:             getInt(m, "show_direct_links"),
-		SSHAccess:                   getString(m, "ssh_access"),
-		UsedAccountSpace:            getFloat(m, "used_account_space"),
-		Account2FA:                  getString(m, "account_2fa"),
-		Account2FAInherited:         getString(m, "account_2fa_inherited"),
-		ShowDirectLinksWBK:          getString(m, "show_direct_links_wbk"),
-		ShowDirectLinksSambausers:   getString(m, "show_direct_links_sambausers"),
-		ShowDirectLinksAccounts:     getString(m, "show_direct_links_accounts"),
-		ShowDirectLinksMailaccounts: getString(m, "show_direct_links_mailaccounts"),
-		ShowDirectLinksFTPUser:      getString(m, "show_direct_links_ftpuser"),
-		ShowDirectLinksDatabases:    getString(m, "show_direct_links_databases"),
-		AccountComment:              getString(m, "account_comment"),
-		AccountContactMail:          getString(m, "account_contact_mail"),
-		InProgress:                  getString(m, "in_progress"),
+		Login:                       m.MapString("account_login"),
+		Password:                    m.MapString("account_password"),
+		MaxAccount:                  m.MapInt("max_account"),
+		MaxDomain:                   m.MapInt("max_domain"),
+		MaxSubdomain:                m.MapInt("max_subdomain"),
+		MaxWebspace:                 m.MapInt("max_webspace"),
+		MaxMailAccount:              m.MapInt("max_mail_account"),
+		MaxMailForward:              m.MapInt("max_mail_forward"),
+		MaxMailList:                 m.MapInt("max_mail_list"),
+		MaxDatabases:                m.MapInt("max_databases"),
+		MaxFTPUser:                  m.MapInt("max_ftpuser"),
+		MaxSambaUser:                m.MapInt("max_sambauser"),
+		MaxCronjobs:                 m.MapInt("max_cronjobs"),
+		MaxWBK:                      m.MapInt("max_wbk"),
+		InstHtaccess:                m.MapString("inst_htaccess"),
+		InstFPSE:                    m.MapString("inst_fpse"),
+		InstSoftware:                m.MapString("inst_software"),
+		KASAccessForbid:             m.MapString("kas_access_forbidden"),
+		Logging:                     m.MapString("logging"),
+		Statistic:                   m.MapString("statistic"),
+		Logage:                      m.MapInt("logage"),
+		ShowPassword:                m.MapString("show_password"),
+		DNSSettings:                 m.MapString("dns_settings"),
+		ShowDirectLinks:             m.MapInt("show_direct_links"),
+		SSHAccess:                   m.MapString("ssh_access"),
+		UsedAccountSpace:            m.MapFloat("used_account_space"),
+		Account2FA:                  m.MapString("account_2fa"),
+		Account2FAInherited:         m.MapString("account_2fa_inherited"),
+		ShowDirectLinksWBK:          m.MapString("show_direct_links_wbk"),
+		ShowDirectLinksSambausers:   m.MapString("show_direct_links_sambausers"),
+		ShowDirectLinksAccounts:     m.MapString("show_direct_links_accounts"),
+		ShowDirectLinksMailaccounts: m.MapString("show_direct_links_mailaccounts"),
+		ShowDirectLinksFTPUser:      m.MapString("show_direct_links_ftpuser"),
+		ShowDirectLinksDatabases:    m.MapString("show_direct_links_databases"),
+		AccountComment:              m.MapString("account_comment"),
+		AccountContactMail:          m.MapString("account_contact_mail"),
+		InProgress:                  m.MapString("in_progress"),
 	}
 }
 
 func decodeSettings(m soap.Value) AccountSettings {
 	return AccountSettings{
-		Login:              getString(m, "account_login"),
-		AccountComment:     getString(m, "account_comment"),
-		AccountContactMail: getString(m, "account_contact_mail"),
-		IsSuperuser:        getString(m, "is_superuser"),
-		AccountPassword:    getString(m, "account_password"),
-		ShowPassword:       getString(m, "show_password"),
-		Logging:            getString(m, "logging"),
-		Logage:             getInt(m, "logage"),
-		Statistic:          getString(m, "statistic"),
-		DNSSettings:        getString(m, "dns_settings"),
-		InstHtaccess:       getString(m, "inst_htaccess"),
-		InstFPSE:           getString(m, "inst_fpse"),
-		InstSoftware:       getString(m, "inst_software"),
-		SSHAccess:          getString(m, "ssh_access"),
-		SSHKeys:            getString(m, "ssh_keys"),
+		Login:              m.MapString("account_login"),
+		AccountComment:     m.MapString("account_comment"),
+		AccountContactMail: m.MapString("account_contact_mail"),
+		IsSuperuser:        m.MapString("is_superuser"),
+		AccountPassword:    m.MapString("account_password"),
+		ShowPassword:       m.MapString("show_password"),
+		Logging:            m.MapString("logging"),
+		Logage:             m.MapInt("logage"),
+		Statistic:          m.MapString("statistic"),
+		DNSSettings:        m.MapString("dns_settings"),
+		InstHtaccess:       m.MapString("inst_htaccess"),
+		InstFPSE:           m.MapString("inst_fpse"),
+		InstSoftware:       m.MapString("inst_software"),
+		SSHAccess:          m.MapString("ssh_access"),
+		SSHKeys:            m.MapString("ssh_keys"),
 		SSHFingerprints:    decodeFingerprints(m),
-		SSHPHPVersion:      getString(m, "ssh_php_version"),
-		Server:             getString(m, "server"),
-		InProgress:         getString(m, "in_progress"),
+		SSHPHPVersion:      m.MapString("ssh_php_version"),
+		Server:             m.MapString("server"),
+		InProgress:         m.MapString("in_progress"),
 		ShowDirectLinks: DirectLinkPrefs{
-			WBK:          getString(m, "show_direct_links_wbk"),
-			Sambausers:   getString(m, "show_direct_links_sambausers"),
-			Accounts:     getString(m, "show_direct_links_accounts"),
-			Mailaccounts: getString(m, "show_direct_links_mailaccounts"),
-			FTPUser:      getString(m, "show_direct_links_ftpuser"),
-			Databases:    getString(m, "show_direct_links_databases"),
+			WBK:          m.MapString("show_direct_links_wbk"),
+			Sambausers:   m.MapString("show_direct_links_sambausers"),
+			Accounts:     m.MapString("show_direct_links_accounts"),
+			Mailaccounts: m.MapString("show_direct_links_mailaccounts"),
+			FTPUser:      m.MapString("show_direct_links_ftpuser"),
+			Databases:    m.MapString("show_direct_links_databases"),
 		},
-		Account2FA:        getString(m, "account_2fa"),
-		Account2FAInherit: getString(m, "account_2fa_inherited"),
+		Account2FA:        m.MapString("account_2fa"),
+		Account2FAInherit: m.MapString("account_2fa_inherited"),
 		UserPrefs:         decodeUserPrefs(m),
 	}
 }
@@ -164,8 +163,8 @@ func decodeFingerprints(settings soap.Value) map[string]Fingerprint {
 	out := make(map[string]Fingerprint, len(fp.Map))
 	for _, kv := range fp.Map {
 		out[kv.Key] = Fingerprint{
-			MD5:    getString(kv.Value, "MD5:"),
-			SHA256: getString(kv.Value, "SHA256:"),
+			MD5:    kv.Value.MapString("MD5:"),
+			SHA256: kv.Value.MapString("SHA256:"),
 		}
 	}
 	return out
@@ -177,7 +176,7 @@ func decodeUserPrefs(settings soap.Value) UserPrefs {
 		return UserPrefs{}
 	}
 	out := UserPrefs{
-		PerPage: getInt(up, "per_page"),
+		PerPage: up.MapInt("per_page"),
 	}
 	if exp, ok := up.Get("expandableTables"); ok && exp.Kind == soap.KindMap {
 		out.ExpandableTables = mapOfStringSlices(exp)
@@ -210,53 +209,13 @@ func decodeQuota(v soap.Value) ResourceQuota {
 		return ResourceQuota{}
 	}
 	return ResourceQuota{
-		Max:      getInt(v, "max"),
+		Max:      v.MapInt("max"),
 		Exceeded: getBool(v, "exceeded"),
-		Reserved: getInt(v, "reserved"),
-		Created:  getInt(v, "created"),
-		Used:     getInt(v, "used"),
-		Free:     getInt(v, "free"),
+		Reserved: v.MapInt("reserved"),
+		Created:  v.MapInt("created"),
+		Used:     v.MapInt("used"),
+		Free:     v.MapInt("free"),
 	}
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
-}
-
-func getInt(m soap.Value, key string) int {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	switch v.Kind {
-	case soap.KindInt:
-		return int(v.Int)
-	case soap.KindFloat:
-		return int(v.Float)
-	case soap.KindString:
-		s := strings.TrimSpace(v.String)
-		if s == "" {
-			return 0
-		}
-		n, err := strconv.Atoi(s)
-		if err != nil {
-			return 0
-		}
-		return n
-	}
-	return 0
-}
-
-func getFloat(m soap.Value, key string) float64 {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	return v.AsFloat()
 }
 
 func getBool(m soap.Value, key string) bool {

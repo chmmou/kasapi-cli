@@ -308,3 +308,64 @@ func (v Value) AsFloat() float64 {
 	}
 	return 0
 }
+
+// AsInt coerces numeric kinds to int64. Strings are parsed when they
+// represent a valid integer; floats truncate toward zero; everything
+// else returns 0.
+func (v Value) AsInt() int64 {
+	switch v.Kind {
+	case KindInt:
+		return v.Int
+	case KindFloat:
+		return int64(v.Float)
+	case KindString:
+		s := strings.TrimSpace(v.String)
+		if s == "" {
+			return 0
+		}
+		n, err := strconv.ParseInt(s, 10, 64)
+		if err != nil {
+			return 0
+		}
+		return n
+	}
+	return 0
+}
+
+// MapString looks up key in a Map Value and returns the entry coerced
+// to its textual form via AsString. Missing keys, non-Map receivers,
+// and xsi:nil values yield "". This is the canonical accessor read
+// modules use to extract scalar string fields from a KAS response Map.
+func (v Value) MapString(key string) string {
+	inner, ok := v.Get(key)
+	if !ok {
+		return ""
+	}
+	return inner.AsString()
+}
+
+// MapInt looks up key in a Map Value and returns the entry coerced to
+// int via AsInt. Missing keys and unparseable values yield 0.
+func (v Value) MapInt(key string) int {
+	return int(v.MapInt64(key))
+}
+
+// MapInt64 is the int64 form of MapInt for fields whose magnitude
+// would not fit a 32-bit int on all targets (counters, byte sizes).
+func (v Value) MapInt64(key string) int64 {
+	inner, ok := v.Get(key)
+	if !ok {
+		return 0
+	}
+	return inner.AsInt()
+}
+
+// MapFloat looks up key in a Map Value and returns the entry coerced
+// to float64 via AsFloat. Missing keys yield 0.
+func (v Value) MapFloat(key string) float64 {
+	inner, ok := v.Get(key)
+	if !ok {
+		return 0
+	}
+	return inner.AsFloat()
+}

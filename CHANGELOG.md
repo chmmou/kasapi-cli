@@ -198,6 +198,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `internal/soap`: extend `Value` with typed Map accessors (`MapString`,
+  `MapInt`, `MapInt64`, `MapFloat`) and a generic `AsInt` coercion so
+  every read module can drop its private `getString` / `getInt` /
+  `getInt64` / `getFloat` helper. Migrated 17 read packages to the new
+  accessors (~28 helper copies removed; net –195 lines). Behaviour is
+  unchanged — the new methods replicate the existing nil-safe coercion
+  rules and are pinned by `TestValueMapAccessors` in
+  `internal/soap/soap_test.go` against missing-key, cross-kind, and
+  unparseable inputs. The package-local `getBool` / `getYN` in
+  `internal/account/decode.go` are intentionally left in place; they
+  are only used by one decoder and cover boolean/Y-N coercion that is
+  out of scope for #56. Closes #56.
+
 - `kasapi-cli accounts get` was renamed to `kasapi-cli accounts
   settings`; the old name now wraps `get_accounts` with the
   `account_login` filter (see Added), matching the `mail accounts

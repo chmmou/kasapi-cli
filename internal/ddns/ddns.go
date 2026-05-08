@@ -128,27 +128,19 @@ func DecodeDDNSUsers(returnInfo soap.Value) (DDNSUserList, error) {
 			return nil, fmt.Errorf("ddns: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, DDNSUser{
-			Login:      getString(item, "dyndns_login"),
-			Password:   getString(item, "dyndns_password"),
-			Zone:       getString(item, "dyndns_zone"),
-			Label:      getString(item, "dyndns_label"),
-			TargetIP:   getString(item, "dyndns_target_ip"),
-			TargetIPv4: getString(item, "dyndns_target_ipv4"),
-			TargetIPv6: getString(item, "dyndns_target_ipv6"),
-			DualStack:  getString(item, "dyndns_dual_stack"),
-			Comment:    getString(item, "dyndns_comment"),
-			InProgress: getString(item, "in_progress"),
+			Login:      item.MapString("dyndns_login"),
+			Password:   item.MapString("dyndns_password"),
+			Zone:       item.MapString("dyndns_zone"),
+			Label:      item.MapString("dyndns_label"),
+			TargetIP:   item.MapString("dyndns_target_ip"),
+			TargetIPv4: item.MapString("dyndns_target_ipv4"),
+			TargetIPv6: item.MapString("dyndns_target_ipv6"),
+			DualStack:  item.MapString("dyndns_dual_stack"),
+			Comment:    item.MapString("dyndns_comment"),
+			InProgress: item.MapString("in_progress"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
 }
 
 // TableHeaders returns the columns used by --output=table for

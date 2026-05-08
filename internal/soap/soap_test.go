@@ -220,6 +220,85 @@ func TestEncodeRequestRoundtrip(t *testing.T) {
 	}
 }
 
+// TestValueMapAccessors covers the typed Map accessors (MapString /
+// MapInt / MapInt64 / MapFloat) used by every read module. The cases
+// here pin coercion across nil, missing-key, cross-kind, and
+// unparseable inputs so a future mistake in a single accessor cannot
+// silently corrupt every decoder that depends on it.
+func TestValueMapAccessors(t *testing.T) {
+	m := soap.Value{Kind: soap.KindMap, Map: []soap.KV{
+		{Key: "name", Value: soap.Value{Kind: soap.KindString, String: "demo"}},
+		{Key: "count", Value: soap.Value{Kind: soap.KindInt, Int: 42}},
+		{Key: "ratio", Value: soap.Value{Kind: soap.KindFloat, Float: 1.5}},
+		{Key: "stringy_int", Value: soap.Value{Kind: soap.KindString, String: " 7 "}},
+		{Key: "stringy_float", Value: soap.Value{Kind: soap.KindString, String: "3.25"}},
+		{Key: "blank", Value: soap.Value{Kind: soap.KindString, String: ""}},
+		{Key: "garbage", Value: soap.Value{Kind: soap.KindString, String: "abc"}},
+		{Key: "nil_field", Value: soap.Value{Kind: soap.KindNil}},
+	}}
+
+	if got, want := m.MapString("name"), "demo"; got != want {
+		t.Errorf("MapString(name) = %q, want %q", got, want)
+	}
+	if got, want := m.MapString("count"), "42"; got != want {
+		t.Errorf("MapString(count) = %q, want %q", got, want)
+	}
+	if got := m.MapString("missing"); got != "" {
+		t.Errorf("MapString(missing) = %q, want empty", got)
+	}
+	if got := m.MapString("nil_field"); got != "" {
+		t.Errorf("MapString(nil_field) = %q, want empty", got)
+	}
+
+	if got, want := m.MapInt("count"), 42; got != want {
+		t.Errorf("MapInt(count) = %d, want %d", got, want)
+	}
+	if got, want := m.MapInt("ratio"), 1; got != want {
+		t.Errorf("MapInt(ratio) = %d, want %d (truncated)", got, want)
+	}
+	if got, want := m.MapInt("stringy_int"), 7; got != want {
+		t.Errorf("MapInt(stringy_int) = %d, want %d", got, want)
+	}
+	if got := m.MapInt("garbage"); got != 0 {
+		t.Errorf("MapInt(garbage) = %d, want 0", got)
+	}
+	if got := m.MapInt("blank"); got != 0 {
+		t.Errorf("MapInt(blank) = %d, want 0", got)
+	}
+	if got := m.MapInt("missing"); got != 0 {
+		t.Errorf("MapInt(missing) = %d, want 0", got)
+	}
+
+	if got, want := m.MapInt64("count"), int64(42); got != want {
+		t.Errorf("MapInt64(count) = %d, want %d", got, want)
+	}
+
+	if got, want := m.MapFloat("ratio"), 1.5; got != want {
+		t.Errorf("MapFloat(ratio) = %v, want %v", got, want)
+	}
+	if got, want := m.MapFloat("stringy_float"), 3.25; got != want {
+		t.Errorf("MapFloat(stringy_float) = %v, want %v", got, want)
+	}
+	if got := m.MapFloat("garbage"); got != 0 {
+		t.Errorf("MapFloat(garbage) = %v, want 0", got)
+	}
+
+	// Non-Map receiver: every accessor must return zero without panic.
+	scalar := soap.Value{Kind: soap.KindString, String: "x"}
+	if got := scalar.MapString("anything"); got != "" {
+		t.Errorf("scalar.MapString = %q, want empty", got)
+	}
+	if got := scalar.MapInt("anything"); got != 0 {
+		t.Errorf("scalar.MapInt = %d, want 0", got)
+	}
+	if got := scalar.MapInt64("anything"); got != 0 {
+		t.Errorf("scalar.MapInt64 = %d, want 0", got)
+	}
+	if got := scalar.MapFloat("anything"); got != 0 {
+		t.Errorf("scalar.MapFloat = %v, want 0", got)
+	}
+}
+
 // TestEncodeRequestRequiresFields verifies that EncodeRequest rejects
 // malformed input rather than silently producing an unauthenticated call.
 func TestEncodeRequestRequiresFields(t *testing.T) {

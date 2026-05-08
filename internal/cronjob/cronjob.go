@@ -138,58 +138,26 @@ func DecodeCronjobs(returnInfo soap.Value) (CronjobList, error) {
 			return nil, fmt.Errorf("cronjob: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, Cronjob{
-			ID:            getString(item, "cronjob_id"),
-			Comment:       getString(item, "cronjob_comment"),
-			ShellCommand:  getString(item, "shell_command"),
-			Timeout:       getInt(item, "timeout"),
-			Protocol:      getString(item, "protocol"),
-			HTTPURL:       getString(item, "http_url"),
-			HTTPUser:      getString(item, "http_user"),
-			HTTPPassword:  getString(item, "http_password"),
-			Minute:        getString(item, "minute"),
-			Hour:          getString(item, "hour"),
-			DayOfMonth:    getString(item, "day_of_month"),
-			Month:         getString(item, "month"),
-			DayOfWeek:     getString(item, "day_of_week"),
-			MailAdress:    getString(item, "mail_adress"),
-			MailCondition: getString(item, "mail_condition"),
-			MailSubject:   getString(item, "mail_subject"),
-			IsActive:      getString(item, "is_active"),
+			ID:            item.MapString("cronjob_id"),
+			Comment:       item.MapString("cronjob_comment"),
+			ShellCommand:  item.MapString("shell_command"),
+			Timeout:       item.MapInt("timeout"),
+			Protocol:      item.MapString("protocol"),
+			HTTPURL:       item.MapString("http_url"),
+			HTTPUser:      item.MapString("http_user"),
+			HTTPPassword:  item.MapString("http_password"),
+			Minute:        item.MapString("minute"),
+			Hour:          item.MapString("hour"),
+			DayOfMonth:    item.MapString("day_of_month"),
+			Month:         item.MapString("month"),
+			DayOfWeek:     item.MapString("day_of_week"),
+			MailAdress:    item.MapString("mail_adress"),
+			MailCondition: item.MapString("mail_condition"),
+			MailSubject:   item.MapString("mail_subject"),
+			IsActive:      item.MapString("is_active"),
 		})
 	}
 	return out, nil
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
-}
-
-func getInt(m soap.Value, key string) int {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	switch v.Kind {
-	case soap.KindInt:
-		return int(v.Int)
-	case soap.KindFloat:
-		return int(v.Float)
-	case soap.KindString:
-		s := strings.TrimSpace(v.String)
-		if s == "" {
-			return 0
-		}
-		n, err := strconv.Atoi(s)
-		if err != nil {
-			return 0
-		}
-		return n
-	}
-	return 0
 }
 
 // TableHeaders returns the columns used by --output=table for

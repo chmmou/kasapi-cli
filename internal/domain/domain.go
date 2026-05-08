@@ -163,9 +163,9 @@ func DecodeTLDs(returnInfo soap.Value) (TLDList, error) {
 			return nil, fmt.Errorf("domain: ReturnInfo[%d] is not a Map", i)
 		}
 		out = append(out, TLD{
-			Name:   getString(item, "tld_name"),
-			MinLen: getInt(item, "tld_minlen"),
-			MaxLen: getInt(item, "tld_maxlen"),
+			Name:   item.MapString("tld_name"),
+			MinLen: item.MapInt("tld_minlen"),
+			MaxLen: item.MapInt("tld_maxlen"),
 		})
 	}
 	return out, nil
@@ -173,71 +173,39 @@ func DecodeTLDs(returnInfo soap.Value) (TLDList, error) {
 
 func decodeDomain(m soap.Value) Domain {
 	return Domain{
-		Name:           getString(m, "domain_name"),
-		TLD:            getString(m, "domain_tld"),
-		RedirectStatus: getInt(m, "domain_redirect_status"),
-		Path:           getString(m, "domain_path"),
-		Account:        getString(m, "domain_account"),
-		Server:         getString(m, "domain_server"),
+		Name:           m.MapString("domain_name"),
+		TLD:            m.MapString("domain_tld"),
+		RedirectStatus: m.MapInt("domain_redirect_status"),
+		Path:           m.MapString("domain_path"),
+		Account:        m.MapString("domain_account"),
+		Server:         m.MapString("domain_server"),
 
-		DummyHost:     getString(m, "dummy_host"),
-		DKIMSelector:  getString(m, "dkim_selector"),
-		FPSEActive:    getString(m, "fpse_active"),
-		PHPVersion:    getString(m, "php_version"),
-		PHPDeprecated: getString(m, "php_deprecated"),
-		IsActive:      getString(m, "is_active"),
-		InProgress:    getString(m, "in_progress"),
+		DummyHost:     m.MapString("dummy_host"),
+		DKIMSelector:  m.MapString("dkim_selector"),
+		FPSEActive:    m.MapString("fpse_active"),
+		PHPVersion:    m.MapString("php_version"),
+		PHPDeprecated: m.MapString("php_deprecated"),
+		IsActive:      m.MapString("is_active"),
+		InProgress:    m.MapString("in_progress"),
 
-		StatisticVersion:  getInt(m, "statistic_version"),
-		StatisticLanguage: getString(m, "statistic_language"),
+		StatisticVersion:  m.MapInt("statistic_version"),
+		StatisticLanguage: m.MapString("statistic_language"),
 
 		SSL: SSL{
-			Proxy:         getString(m, "ssl_proxy"),
-			CertificateIP: getString(m, "ssl_certificate_ip"),
-			SNI:           getString(m, "ssl_certificate_sni"),
-			SNIIsActive:   getString(m, "ssl_certificate_sni_is_active"),
-			SNICSR:        getString(m, "ssl_certificate_sni_csr"),
-			SNIKey:        getString(m, "ssl_certificate_sni_key"),
-			SNICRT:        getString(m, "ssl_certificate_sni_crt"),
-			SNIBundle:     getString(m, "ssl_certificate_sni_bundle"),
-			SNIChainfile:  getString(m, "ssl_certificate_sni_chainfile"),
-			SNIType:       getString(m, "ssl_certificate_sni_type"),
-			SNIForceHTTPS: getString(m, "ssl_certificate_sni_force_https"),
-			SNIHSTSMaxAge: getString(m, "ssl_certificate_sni_hsts_max_age"),
+			Proxy:         m.MapString("ssl_proxy"),
+			CertificateIP: m.MapString("ssl_certificate_ip"),
+			SNI:           m.MapString("ssl_certificate_sni"),
+			SNIIsActive:   m.MapString("ssl_certificate_sni_is_active"),
+			SNICSR:        m.MapString("ssl_certificate_sni_csr"),
+			SNIKey:        m.MapString("ssl_certificate_sni_key"),
+			SNICRT:        m.MapString("ssl_certificate_sni_crt"),
+			SNIBundle:     m.MapString("ssl_certificate_sni_bundle"),
+			SNIChainfile:  m.MapString("ssl_certificate_sni_chainfile"),
+			SNIType:       m.MapString("ssl_certificate_sni_type"),
+			SNIForceHTTPS: m.MapString("ssl_certificate_sni_force_https"),
+			SNIHSTSMaxAge: m.MapString("ssl_certificate_sni_hsts_max_age"),
 		},
 	}
-}
-
-func getString(m soap.Value, key string) string {
-	v, ok := m.Get(key)
-	if !ok {
-		return ""
-	}
-	return v.AsString()
-}
-
-func getInt(m soap.Value, key string) int {
-	v, ok := m.Get(key)
-	if !ok {
-		return 0
-	}
-	switch v.Kind {
-	case soap.KindInt:
-		return int(v.Int)
-	case soap.KindFloat:
-		return int(v.Float)
-	case soap.KindString:
-		s := strings.TrimSpace(v.String)
-		if s == "" {
-			return 0
-		}
-		n, err := strconv.Atoi(s)
-		if err != nil {
-			return 0
-		}
-		return n
-	}
-	return 0
 }
 
 // TableHeaders returns the columns used by --output=table for
