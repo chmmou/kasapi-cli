@@ -24,8 +24,10 @@ type Client struct {
 // retain ownership of c.
 func NewClient(c Caller) *Client { return &Client{API: c} }
 
-// List calls get_accounts and decodes the response into a slice of
-// Account values.
+// List calls get_accounts without a filter and decodes the response
+// into a slice of Account values. For a main login this returns every
+// sub-account; for a sub-login it returns just the authenticated
+// account.
 func (c *Client) List(ctx context.Context) ([]Account, error) {
 	resp, err := c.API.Call(ctx, "get_accounts", nil)
 	if err != nil {
@@ -36,6 +38,28 @@ func (c *Client) List(ctx context.Context) ([]Account, error) {
 		return nil, fmt.Errorf("account: get_accounts: %w", err)
 	}
 	return accs, nil
+}
+
+// Get calls get_accounts with an account_login filter and returns the
+// single matching Account. The KAS API still wraps the result in an
+// array; we unwrap it here so callers do not have to. An empty array
+// surfaces as a not-found error.
+func (c *Client) Get(ctx context.Context, login string) (Account, error) {
+	if login == "" {
+		return Account{}, fmt.Errorf("account: login is required")
+	}
+	resp, err := c.API.Call(ctx, "get_accounts", map[string]any{"account_login": login})
+	if err != nil {
+		return Account{}, err
+	}
+	accs, err := DecodeAccounts(resp.Body.ReturnInfo)
+	if err != nil {
+		return Account{}, fmt.Errorf("account: get_accounts: %w", err)
+	}
+	if len(accs) == 0 {
+		return Account{}, fmt.Errorf("account: %q not found", login)
+	}
+	return accs[0], nil
 }
 
 // Settings calls get_accountsettings and decodes the response into the

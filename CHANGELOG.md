@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `account.Client.Get(ctx, login)` and `kasapi-cli accounts get
+  <account-login>` calling `get_accounts` with an `account_login`
+  filter. The result is unwrapped from the single-entry array so the
+  CLI can render a key/value detail view; an empty array surfaces as a
+  not-found error. Mapping test runs against
+  `testdata/account/get_account_response_success.xml`.
+
 - `internal/mailinglist` read module and `kasapi-cli mail lists list`
   subcommand wrapping `get_mailinglists`. Decodes the Array of
   `{mailinglist_name, mailinglist_admin, mailinglist_url, in_progress}`
@@ -92,6 +99,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   successful call so the local `expires_at` rolls forward in lockstep
   with the server-side window. Practical effect: rerun a command and
   no `--otp` prompt is needed for as long as the session is alive.
+
+### Changed
+
+- `kasapi-cli accounts get` was renamed to `kasapi-cli accounts
+  settings`; the old name now wraps `get_accounts` with the
+  `account_login` filter (see Added), matching the `mail accounts
+  list|get` pattern. The `accounts list` short description was
+  tightened to clarify that an unfiltered `get_accounts` returns every
+  account visible to the login (every sub-account for a main login,
+  just the login itself for a sub-account).
 
 ### Fixed
 

@@ -21,7 +21,7 @@ func TestAccountCmdHelpListsSubcommands(t *testing.T) {
 		t.Fatalf("Execute: %v", err)
 	}
 	out := buf.String()
-	for _, want := range []string{"list", "get", "resources"} {
+	for _, want := range []string{"list", "get", "settings", "resources"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("--help output missing %q\n%s", want, out)
 		}

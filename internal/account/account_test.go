@@ -144,37 +144,94 @@ func TestDecodeAccountResources(t *testing.T) {
 	}
 }
 
-// fakeCaller returns the response decoded from a fixture, ignoring the
-// requested action and params. It is enough to exercise Client.List /
-// Settings / Resources without a network roundtrip.
+// fakeCaller returns the response decoded from a fixture and records
+// the action / params it was called with. This is enough to exercise
+// Client.List / Get / Settings / Resources without a network
+// roundtrip.
 type fakeCaller struct {
 	resp *soap.Response
 	err  error
+
+	gotAction string
+	gotParams map[string]any
 }
 
-func (f fakeCaller) Call(_ context.Context, _ string, _ map[string]any) (*soap.Response, error) {
+func (f *fakeCaller) Call(_ context.Context, action string, params map[string]any) (*soap.Response, error) {
+	f.gotAction = action
+	f.gotParams = params
 	return f.resp, f.err
 }
 
 func TestClientList(t *testing.T) {
 	t.Parallel()
 	resp := decodeFixture(t, "get_accounts_response_success.xml")
-	c := account.NewClient(fakeCaller{resp: resp})
-	got, err := c.List(context.Background())
+	fc := &fakeCaller{resp: resp}
+	got, err := account.NewClient(fc).List(context.Background())
 	if err != nil {
 		t.Fatalf("List: %v", err)
+	}
+	if fc.gotAction != "get_accounts" {
+		t.Errorf("action = %q, want get_accounts", fc.gotAction)
+	}
+	if fc.gotParams != nil {
+		t.Errorf("params = %v, want nil", fc.gotParams)
 	}
 	if len(got) != 4 {
 		t.Errorf("len = %d, want 4", len(got))
 	}
 }
 
+func TestClientGet(t *testing.T) {
+	t.Parallel()
+	resp := decodeFixture(t, "get_account_response_success.xml")
+	fc := &fakeCaller{resp: resp}
+	got, err := account.NewClient(fc).Get(context.Background(), "w0000001")
+	if err != nil {
+		t.Fatalf("Get: %v", err)
+	}
+	if fc.gotAction != "get_accounts" {
+		t.Errorf("action = %q, want get_accounts", fc.gotAction)
+	}
+	if v, ok := fc.gotParams["account_login"]; !ok || v != "w0000001" {
+		t.Errorf("account_login param = %v (ok=%v), want w0000001", v, ok)
+	}
+	if got.Login != "w0000001" {
+		t.Errorf("Login = %q, want w0000001", got.Login)
+	}
+	if got.MaxAccount != 10 {
+		t.Errorf("MaxAccount = %d, want 10", got.MaxAccount)
+	}
+}
+
+func TestClientGetEmptyLogin(t *testing.T) {
+	t.Parallel()
+	c := account.NewClient(&fakeCaller{})
+	if _, err := c.Get(context.Background(), ""); err == nil {
+		t.Error("Get(\"\") returned nil, want error")
+	}
+}
+
+func TestClientGetNotFound(t *testing.T) {
+	t.Parallel()
+	// Synthesise an empty array response by reusing the singular
+	// fixture but with the array stripped to zero entries.
+	emptyResp := decodeFixture(t, "get_account_response_success.xml")
+	emptyResp.Body.ReturnInfo.Array = nil
+	c := account.NewClient(&fakeCaller{resp: emptyResp})
+	if _, err := c.Get(context.Background(), "wXXXXXXX"); err == nil {
+		t.Error("Get on empty array returned nil, want not-found error")
+	}
+}
+
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := account.NewClient(fakeCaller{err: want})
+	c := account.NewClient(&fakeCaller{err: want})
 	if _, err := c.List(context.Background()); !errors.Is(err, want) {
-		t.Errorf("err = %v, want %v wrapped", err, want)
+		t.Errorf("List err = %v, want %v wrapped", err, want)
+	}
+	if _, err := c.Get(context.Background(), "w0000001"); !errors.Is(err, want) {
+		t.Errorf("Get err = %v, want %v wrapped", err, want)
 	}
 }
 
@@ -193,6 +250,24 @@ func TestAccountListTabular(t *testing.T) {
 	}
 	if rows[0][0] != "w0000001" {
 		t.Errorf("rows[0][0] = %q", rows[0][0])
+	}
+}
+
+func TestAccountTabular(t *testing.T) {
+	t.Parallel()
+	resp := decodeFixture(t, "get_account_response_success.xml")
+	accs, _ := account.DecodeAccounts(resp.Body.ReturnInfo)
+	if len(accs) != 1 {
+		t.Fatalf("len = %d, want 1", len(accs))
+	}
+	a := accs[0]
+	headers := a.TableHeaders()
+	if headers[0] != "FIELD" || headers[1] != "VALUE" {
+		t.Errorf("headers = %v, want [FIELD VALUE]", headers)
+	}
+	rows := a.TableRows()
+	if rows[0][0] != "account_login" || rows[0][1] != "w0000001" {
+		t.Errorf("rows[0] = %v, want [account_login w0000001]", rows[0])
 	}
 }
 

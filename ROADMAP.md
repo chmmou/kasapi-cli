@@ -21,7 +21,8 @@ The list is kept in sync with the code on `main`. To claim an unchecked item, pl
 
 ## Accounts & server
 
-- [x] `account get` (`get_accounts`, `get_accountsettings`, `get_accountresources`)
+- [x] `accounts list` / `accounts get <account-login>` (`get_accounts`, with `account_login` filter)
+- [x] `accounts settings` / `accounts resources` (`get_accountsettings`, `get_accountresources`)
 - [x] `server get` (`get_server_information`)
 
 ## Usage

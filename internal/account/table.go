@@ -102,6 +102,49 @@ func (s AccountSettings) TableRows() [][]string {
 	return rows
 }
 
+// TableHeaders for the singular Account view: a key/value layout to
+// fit the wide field set returned by get_accounts with an
+// account_login filter.
+func (Account) TableHeaders() []string {
+	return []string{"FIELD", "VALUE"}
+}
+
+// TableRows emits the scalar fields. account_password is intentionally
+// omitted — consumers that need it should use --output=json|yaml.
+func (a Account) TableRows() [][]string {
+	return [][]string{
+		{"account_login", a.Login},
+		{"account_comment", a.AccountComment},
+		{"account_contact_mail", a.AccountContactMail},
+		{"max_account", strconv.Itoa(a.MaxAccount)},
+		{"max_domain", strconv.Itoa(a.MaxDomain)},
+		{"max_subdomain", strconv.Itoa(a.MaxSubdomain)},
+		{"max_webspace", strconv.Itoa(a.MaxWebspace)},
+		{"max_mail_account", strconv.Itoa(a.MaxMailAccount)},
+		{"max_mail_forward", strconv.Itoa(a.MaxMailForward)},
+		{"max_mail_list", strconv.Itoa(a.MaxMailList)},
+		{"max_databases", strconv.Itoa(a.MaxDatabases)},
+		{"max_ftpuser", strconv.Itoa(a.MaxFTPUser)},
+		{"max_sambauser", strconv.Itoa(a.MaxSambaUser)},
+		{"max_cronjobs", strconv.Itoa(a.MaxCronjobs)},
+		{"max_wbk", strconv.Itoa(a.MaxWBK)},
+		{"used_account_space", strconv.FormatFloat(a.UsedAccountSpace/1024, 'f', 1, 64) + " MB"},
+		{"inst_htaccess", a.InstHtaccess},
+		{"inst_fpse", a.InstFPSE},
+		{"inst_software", a.InstSoftware},
+		{"kas_access_forbidden", a.KASAccessForbid},
+		{"logging", a.Logging},
+		{"logage", strconv.Itoa(a.Logage)},
+		{"statistic", a.Statistic},
+		{"dns_settings", a.DNSSettings},
+		{"ssh_access", a.SSHAccess},
+		{"show_password", a.ShowPassword},
+		{"account_2fa", a.Account2FA},
+		{"account_2fa_inherited", a.Account2FAInherited},
+		{"in_progress", a.InProgress},
+	}
+}
+
 // quotaInt formats -1 (KAS sentinel for "unlimited") as the symbol "∞"
 // so table users do not have to know the convention.
 func quotaInt(n int) string {
