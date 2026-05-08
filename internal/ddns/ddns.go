@@ -92,7 +92,7 @@ func (c *Client) List(ctx context.Context) (DDNSUserList, error) {
 	return list, nil
 }
 
-// Get calls get_ddnsusers with a dyndns_login filter and returns the
+// Get calls get_ddnsusers with a ddns_login filter and returns the
 // single matching DDNSUser. The KAS API still wraps the result in an
 // array; we unwrap it here so callers do not have to. A guard
 // against an unexpected empty array is included for parity with the

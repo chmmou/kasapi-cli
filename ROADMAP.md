@@ -60,7 +60,7 @@ The list is kept in sync with the code on `main`. To claim an unchecked item, pl
 - [ ] FTP user write paths (`add_ftpuser`, `update_ftpuser`, `delete_ftpuser`)
 - [x] `sambausers list` / `sambausers get <samba-login>` (`get_sambausers`, with `samba_login` filter)
 - [ ] Samba user write paths (`add_sambauser`, `update_sambauser`, `delete_sambauser`)
-- [x] `ddnsusers list` / `ddnsusers get <dyndns-login>` (`get_ddnsusers`, with `dyndns_login` filter)
+- [x] `ddnsusers list` / `ddnsusers get <dyndns-login>` (`get_ddnsusers`, with `ddns_login` filter)
 - [ ] DDNS user write paths (`add_ddnsuser`, `update_ddnsuser`, `delete_ddnsuser`)
 - [x] `cronjobs list` / `cronjobs get <cronjob-id>` (`get_cronjobs`, with `cronjob_id` filter)
 - [ ] Cronjob write paths (`add_cronjob`, `update_cronjob`, `delete_cronjob`)
