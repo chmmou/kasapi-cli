@@ -25,6 +25,7 @@ func main() {
 		cli.NewDatabasesCmd(opts),
 		cli.NewFTPUsersCmd(opts),
 		cli.NewSambaUsersCmd(opts),
+		cli.NewCronjobsCmd(opts),
 		cli.NewUsageCmd(opts),
 		cli.NewConfigCmd(opts),
 	)

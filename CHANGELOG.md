@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/cronjob` read module and `kasapi-cli cronjobs list|get`
+  subcommand tree wrapping `get_cronjobs`. The list variant decodes
+  the Array of Maps into a typed `CronjobList`; `get <cronjob-id>`
+  reuses the same endpoint with a `cronjob_id` filter and unwraps
+  the single-entry result, matching the established read-slice
+  pattern. The list view collapses the five schedule fields into a
+  single crontab(5)-style `SCHEDULE` column and renders the trigger
+  target as either `protocol://http_url` or `shell_command`; the
+  singular view keeps the raw fields plus the joined schedule.
+  `xsi:nil` values for `shell_command` / `timeout` round-trip cleanly
+  to zero values flagged with `omitempty`. Mapping tests run against
+  `testdata/cronjob/get_cronjobs_response_success.xml` and
+  `get_cronjob_response_success.xml`. Refs #11.
+
 - `internal/sambauser` read module and `kasapi-cli sambausers list|get`
   subcommand tree wrapping `get_sambausers`. The list variant decodes
   the Array of Maps into a typed `SambaUserList`; `get <samba-login>`

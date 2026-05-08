@@ -1,0 +1,247 @@
+package cronjob
+
+import (
+	"context"
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/chmmou/kasapi-cli/internal/soap"
+)
+
+// Caller is the subset of *api.Client this package depends on. The
+// indirection keeps tests free of network setup: a fake Caller can
+// return a *soap.Response decoded from a fixture.
+type Caller interface {
+	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
+}
+
+// Cronjob is one entry of get_cronjobs. The list and singular views
+// (the latter being get_cronjobs called with a cronjob_id filter)
+// return the same Map shape, so a single struct covers both.
+//
+// shell_command and timeout are returned as xsi:nil for cronjobs that
+// were configured with the HTTP target instead — they decode to the
+// zero value here and are flagged with omitempty so a JSON/YAML
+// round-trip does not invent values that were never set.
+type Cronjob struct {
+	ID      string `json:"cronjob_id" yaml:"cronjob_id"`
+	Comment string `json:"cronjob_comment" yaml:"cronjob_comment"`
+
+	ShellCommand string `json:"shell_command,omitempty" yaml:"shell_command,omitempty"`
+	Timeout      int    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+
+	Protocol     string `json:"protocol" yaml:"protocol"`
+	HTTPURL      string `json:"http_url" yaml:"http_url"`
+	HTTPUser     string `json:"http_user" yaml:"http_user"`
+	HTTPPassword string `json:"http_password,omitempty" yaml:"http_password,omitempty"`
+
+	// Schedule fields are returned verbatim as cron expression
+	// fragments ("*", "*/5", "1,15,30", …) so we keep them as
+	// strings rather than parsing them.
+	Minute     string `json:"minute" yaml:"minute"`
+	Hour       string `json:"hour" yaml:"hour"`
+	DayOfMonth string `json:"day_of_month" yaml:"day_of_month"`
+	Month      string `json:"month" yaml:"month"`
+	DayOfWeek  string `json:"day_of_week" yaml:"day_of_week"`
+
+	// The KAS API spells the address key with a single 'd'
+	// (mail_adress). The struct mirrors the wire key verbatim.
+	MailAdress    string `json:"mail_adress" yaml:"mail_adress"`
+	MailCondition string `json:"mail_condition" yaml:"mail_condition"`
+	MailSubject   string `json:"mail_subject" yaml:"mail_subject"`
+
+	IsActive string `json:"is_active" yaml:"is_active"`
+}
+
+// Schedule returns the five cron fields joined with single spaces in
+// their canonical order ("min hour dom month dow"), matching the
+// crontab(5) layout.
+func (c Cronjob) Schedule() string {
+	return strings.Join([]string{c.Minute, c.Hour, c.DayOfMonth, c.Month, c.DayOfWeek}, " ")
+}
+
+// Target returns the cronjob's primary trigger target — the configured
+// http(s) URL when the protocol is http/https, the shell command
+// otherwise. It is used by the table view as a single "what runs"
+// column instead of leaking both fields side-by-side.
+func (c Cronjob) Target() string {
+	switch c.Protocol {
+	case "http", "https":
+		if c.HTTPURL == "" {
+			return ""
+		}
+		return c.Protocol + "://" + c.HTTPURL
+	default:
+		return c.ShellCommand
+	}
+}
+
+// CronjobList is the typed payload of get_cronjobs; satisfies
+// cli.Tabular.
+type CronjobList []Cronjob
+
+// Client groups the read endpoints scoped to cronjobs:
+// get_cronjobs (list and singular).
+type Client struct {
+	API Caller
+}
+
+// NewClient returns a Client backed by the given Caller.
+func NewClient(c Caller) *Client { return &Client{API: c} }
+
+// List calls get_cronjobs without parameters and decodes the response
+// into a CronjobList covering every cronjob visible to the login.
+func (c *Client) List(ctx context.Context) (CronjobList, error) {
+	resp, err := c.API.Call(ctx, "get_cronjobs", nil)
+	if err != nil {
+		return nil, err
+	}
+	list, err := DecodeCronjobs(resp.Body.ReturnInfo)
+	if err != nil {
+		return nil, fmt.Errorf("cronjob: get_cronjobs: %w", err)
+	}
+	return list, nil
+}
+
+// Get calls get_cronjobs with a cronjob_id filter and returns the
+// single matching Cronjob. The KAS API still wraps the result in an
+// array; we unwrap it here so callers do not have to. An empty array
+// surfaces as a not-found error.
+func (c *Client) Get(ctx context.Context, id string) (Cronjob, error) {
+	if id == "" {
+		return Cronjob{}, fmt.Errorf("cronjob: id is required")
+	}
+	resp, err := c.API.Call(ctx, "get_cronjobs", map[string]any{"cronjob_id": id})
+	if err != nil {
+		return Cronjob{}, err
+	}
+	list, err := DecodeCronjobs(resp.Body.ReturnInfo)
+	if err != nil {
+		return Cronjob{}, fmt.Errorf("cronjob: get_cronjobs: %w", err)
+	}
+	if len(list) == 0 {
+		return Cronjob{}, fmt.Errorf("cronjob: %q not found", id)
+	}
+	return list[0], nil
+}
+
+// DecodeCronjobs maps the ReturnInfo of a get_cronjobs response (an
+// Array of Maps) into the typed CronjobList.
+func DecodeCronjobs(returnInfo soap.Value) (CronjobList, error) {
+	if returnInfo.Kind != soap.KindArray {
+		return nil, fmt.Errorf("cronjob: expected ReturnInfo array, got kind %d", returnInfo.Kind)
+	}
+	out := make(CronjobList, 0, len(returnInfo.Array))
+	for i, item := range returnInfo.Array {
+		if item.Kind != soap.KindMap {
+			return nil, fmt.Errorf("cronjob: ReturnInfo[%d] is not a Map", i)
+		}
+		out = append(out, Cronjob{
+			ID:            getString(item, "cronjob_id"),
+			Comment:       getString(item, "cronjob_comment"),
+			ShellCommand:  getString(item, "shell_command"),
+			Timeout:       getInt(item, "timeout"),
+			Protocol:      getString(item, "protocol"),
+			HTTPURL:       getString(item, "http_url"),
+			HTTPUser:      getString(item, "http_user"),
+			HTTPPassword:  getString(item, "http_password"),
+			Minute:        getString(item, "minute"),
+			Hour:          getString(item, "hour"),
+			DayOfMonth:    getString(item, "day_of_month"),
+			Month:         getString(item, "month"),
+			DayOfWeek:     getString(item, "day_of_week"),
+			MailAdress:    getString(item, "mail_adress"),
+			MailCondition: getString(item, "mail_condition"),
+			MailSubject:   getString(item, "mail_subject"),
+			IsActive:      getString(item, "is_active"),
+		})
+	}
+	return out, nil
+}
+
+func getString(m soap.Value, key string) string {
+	v, ok := m.Get(key)
+	if !ok {
+		return ""
+	}
+	return v.AsString()
+}
+
+func getInt(m soap.Value, key string) int {
+	v, ok := m.Get(key)
+	if !ok {
+		return 0
+	}
+	switch v.Kind {
+	case soap.KindInt:
+		return int(v.Int)
+	case soap.KindFloat:
+		return int(v.Float)
+	case soap.KindString:
+		s := strings.TrimSpace(v.String)
+		if s == "" {
+			return 0
+		}
+		n, err := strconv.Atoi(s)
+		if err != nil {
+			return 0
+		}
+		return n
+	}
+	return 0
+}
+
+// TableHeaders returns the columns used by --output=table for
+// CronjobList.
+func (CronjobList) TableHeaders() []string {
+	return []string{"ID", "COMMENT", "SCHEDULE", "PROTOCOL", "TARGET", "ACTIVE"}
+}
+
+// TableRows emits one row per Cronjob entry. The schedule is rendered
+// as a single crontab(5)-style string and the target collapses
+// http_url and shell_command into one column so the table fits in a
+// terminal.
+func (l CronjobList) TableRows() [][]string {
+	rows := make([][]string, 0, len(l))
+	for _, c := range l {
+		rows = append(rows, []string{
+			c.ID,
+			c.Comment,
+			c.Schedule(),
+			c.Protocol,
+			c.Target(),
+			c.IsActive,
+		})
+	}
+	return rows
+}
+
+// TableHeaders for the singular Cronjob view: a key/value layout.
+func (Cronjob) TableHeaders() []string {
+	return []string{"FIELD", "VALUE"}
+}
+
+// TableRows emits the scalar fields. http_password is intentionally
+// omitted — consumers that need it should use --output=json|yaml.
+func (c Cronjob) TableRows() [][]string {
+	return [][]string{
+		{"cronjob_id", c.ID},
+		{"cronjob_comment", c.Comment},
+		{"is_active", c.IsActive},
+		{"protocol", c.Protocol},
+		{"http_url", c.HTTPURL},
+		{"http_user", c.HTTPUser},
+		{"shell_command", c.ShellCommand},
+		{"timeout", strconv.Itoa(c.Timeout)},
+		{"schedule", c.Schedule()},
+		{"minute", c.Minute},
+		{"hour", c.Hour},
+		{"day_of_month", c.DayOfMonth},
+		{"month", c.Month},
+		{"day_of_week", c.DayOfWeek},
+		{"mail_adress", c.MailAdress},
+		{"mail_condition", c.MailCondition},
+		{"mail_subject", c.MailSubject},
+	}
+}
