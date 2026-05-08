@@ -27,6 +27,7 @@ func main() {
 		cli.NewSambaUsersCmd(opts),
 		cli.NewCronjobsCmd(opts),
 		cli.NewDirectoryProtectionCmd(opts),
+		cli.NewSoftwareInstallsCmd(opts),
 		cli.NewUsageCmd(opts),
 		cli.NewConfigCmd(opts),
 	)

@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/softwareinstall` read module and `kasapi-cli softwareinstalls
+  list|get` subcommand tree wrapping `get_softwareinstall` (note: the
+  KAS action name is singular for both variants). The list variant
+  decodes the Array of Maps into a typed `SoftwareInstallList`; `get
+  <software-id>` reuses the same endpoint with a `software_id` filter
+  and unwraps the single-entry result. The list view collapses the
+  PHP and database `{from, upto}` version pairs into one column each
+  ("8.4", "10.5..12.0"), prefixes the DB column with the engine name,
+  and renders the `0.0` "not applicable" sentinel as `—`. The base64
+  `image` data URI is kept on the struct for JSON/YAML round-trip
+  fidelity but stripped from both table views. Mapping tests run
+  against `testdata/softwareinstall/get_softwareinstalls_response_success.xml`
+  (22 entries) and `get_softwareinstall_response_success.xml`. Refs #11.
+
 - `internal/directoryprotection` read module and
   `kasapi-cli directoryprotection list [--path PATH]` subcommand
   wrapping `get_directoryprotection`. The KAS endpoint returns one

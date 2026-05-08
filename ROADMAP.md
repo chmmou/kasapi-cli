@@ -65,6 +65,7 @@ The list is kept in sync with the code on `main`. To claim an unchecked item, pl
 - [ ] Cronjob write paths (`add_cronjob`, `update_cronjob`, `delete_cronjob`)
 - [x] `directoryprotection list [--path PATH]` (`get_directoryprotection`, optional `directory_path` filter)
 - [ ] Directory protection write paths (`add_directoryprotection`, `update_directoryprotection`, `delete_directoryprotection`)
-- [ ] Software install entries (`get_softwareinstall`, `add_softwareinstall`, `delete_softwareinstall`)
+- [x] `softwareinstalls list` / `softwareinstalls get <software-id>` (`get_softwareinstall`, with `software_id` filter)
+- [ ] Software install write paths (`add_softwareinstall`, `delete_softwareinstall`)
 - [ ] SSL certificate management (`add_lets_encrypt_csr`, `update_ssl_certificate`, …)
 - [ ] Filesystem helpers (`chown`, `symlink`)
