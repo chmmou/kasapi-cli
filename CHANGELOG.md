@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/mailaccount` read module and `kasapi-cli mail accounts
+  list|get` subcommand tree wrapping `get_mailaccounts`. The list
+  variant decodes the full Map-of-Maps payload into a typed
+  `MailAccountList`; `get <mail-login>` reuses the same endpoint with a
+  `mail_login` filter and unwraps the single-entry result. The
+  `--output=table` view shows login, address, used MB, responder flag
+  and active state; the singular view falls back to a key/value table
+  so the wider field set (xlist folders, 2FA flag, quota rule, webmail
+  autologin) stays readable. Mapping tests run against
+  `testdata/mailaccount/get_mailaccounts_response_success.xml` and
+  `get_mailaccount_response_success.xml`. Refs #9.
+
 - `kasapi-cli subdomains get <name>` calls `get_subdomains` with a
   `subdomain_name` filter and unwraps the single-entry result, mirroring
   the existing `domains get` flow; the singular `Subdomain` value
