@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/sambauser` read module and `kasapi-cli sambausers list|get`
+  subcommand tree wrapping `get_sambausers`. The list variant decodes
+  the Array of Maps into a typed `SambaUserList`; `get <samba-login>`
+  reuses the same endpoint with a `samba_login` filter (per the KAS
+  API docs at `get-sambausers-inc.html`) and unwraps the single-entry
+  result, matching the mail accounts / accounts / databases pattern.
+  The list view shows login, path, comment, and `in_progress`; the
+  singular view falls back to a key/value table and omits
+  `samba_password` (still available via `--output=json|yaml`).
+  Mapping tests run against
+  `testdata/sambauser/get_sambausers_response_success.xml` and
+  `get_sambauser_response_success.xml`. Refs #11.
+
 - `internal/ftpuser` read module and `kasapi-cli ftpusers list|get`
   subcommand tree wrapping `get_ftpusers`. The list variant decodes
   the Array of Maps into a typed `FTPUserList`; `get <ftp-login>`

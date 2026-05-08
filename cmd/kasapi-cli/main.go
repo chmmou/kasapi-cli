@@ -24,6 +24,7 @@ func main() {
 		cli.NewMailCmd(opts),
 		cli.NewDatabasesCmd(opts),
 		cli.NewFTPUsersCmd(opts),
+		cli.NewSambaUsersCmd(opts),
 		cli.NewUsageCmd(opts),
 		cli.NewConfigCmd(opts),
 	)
