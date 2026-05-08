@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/mailforward` read module and `kasapi-cli mail forwards
+  list|get` subcommand tree wrapping `get_mailforwards`. The list
+  variant decodes the full Map-of-Maps payload into a typed
+  `MailForwardList`; `get <address>` reuses the same endpoint with a
+  `mail_forward` filter (the source address) and unwraps the
+  single-entry result, mirroring the mail accounts pattern. Mapping
+  tests run against `testdata/mailforward/get_mailforwards_response_success.xml`
+  and `get_mailforward_response_success.xml`. Refs #9.
+
 - `internal/mailaccount` read module and `kasapi-cli mail accounts
   list|get` subcommand tree wrapping `get_mailaccounts`. The list
   variant decodes the full Map-of-Maps payload into a typed
