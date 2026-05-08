@@ -54,7 +54,8 @@ The list is kept in sync with the code on `main`. To claim an unchecked item, pl
 
 ## Hosting resources
 
-- [ ] Databases (`get_databases`, `add_database`, `update_database`, `delete_database`)
+- [x] `databases list` / `databases get <database-login>` (`get_databases`, with `database_login` filter)
+- [ ] Database write paths (`add_database`, `update_database`, `delete_database`)
 - [ ] FTP users (`get_ftpusers`, `add_ftpuser`, `update_ftpuser`, `delete_ftpuser`)
 - [ ] Samba users (`get_sambausers`, `add_sambauser`, `update_sambauser`, `delete_sambauser`)
 - [ ] DDNS users (`get_ddnsusers`, `add_ddnsuser`, `update_ddnsuser`, `delete_ddnsuser`)

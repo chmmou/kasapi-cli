@@ -22,6 +22,7 @@ func main() {
 		cli.NewTLDsCmd(opts),
 		cli.NewDNSCmd(opts),
 		cli.NewMailCmd(opts),
+		cli.NewDatabasesCmd(opts),
 		cli.NewUsageCmd(opts),
 		cli.NewConfigCmd(opts),
 	)

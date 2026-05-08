@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/database` read module and `kasapi-cli databases list|get`
+  subcommand tree wrapping `get_databases`. The list variant decodes
+  the Array of Maps into a typed `DatabaseList`; `get <database-login>`
+  reuses the same endpoint with a `database_login` filter and unwraps
+  the single-entry result, mirroring the mail accounts / accounts
+  pattern. The list view reports `used_database_space` in MB; the
+  singular view uses a key/value table and omits `database_password`
+  (still available via `--output=json|yaml`). Mapping tests run against
+  `testdata/database/get_databases_response_success.xml` and
+  `get_database_response_success.xml`. Refs #11.
+
 - `account.Client.Get(ctx, login)` and `kasapi-cli accounts get
   <account-login>` calling `get_accounts` with an `account_login`
   filter. The result is unwrapped from the single-entry array so the
