@@ -56,7 +56,8 @@ The list is kept in sync with the code on `main`. To claim an unchecked item, pl
 
 - [x] `databases list` / `databases get <database-login>` (`get_databases`, with `database_login` filter)
 - [ ] Database write paths (`add_database`, `update_database`, `delete_database`)
-- [ ] FTP users (`get_ftpusers`, `add_ftpuser`, `update_ftpuser`, `delete_ftpuser`)
+- [x] `ftpusers list` / `ftpusers get <ftp-login>` (`get_ftpusers`, with `ftp_login` filter)
+- [ ] FTP user write paths (`add_ftpuser`, `update_ftpuser`, `delete_ftpuser`)
 - [ ] Samba users (`get_sambausers`, `add_sambauser`, `update_sambauser`, `delete_sambauser`)
 - [ ] DDNS users (`get_ddnsusers`, `add_ddnsuser`, `update_ddnsuser`, `delete_ddnsuser`)
 - [ ] Cronjobs (`get_cronjobs`, `add_cronjob`, `update_cronjob`, `delete_cronjob`)

@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `internal/ftpuser` read module and `kasapi-cli ftpusers list|get`
+  subcommand tree wrapping `get_ftpusers`. The list variant decodes
+  the Array of Maps into a typed `FTPUserList`; `get <ftp-login>`
+  reuses the same endpoint with an `ftp_login` filter and unwraps the
+  single-entry result. The list view shows login, path, comment,
+  main-user flag, the three permission flags (R/W/L), the ClamAV
+  scan flag, and `in_progress`; the singular view falls back to a
+  key/value table and omits `ftp_password` / `ftp_passwort` (still
+  available via `--output=json|yaml`). Mapping tests run against
+  `testdata/ftpuser/get_ftpusers_response_success.xml`,
+  `get_ftpuser_response_success.xml`, and the empty-list fixture
+  (`get_ftpuser_response_success_empty_list.xml`). Refs #11.
+
 - `internal/database` read module and `kasapi-cli databases list|get`
   subcommand tree wrapping `get_databases`. The list variant decodes
   the Array of Maps into a typed `DatabaseList`; `get <database-login>`
