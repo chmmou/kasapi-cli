@@ -49,6 +49,7 @@ Project-specific operating rules (git/PR mechanics, code-review classification, 
 
 - `.claude/skills/kasapi-cli-git-workflow/SKILL.md` — branches, signed commits, FF-push merge model, no `Co-Authored-By` trailer.
 - `.claude/skills/kasapi-cli-code-review/SKILL.md` — Blocker / Should / Nice-to-have classification, re-review cycle.
+- `.claude/skills/kasapi-cli-vertical-slice/SKILL.md` — slice anatomy + order of operations per KAS endpoint (fixture → mapping → client → CLI → docs → CHANGELOG).
 - `CONTRIBUTING.md` — vertical-slice pattern per KAS endpoint, language conventions, security reporting.
 
 Read these before designing or extending package layout. Do not duplicate their content into new docs — link to them.
