@@ -62,7 +62,7 @@ func newMailListsListCmd(opts *RootOptions) *cobra.Command {
 
 func newMailListsGetCmd(opts *RootOptions) *cobra.Command {
 	return &cobra.Command{
-		Use:   "get <name>",
+		Use:   "get <mailinglist-name>",
 		Short: "Show details for a single mailing list (get_mailinglists with mailinglist_name)",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

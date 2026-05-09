@@ -184,19 +184,23 @@ func TestMailingListSingularTabular(t *testing.T) {
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))
 	}
+	// The order is part of the user-visible table contract: identity
+	// (name, admin, url) before lifecycle state (in_progress). Pin it
+	// by index so a refactor reordering the slice does not slip
+	// through silently.
+	want := [][]string{
+		{"mailinglist_name", "announce@example.com"},
+		{"mailinglist_admin", "admin@example.com"},
+		{"mailinglist_url", "https://lists.example.com/mailman/listinfo/announce"},
+		{"in_progress", "FALSE"},
+	}
 	rows := list[0].TableRows()
-	if len(rows) != 4 {
-		t.Fatalf("rows = %d, want 4", len(rows))
+	if len(rows) != len(want) {
+		t.Fatalf("rows = %d, want %d", len(rows), len(want))
 	}
-	wantPairs := map[string]string{
-		"mailinglist_name":  "announce@example.com",
-		"mailinglist_admin": "admin@example.com",
-		"mailinglist_url":   "https://lists.example.com/mailman/listinfo/announce",
-		"in_progress":       "FALSE",
-	}
-	for _, r := range rows {
-		if want, ok := wantPairs[r[0]]; !ok || r[1] != want {
-			t.Errorf("row %v not in expected map", r)
+	for i, r := range rows {
+		if r[0] != want[i][0] || r[1] != want[i][1] {
+			t.Errorf("row[%d] = %v, want %v", i, r, want[i])
 		}
 	}
 	hdr := (mailinglist.MailingList{}).TableHeaders()

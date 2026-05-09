@@ -204,6 +204,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `kasapi-cli mail lists get` argument placeholder renamed from
+  `<name>` to `<mailinglist-name>` so the help text matches the
+  KAS wire parameter and the placeholder convention used by every
+  other `get` subcommand (`<address>`, `<mail-login>`, `<dyndns-login>`,
+  `<domain>`, `<software-id>`, …). `TestMailingListSingularTabular`
+  was tightened from a map-lookup over rows (order-insensitive) to
+  an indexed comparison so a future refactor reordering `TableRows`
+  cannot slip past the test silently.
+
 - `internal/soap`: extend `Value` with typed Map accessors (`MapString`,
   `MapInt`, `MapInt64`, `MapFloat`) and a generic `AsInt` coercion so
   every read module can drop its private `getString` / `getInt` /
