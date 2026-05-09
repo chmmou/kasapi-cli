@@ -3,7 +3,7 @@
 Show details for a single DDNS user (get_ddnsusers with ddns_login)
 
 ```
-kasapi-cli ddnsusers get <dyndns-login> [flags]
+kasapi-cli ddnsusers get <ddns-login> [flags]
 ```
 
 ### Options

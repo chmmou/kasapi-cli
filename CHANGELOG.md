@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Unified the `get`-subcommand `Use:` placeholders to the
+  KAS-wire-parameter rule (filter key with hyphens):
+  `<dyndns-login>` → `<ddns-login>`, `<subdomain>` →
+  `<subdomain-name>`, `<address>` → `<mail-forward>`, `<domain>` →
+  `<domain-name>`. The 8 placeholders that already followed the
+  rule (e.g. `<ftp-login>`, `<cronjob-id>`, `<software-id>`) are
+  unchanged. `docs/cli/` regenerated. Cosmetic finalisation of the
+  cross-module-duplication clean-up bundle tracked in issue #73.
+- Centralised the singular-record `[]string{"FIELD", "VALUE"}`
+  table-header literal — duplicated 13 times across 11 read modules
+  — into the new shared `internal/tablefmt` package's
+  `FieldValueHeaders` variable. Each module's `TableHeaders()` for
+  the singular view now returns the shared variable; a future
+  rename ("KEY"/"VALUE", localisation, …) is one diff rather than
+  thirteen. Part four of the cross-module-duplication clean-up
+  bundle tracked in issue #73.
 - Replaced the duplicated `cobra.RunE` bodies in 14 CLI files
   (account, cronjobs, databases, ddnsusers, directoryprotection,
   domains, ftpusers, mail, sambausers, server, softwareinstalls,

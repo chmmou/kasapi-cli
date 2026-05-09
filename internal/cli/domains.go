@@ -36,7 +36,7 @@ func newDomainsListCmd(opts *RootOptions) *cobra.Command {
 
 func newDomainsGetCmd(opts *RootOptions) *cobra.Command {
 	return &cobra.Command{
-		Use:   "get <domain>",
+		Use:   "get <domain-name>",
 		Short: "Show details for a single domain (get_domains with domain_name)",
 		Args:  cobra.ExactArgs(1),
 		RunE: runGetE(opts, "get_domains", func(c *api.Client, ctx context.Context, arg string) (domain.Domain, error) {

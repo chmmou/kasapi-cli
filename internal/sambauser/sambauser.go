@@ -5,6 +5,7 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
@@ -103,7 +104,7 @@ func (l SambaUserList) TableRows() [][]string {
 // TableHeaders for the singular SambaUser view: a key/value layout
 // matches the rest of the singular detail commands.
 func (SambaUser) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. samba_password is intentionally

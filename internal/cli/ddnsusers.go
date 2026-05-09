@@ -40,7 +40,7 @@ func newDDNSUsersListCmd(opts *RootOptions) *cobra.Command {
 
 func newDDNSUsersGetCmd(opts *RootOptions) *cobra.Command {
 	return &cobra.Command{
-		Use:   "get <dyndns-login>",
+		Use:   "get <ddns-login>",
 		Short: "Show details for a single DDNS user (get_ddnsusers with ddns_login)",
 		Args:  cobra.ExactArgs(1),
 		RunE: runGetE(opts, "get_ddnsusers", func(c *api.Client, ctx context.Context, arg string) (ddns.DDNSUser, error) {

@@ -36,7 +36,7 @@ func newSubdomainsListCmd(opts *RootOptions) *cobra.Command {
 
 func newSubdomainsGetCmd(opts *RootOptions) *cobra.Command {
 	return &cobra.Command{
-		Use:   "get <subdomain>",
+		Use:   "get <subdomain-name>",
 		Short: "Show details for a single subdomain (get_subdomains with subdomain_name)",
 		Args:  cobra.ExactArgs(1),
 		RunE: runGetE(opts, "get_subdomains", func(c *api.Client, ctx context.Context, arg string) (subdomain.Subdomain, error) {

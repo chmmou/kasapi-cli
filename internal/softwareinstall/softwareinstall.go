@@ -5,6 +5,7 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
@@ -174,7 +175,7 @@ func dbRange(mariaFrom, mariaTo, mysqlFrom, mysqlTo string) string {
 // output usable in a terminal — consumers that need the logo should
 // use --output=json|yaml.
 func (SoftwareInstall) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. image is omitted (see

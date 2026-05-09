@@ -7,6 +7,7 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
@@ -166,7 +167,7 @@ func (l CronjobList) TableRows() [][]string {
 
 // TableHeaders for the singular Cronjob view: a key/value layout.
 func (Cronjob) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. http_password is intentionally

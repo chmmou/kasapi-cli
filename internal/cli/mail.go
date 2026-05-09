@@ -142,7 +142,7 @@ func newMailForwardsListCmd(opts *RootOptions) *cobra.Command {
 
 func newMailForwardsGetCmd(opts *RootOptions) *cobra.Command {
 	return &cobra.Command{
-		Use:   "get <address>",
+		Use:   "get <mail-forward>",
 		Short: "Show details for a single mail forward (get_mailforwards with mail_forward)",
 		Args:  cobra.ExactArgs(1),
 		RunE: runGetE(opts, "get_mailforwards", func(c *api.Client, ctx context.Context, arg string) (mailforward.MailForward, error) {

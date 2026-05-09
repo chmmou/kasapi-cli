@@ -5,6 +5,7 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
@@ -124,7 +125,7 @@ func (l FTPUserList) TableRows() [][]string {
 
 // TableHeaders for the singular FTPUser view: a key/value layout.
 func (FTPUser) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. ftp_password / ftp_passwort are

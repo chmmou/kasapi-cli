@@ -6,6 +6,7 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
@@ -159,7 +160,7 @@ func (l MailAccountList) TableRows() [][]string {
 // TableHeaders for the singular MailAccount view: a key/value layout
 // to fit the wider field set.
 func (MailAccount) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. The redundant mail_adresses /

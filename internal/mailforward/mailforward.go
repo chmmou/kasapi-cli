@@ -5,6 +5,7 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
@@ -106,7 +107,7 @@ func (l MailForwardList) TableRows() [][]string {
 // TableHeaders for the singular MailForward view: a key/value layout
 // to keep multi-target lists readable.
 func (MailForward) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. The redundant mail_forward_adress

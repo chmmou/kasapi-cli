@@ -3,7 +3,7 @@
 Show details for a single subdomain (get_subdomains with subdomain_name)
 
 ```
-kasapi-cli subdomains get <subdomain> [flags]
+kasapi-cli subdomains get <subdomain-name> [flags]
 ```
 
 ### Options

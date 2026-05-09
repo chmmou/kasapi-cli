@@ -8,6 +8,7 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
@@ -161,7 +162,7 @@ func (l SubdomainList) TableRows() [][]string {
 // since the record may carry an SSL cert PEM blob and is too tall for
 // a row.
 func (Subdomain) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. The SSL cert PEM bodies are

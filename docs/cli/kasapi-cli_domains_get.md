@@ -3,7 +3,7 @@
 Show details for a single domain (get_domains with domain_name)
 
 ```
-kasapi-cli domains get <domain> [flags]
+kasapi-cli domains get <domain-name> [flags]
 ```
 
 ### Options

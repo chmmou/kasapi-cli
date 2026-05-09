@@ -3,7 +3,7 @@
 Show details for a single mail forward (get_mailforwards with mail_forward)
 
 ```
-kasapi-cli mail forwards get <address> [flags]
+kasapi-cli mail forwards get <mail-forward> [flags]
 ```
 
 ### Options

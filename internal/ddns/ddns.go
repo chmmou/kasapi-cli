@@ -5,6 +5,7 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
@@ -150,7 +151,7 @@ func (l DDNSUserList) TableRows() [][]string {
 
 // TableHeaders for the singular DDNSUser view: a key/value layout.
 func (DDNSUser) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. dyndns_password is intentionally

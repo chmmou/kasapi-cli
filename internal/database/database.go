@@ -6,6 +6,7 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
@@ -104,7 +105,7 @@ func (l DatabaseList) TableRows() [][]string {
 // TableHeaders for the singular Database view: a key/value layout to
 // match the rest of the singular detail commands (mail accounts, accounts).
 func (Database) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. database_password is intentionally

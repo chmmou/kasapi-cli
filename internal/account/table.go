@@ -1,6 +1,10 @@
 package account
 
-import "strconv"
+import (
+	"strconv"
+
+	"github.com/chmmou/kasapi-cli/internal/tablefmt"
+)
 
 // AccountList is a slice wrapper that satisfies cli.Tabular so
 // kasapi-cli accounts list --output=table works without a per-command
@@ -77,7 +81,7 @@ func (r AccountResources) TableRows() [][]string {
 // the settings record is wide and tall-format is easier to read in a
 // terminal than a 30-column row.
 func (AccountSettings) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits one row per scalar field. SSH fingerprints and the
@@ -110,7 +114,7 @@ func (s AccountSettings) TableRows() [][]string {
 // fit the wide field set returned by get_accounts with an
 // account_login filter.
 func (Account) TableHeaders() []string {
-	return []string{"FIELD", "VALUE"}
+	return tablefmt.FieldValueHeaders
 }
 
 // TableRows emits the scalar fields. account_password is intentionally
