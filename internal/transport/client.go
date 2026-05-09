@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"sync"
 	"time"
@@ -34,6 +35,11 @@ type Client struct {
 	UserAgent  string
 	MaxRetries int
 
+	// Logger receives verbose-mode trace events: gate waits, retries.
+	// New() seeds it with a discard logger so callers may write to it
+	// unconditionally; cli wires --verbose to a stderr handler.
+	Logger *slog.Logger
+
 	// Now and Sleep are overridable for tests so retry/flood-delay
 	// timing can be asserted without real wall-clock waits.
 	Now   func() time.Time
@@ -50,9 +56,14 @@ func New() *Client {
 		HTTPClient: &http.Client{Timeout: DefaultTimeout},
 		UserAgent:  DefaultUserAgent,
 		MaxRetries: DefaultMaxRetries,
+		Logger:     discardLogger(),
 		Now:        time.Now,
 		Sleep:      ctxSleep,
 	}
+}
+
+func discardLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
 // RecordDelay schedules a window during which subsequent calls to Do
@@ -81,6 +92,8 @@ func (c *Client) Do(ctx context.Context, endpoint string, body []byte) ([]byte, 
 	var lastErr error
 	for attempt := 0; attempt <= c.MaxRetries; attempt++ {
 		if attempt > 0 {
+			c.logger().Info("transport: retry after transient failure",
+				"attempt", attempt, "max", c.MaxRetries, "backoff_ms", backoff.Milliseconds())
 			if err := c.Sleep(ctx, backoff); err != nil {
 				return nil, err
 			}
@@ -109,7 +122,15 @@ func (c *Client) waitGate(ctx context.Context) error {
 	if wait <= 0 {
 		return nil
 	}
+	c.logger().Info("transport: waiting for KasFloodDelay gate", "wait_ms", wait.Milliseconds())
 	return c.Sleep(ctx, wait)
+}
+
+func (c *Client) logger() *slog.Logger {
+	if c.Logger != nil {
+		return c.Logger
+	}
+	return discardLogger()
 }
 
 func (c *Client) doOnce(ctx context.Context, endpoint string, body []byte) ([]byte, error) {

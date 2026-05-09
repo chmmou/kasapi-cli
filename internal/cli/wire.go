@@ -3,6 +3,9 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
+	"os"
 	"time"
 
 	"github.com/chmmou/kasapi-cli/internal/api"
@@ -34,6 +37,8 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 		return nil, UserError(errors.New("nil RootOptions"), "cli")
 	}
 
+	logger := buildLogger(opts.Verbose)
+
 	cfg, err := config.Load(opts.ConfigPath)
 	if err != nil && !errors.Is(err, config.ErrNoConfig) {
 		return nil, UserError(err, "load config")
@@ -47,18 +52,34 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 	if err != nil {
 		return nil, UserError(err, "")
 	}
+	logger.Info("cli: credentials resolved",
+		"login", creds.Login, "auth_type", creds.AuthType, "auth_data", "<redacted>")
 
 	tr := transport.New()
+	tr.Logger = logger
 	ts, err := tokenSource(tr, creds, sessionOpts{
 		ConfigPath:     opts.ConfigPath,
 		OTP:            opts.OTP,
 		Lifetime:       opts.SessionLifetime,
 		UpdateLifetime: opts.SessionUpdateLifetime,
-	})
+	}, logger)
 	if err != nil {
 		return nil, UserError(err, "")
 	}
-	return api.New(tr, ts), nil
+	c := api.New(tr, ts)
+	c.Logger = logger
+	return c, nil
+}
+
+// buildLogger returns a stderr text-handler logger when verbose is set,
+// otherwise a discard logger. Subcommands obtain a logger via this
+// helper so the same instance can be plumbed into transport, api, and
+// auth without each package having to consult --verbose itself.
+func buildLogger(verbose bool) *slog.Logger {
+	if verbose {
+		return slog.New(slog.NewTextHandler(os.Stderr, nil))
+	}
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
 // sessionOpts groups the KasAuth-only flag values plumbed through to
@@ -76,7 +97,7 @@ func (s sessionOpts) any() bool {
 	return s.OTP != "" || s.Lifetime != 0 || s.UpdateLifetime != ""
 }
 
-func tokenSource(tr *transport.Client, creds config.Credentials, s sessionOpts) (api.TokenSource, error) {
+func tokenSource(tr *transport.Client, creds config.Credentials, s sessionOpts, logger *slog.Logger) (api.TokenSource, error) {
 	switch creds.AuthType {
 	case config.AuthPlain:
 		if s.any() {
@@ -96,6 +117,7 @@ func tokenSource(tr *transport.Client, creds config.Credentials, s sessionOpts) 
 			return nil, err
 		}
 		authClient := auth.New(tr, creds.Login, creds.AuthData, soap.AuthPlain, authOpts)
+		authClient.Logger = logger
 		src := auth.NewSessionTokenSource(authClient)
 		storePath, serr := session.PathFor(s.ConfigPath)
 		if serr != nil {

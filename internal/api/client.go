@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
 	"time"
 
 	"github.com/chmmou/kasapi-cli/internal/soap"
@@ -68,6 +70,12 @@ type Client struct {
 	Transport *transport.Client
 	Tokens    TokenSource
 	Endpoint  string
+
+	// Logger receives verbose-mode trace events: action being called,
+	// auth-failure retry, flood_protection fallback, KasFloodDelay
+	// applied. New() seeds it with a discard logger so callers may
+	// write to it unconditionally.
+	Logger *slog.Logger
 }
 
 // New returns a Client wired with the given transport and token source.
@@ -77,7 +85,15 @@ func New(t *transport.Client, ts TokenSource) *Client {
 		Transport: t,
 		Tokens:    ts,
 		Endpoint:  DefaultEndpoint,
+		Logger:    slog.New(slog.NewTextHandler(io.Discard, nil)),
 	}
+}
+
+func (c *Client) logger() *slog.Logger {
+	if c.Logger != nil {
+		return c.Logger
+	}
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
 // Call posts one KasApi action with the given parameters and returns
@@ -92,8 +108,10 @@ func (c *Client) Call(ctx context.Context, action string, params map[string]any)
 	if action == "" {
 		return nil, errors.New("api: action is required")
 	}
+	c.logger().Info("api: call", "action", action)
 	resp, err := c.callOnce(ctx, action, params)
 	if err != nil && IsAuthFailure(err) {
+		c.logger().Info("api: auth failure, refreshing token and retrying", "action", action)
 		c.Tokens.Invalidate()
 		resp, err = c.callOnce(ctx, action, params)
 	}
@@ -135,6 +153,8 @@ func (c *Client) callOnce(ctx context.Context, action string, params map[string]
 		if errors.As(err, &fe) {
 			apiErr := newError(action, c.Endpoint, fe)
 			if IsFloodProtection(apiErr) {
+				c.logger().Info("api: flood_protection fault, seeding fallback gate",
+					"action", action, "fallback_ms", floodFallback.Milliseconds())
 				c.Transport.RecordDelay(floodFallback)
 			}
 			return nil, apiErr
@@ -143,6 +163,7 @@ func (c *Client) callOnce(ctx context.Context, action string, params map[string]
 	}
 
 	if d := time.Duration(resp.Body.KasFloodDelay * float64(time.Second)); d > 0 {
+		c.logger().Info("api: KasFloodDelay applied", "action", action, "delay_ms", d.Milliseconds())
 		c.Transport.RecordDelay(d)
 	}
 	return resp, nil

@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
 
 	"github.com/chmmou/kasapi-cli/internal/soap"
 	"github.com/chmmou/kasapi-cli/internal/transport"
@@ -36,6 +38,11 @@ type Client struct {
 	AuthType  soap.AuthType
 	Options   Options
 	Endpoint  string
+
+	// Logger receives verbose-mode trace events around the KasAuth
+	// bootstrap. New() seeds it with a discard logger so callers may
+	// write to it unconditionally.
+	Logger *slog.Logger
 }
 
 // New returns a Client configured for the given credentials and options.
@@ -48,7 +55,15 @@ func New(t *transport.Client, login, authData string, authType soap.AuthType, op
 		AuthType:  authType,
 		Options:   opts,
 		Endpoint:  DefaultEndpoint,
+		Logger:    slog.New(slog.NewTextHandler(io.Discard, nil)),
 	}
+}
+
+func (c *Client) logger() *slog.Logger {
+	if c.Logger != nil {
+		return c.Logger
+	}
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
 // GetCredentialToken posts the KasAuth request and returns the
@@ -58,6 +73,8 @@ func (c *Client) GetCredentialToken(ctx context.Context) (string, error) {
 	if c.Login == "" || c.AuthData == "" || c.AuthType == "" {
 		return "", errors.New("auth: Client has empty credential fields")
 	}
+	c.logger().Info("auth: KasAuth bootstrap",
+		"login", c.Login, "auth_type", c.AuthType, "lifetime", c.Options.Lifetime, "otp", c.Options.OTP != "")
 	var buf bytes.Buffer
 	req := Request{
 		Login:          c.Login,
@@ -82,5 +99,6 @@ func (c *Client) GetCredentialToken(ctx context.Context) (string, error) {
 		}
 		return "", fmt.Errorf("auth: decode: %w", err)
 	}
+	c.logger().Info("auth: credential token issued", "login", c.Login, "token_length", len(token))
 	return token, nil
 }

@@ -202,6 +202,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with the server-side window. Practical effect: rerun a command and
   no `--otp` prompt is needed for as long as the session is alive.
 
+### Fixed
+
+- `--verbose` / `-v` was bound to a `RootOptions` field but never
+  read anywhere; the flag was effectively a no-op. Plumb a
+  `*slog.Logger` (text handler on stderr when verbose, discard
+  otherwise) through `BuildAPIClient` into `transport.Client`,
+  `api.Client`, and `auth.Client`. Events emitted: resolved
+  credentials with `auth_data` redacted (`cli`); SOAP action
+  before each request, auth-failure retry, `flood_protection`
+  fallback gate, applied `KasFloodDelay` (`api`); `KasFloodDelay`
+  gate wait, transient-error retry attempt (`transport`);
+  `KasAuth` bootstrap and credential-token issued with login +
+  token length only (`auth`). Stdout stays clean for `-o json |
+  jq` pipes; logs go to stderr only.
+
 ### Changed
 
 - `README.md`: expand with a Configuration section (TOML profile
