@@ -6,15 +6,14 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // Space is one entry of get_space. Each entry covers an account-login
 // (the main account and each sub-account) with byte counts split by

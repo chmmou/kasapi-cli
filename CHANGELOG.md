@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Collapsed the four remaining stand-alone `Caller interface`
+  declarations in `internal/directoryprotection`, `internal/dns`,
+  `internal/server`, and `internal/usage` to `type Caller =
+  kasread.Caller`, matching the nine modules that were already
+  aliased after issue #73's PR B. The shape was identical in all
+  four cases; the alias removes the last bit of duplicated
+  interface boilerplate and ensures a future change to the
+  `Caller` contract is a single-file diff in `internal/kasread`.
+
 ### Documentation
 
 - Closed the two remaining follow-ups from issue #73's NTH bundle:

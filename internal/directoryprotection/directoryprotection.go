@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // DirectoryProtection is one (path, user) tuple of the KAS htaccess /
 // directory-protection table. The KAS API returns one entry per user

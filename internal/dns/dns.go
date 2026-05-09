@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // Record is one DNS resource record returned by get_dns_settings.
 // record_id is xsd:string in the wire format and we keep it as a

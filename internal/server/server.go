@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // Service is one entry from get_server_information. The KAS API
 // returns a heterogeneous list: mysql carries a version_type, php
