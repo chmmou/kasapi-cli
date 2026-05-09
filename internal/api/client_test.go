@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -16,31 +15,13 @@ import (
 
 	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 	"github.com/chmmou/kasapi-cli/internal/transport"
 )
 
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
 func loadFixture(t *testing.T, rel string) []byte {
 	t.Helper()
-	b, err := os.ReadFile(filepath.Join(repoRoot(t), "testdata", rel))
+	b, err := os.ReadFile(filepath.Join(testutil.RepoRoot(t), "testdata", rel))
 	if err != nil {
 		t.Fatalf("load %s: %v", rel, err)
 	}

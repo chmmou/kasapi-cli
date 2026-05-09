@@ -3,66 +3,15 @@ package ftpuser_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/ftpuser"
-	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
-
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
-func decodeFixture(t *testing.T, name string) *soap.Response {
-	t.Helper()
-	path := filepath.Join(repoRoot(t), "testdata", "ftpuser", name)
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("open %s: %v", name, err)
-	}
-	defer func() { _ = f.Close() }()
-	resp, err := soap.Decode(f)
-	if err != nil {
-		t.Fatalf("decode %s: %v", name, err)
-	}
-	return resp
-}
-
-type fakeCaller struct {
-	resp *soap.Response
-	err  error
-
-	gotAction string
-	gotParams map[string]any
-}
-
-func (f *fakeCaller) Call(_ context.Context, action string, params map[string]any) (*soap.Response, error) {
-	f.gotAction = action
-	f.gotParams = params
-	return f.resp, f.err
-}
 
 func TestDecodeFTPUsers(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ftpusers_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpusers_response_success.xml")
 	got, err := ftpuser.DecodeFTPUsers(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeFTPUsers: %v", err)
@@ -92,7 +41,7 @@ func TestDecodeFTPUsers(t *testing.T) {
 
 func TestDecodeFTPUserSingular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ftpuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success.xml")
 	got, err := ftpuser.DecodeFTPUsers(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeFTPUsers: %v", err)
@@ -119,7 +68,7 @@ func TestDecodeFTPUserSingular(t *testing.T) {
 
 func TestDecodeFTPUsersEmptyList(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ftpuser_response_success_empty_list.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success_empty_list.xml")
 	got, err := ftpuser.DecodeFTPUsers(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeFTPUsers: %v", err)
@@ -131,17 +80,17 @@ func TestDecodeFTPUsersEmptyList(t *testing.T) {
 
 func TestClientList(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ftpusers_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpusers_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := ftpuser.NewClient(fc).List(context.Background())
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
-	if fc.gotAction != "get_ftpusers" {
-		t.Errorf("action = %q, want get_ftpusers", fc.gotAction)
+	if fc.GotAction != "get_ftpusers" {
+		t.Errorf("action = %q, want get_ftpusers", fc.GotAction)
 	}
-	if fc.gotParams != nil {
-		t.Errorf("params = %v, want nil", fc.gotParams)
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil", fc.GotParams)
 	}
 	if len(list) != 5 {
 		t.Errorf("len = %d, want 5", len(list))
@@ -150,17 +99,17 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ftpuser_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	u, err := ftpuser.NewClient(fc).Get(context.Background(), "f0000001")
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
-	if fc.gotAction != "get_ftpusers" {
-		t.Errorf("action = %q, want get_ftpusers", fc.gotAction)
+	if fc.GotAction != "get_ftpusers" {
+		t.Errorf("action = %q, want get_ftpusers", fc.GotAction)
 	}
-	if got, _ := fc.gotParams["ftp_login"].(string); got != "f0000001" {
-		t.Errorf("params[ftp_login] = %v, want f0000001", fc.gotParams["ftp_login"])
+	if got, _ := fc.GotParams["ftp_login"].(string); got != "f0000001" {
+		t.Errorf("params[ftp_login] = %v, want f0000001", fc.GotParams["ftp_login"])
 	}
 	if u.Login != "f0000001" {
 		t.Errorf("Login = %q, want f0000001", u.Login)
@@ -169,7 +118,7 @@ func TestClientGet(t *testing.T) {
 
 func TestClientGetEmptyLogin(t *testing.T) {
 	t.Parallel()
-	c := ftpuser.NewClient(&fakeCaller{})
+	c := ftpuser.NewClient(&testutil.FakeCaller{})
 	if _, err := c.Get(context.Background(), ""); err == nil {
 		t.Errorf("Get(\"\") err = nil, want validation error")
 	}
@@ -177,8 +126,8 @@ func TestClientGetEmptyLogin(t *testing.T) {
 
 func TestClientGetNotFound(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ftpuser_response_success_empty_list.xml")
-	c := ftpuser.NewClient(&fakeCaller{resp: resp})
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success_empty_list.xml")
+	c := ftpuser.NewClient(&testutil.FakeCaller{Resp: resp})
 	if _, err := c.Get(context.Background(), "missing"); err == nil {
 		t.Errorf("Get on empty result err = nil, want not-found")
 	}
@@ -187,7 +136,7 @@ func TestClientGetNotFound(t *testing.T) {
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := ftpuser.NewClient(&fakeCaller{err: want})
+	c := ftpuser.NewClient(&testutil.FakeCaller{Err: want})
 	if _, err := c.List(context.Background()); !errors.Is(err, want) {
 		t.Errorf("List err = %v, want %v wrapped", err, want)
 	}
@@ -198,7 +147,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestFTPUserListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ftpusers_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpusers_response_success.xml")
 	list, _ := ftpuser.DecodeFTPUsers(resp.Body.ReturnInfo)
 	headers := list.TableHeaders()
 	if headers[0] != "LOGIN" {
@@ -215,7 +164,7 @@ func TestFTPUserListTabular(t *testing.T) {
 
 func TestFTPUserTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ftpuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success.xml")
 	list, _ := ftpuser.DecodeFTPUsers(resp.Body.ReturnInfo)
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))

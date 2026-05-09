@@ -204,6 +204,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `internal/testutil`: extract the `repoRoot` / `decodeFixture` /
+  `fakeCaller` helpers that every per-module `*_test.go` carried as
+  a private copy into a single shared package, and migrate all 20
+  test files (17 module test suites + `internal/{soap,auth,api}`'s
+  own root-discovery helpers) to use it. `DecodeFixture` now takes a
+  forward-slash-separated path rooted at `testdata/` (e.g.
+  `"mailinglist/get_mailinglists_response_success.xml"`) so the fixture
+  layout is visible at the call site instead of being hidden inside
+  per-module `decodeFixture(t, name)` wrappers. The `FakeCaller` stub
+  is exported with `Resp` / `Err` / `GotAction` / `GotParams` fields
+  so cross-module test code can construct it directly. Net effect:
+  ~910 lines of word-for-word boilerplate removed; behaviour
+  unchanged (the loop ends only after `go test -race ./...` and
+  `golangci-lint run` are clean against the migrated suite).
+
 - `kasapi-cli mail lists get` argument placeholder renamed from
   `<name>` to `<mailinglist-name>` so the help text matches the
   KAS wire parameter and the placeholder convention used by every

@@ -3,66 +3,15 @@ package ddns_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/ddns"
-	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
-
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
-func decodeFixture(t *testing.T, name string) *soap.Response {
-	t.Helper()
-	path := filepath.Join(repoRoot(t), "testdata", "ddns", name)
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("open %s: %v", name, err)
-	}
-	defer func() { _ = f.Close() }()
-	resp, err := soap.Decode(f)
-	if err != nil {
-		t.Fatalf("decode %s: %v", name, err)
-	}
-	return resp
-}
-
-type fakeCaller struct {
-	resp *soap.Response
-	err  error
-
-	gotAction string
-	gotParams map[string]any
-}
-
-func (f *fakeCaller) Call(_ context.Context, action string, params map[string]any) (*soap.Response, error) {
-	f.gotAction = action
-	f.gotParams = params
-	return f.resp, f.err
-}
 
 func TestDecodeDDNSUsers(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ddnsusers_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ddns/get_ddnsusers_response_success.xml")
 	got, err := ddns.DecodeDDNSUsers(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDDNSUsers: %v", err)
@@ -103,7 +52,7 @@ func TestDecodeDDNSUsers(t *testing.T) {
 
 func TestDecodeDDNSUserSingular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ddnsuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ddns/get_ddnsuser_response_success.xml")
 	got, err := ddns.DecodeDDNSUsers(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDDNSUsers: %v", err)
@@ -152,17 +101,17 @@ func TestFQDN(t *testing.T) {
 
 func TestClientList(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ddnsusers_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "ddns/get_ddnsusers_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := ddns.NewClient(fc).List(context.Background())
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
-	if fc.gotAction != "get_ddnsusers" {
-		t.Errorf("action = %q, want get_ddnsusers", fc.gotAction)
+	if fc.GotAction != "get_ddnsusers" {
+		t.Errorf("action = %q, want get_ddnsusers", fc.GotAction)
 	}
-	if fc.gotParams != nil {
-		t.Errorf("params = %v, want nil", fc.gotParams)
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil", fc.GotParams)
 	}
 	if len(list) != 2 {
 		t.Errorf("len = %d, want 2", len(list))
@@ -171,22 +120,22 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ddnsuser_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "ddns/get_ddnsuser_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	u, err := ddns.NewClient(fc).Get(context.Background(), "dyn0000002")
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
-	if fc.gotAction != "get_ddnsusers" {
-		t.Errorf("action = %q", fc.gotAction)
+	if fc.GotAction != "get_ddnsusers" {
+		t.Errorf("action = %q", fc.GotAction)
 	}
 	// Filter parameter is `ddns_login` (no y), unlike the response
 	// keys which use the dyndns_ prefix. Fixture-confirmed.
-	if got, _ := fc.gotParams["ddns_login"].(string); got != "dyn0000002" {
-		t.Errorf("params[ddns_login] = %v, want dyn0000002", fc.gotParams["ddns_login"])
+	if got, _ := fc.GotParams["ddns_login"].(string); got != "dyn0000002" {
+		t.Errorf("params[ddns_login] = %v, want dyn0000002", fc.GotParams["ddns_login"])
 	}
-	if _, ok := fc.gotParams["dyndns_login"]; ok {
-		t.Errorf("dyndns_login (with y) leaked into params: %v", fc.gotParams)
+	if _, ok := fc.GotParams["dyndns_login"]; ok {
+		t.Errorf("dyndns_login (with y) leaked into params: %v", fc.GotParams)
 	}
 	if u.Login != "dyn0000002" {
 		t.Errorf("Login = %q", u.Login)
@@ -195,7 +144,7 @@ func TestClientGet(t *testing.T) {
 
 func TestClientGetEmptyLogin(t *testing.T) {
 	t.Parallel()
-	c := ddns.NewClient(&fakeCaller{})
+	c := ddns.NewClient(&testutil.FakeCaller{})
 	if _, err := c.Get(context.Background(), ""); err == nil {
 		t.Errorf("Get(\"\") err = nil, want validation error")
 	}
@@ -204,7 +153,7 @@ func TestClientGetEmptyLogin(t *testing.T) {
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := ddns.NewClient(&fakeCaller{err: want})
+	c := ddns.NewClient(&testutil.FakeCaller{Err: want})
 	if _, err := c.List(context.Background()); !errors.Is(err, want) {
 		t.Errorf("List err = %v, want %v wrapped", err, want)
 	}
@@ -215,7 +164,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestDDNSUserListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ddnsusers_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ddns/get_ddnsusers_response_success.xml")
 	list, _ := ddns.DecodeDDNSUsers(resp.Body.ReturnInfo)
 	headers := list.TableHeaders()
 	if headers[0] != "LOGIN" {
@@ -235,7 +184,7 @@ func TestDDNSUserListTabular(t *testing.T) {
 
 func TestDDNSUserTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_ddnsuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ddns/get_ddnsuser_response_success.xml")
 	list, _ := ddns.DecodeDDNSUsers(resp.Body.ReturnInfo)
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))

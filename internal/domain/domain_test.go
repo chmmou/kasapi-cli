@@ -3,66 +3,16 @@ package domain_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/domain"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
-
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
-func decodeFixture(t *testing.T, name string) *soap.Response {
-	t.Helper()
-	path := filepath.Join(repoRoot(t), "testdata", "domain", name)
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("open %s: %v", name, err)
-	}
-	defer func() { _ = f.Close() }()
-	resp, err := soap.Decode(f)
-	if err != nil {
-		t.Fatalf("decode %s: %v", name, err)
-	}
-	return resp
-}
-
-type fakeCaller struct {
-	resp *soap.Response
-	err  error
-
-	gotAction string
-	gotParams map[string]any
-}
-
-func (f *fakeCaller) Call(_ context.Context, action string, params map[string]any) (*soap.Response, error) {
-	f.gotAction = action
-	f.gotParams = params
-	return f.resp, f.err
-}
 
 func TestDecodeDomains(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_domains_response_success.xml")
+	resp := testutil.DecodeFixture(t, "domain/get_domains_response_success.xml")
 	got, err := domain.DecodeDomains(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDomains: %v", err)
@@ -94,7 +44,7 @@ func TestDecodeDomains(t *testing.T) {
 
 func TestDecodeDomainSingular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_domain_response_success.xml")
+	resp := testutil.DecodeFixture(t, "domain/get_domain_response_success.xml")
 	got, err := domain.DecodeDomains(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDomains: %v", err)
@@ -131,7 +81,7 @@ func TestDecodeDomainSingular(t *testing.T) {
 
 func TestDecodeTLDs(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_topleveldomains_response_success.xml")
+	resp := testutil.DecodeFixture(t, "domain/get_topleveldomains_response_success.xml")
 	got, err := domain.DecodeTLDs(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeTLDs: %v", err)
@@ -157,17 +107,17 @@ func TestDecodeTLDs(t *testing.T) {
 
 func TestClientList(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_domains_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "domain/get_domains_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := domain.NewClient(fc).List(context.Background())
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
-	if fc.gotAction != "get_domains" {
-		t.Errorf("action = %q, want get_domains", fc.gotAction)
+	if fc.GotAction != "get_domains" {
+		t.Errorf("action = %q, want get_domains", fc.GotAction)
 	}
-	if fc.gotParams != nil {
-		t.Errorf("params = %v, want nil", fc.gotParams)
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil", fc.GotParams)
 	}
 	if len(list) != 2 {
 		t.Errorf("len = %d, want 2", len(list))
@@ -176,17 +126,17 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_domain_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "domain/get_domain_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	d, err := domain.NewClient(fc).Get(context.Background(), "example.com")
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
-	if fc.gotAction != "get_domains" {
-		t.Errorf("action = %q, want get_domains", fc.gotAction)
+	if fc.GotAction != "get_domains" {
+		t.Errorf("action = %q, want get_domains", fc.GotAction)
 	}
-	if name, _ := fc.gotParams["domain_name"].(string); name != "example.com" {
-		t.Errorf("params[domain_name] = %v, want example.com", fc.gotParams["domain_name"])
+	if name, _ := fc.GotParams["domain_name"].(string); name != "example.com" {
+		t.Errorf("params[domain_name] = %v, want example.com", fc.GotParams["domain_name"])
 	}
 	if d.Name != "example.com" {
 		t.Errorf("Name = %q", d.Name)
@@ -195,7 +145,7 @@ func TestClientGet(t *testing.T) {
 
 func TestClientGetEmptyName(t *testing.T) {
 	t.Parallel()
-	c := domain.NewClient(&fakeCaller{})
+	c := domain.NewClient(&testutil.FakeCaller{})
 	if _, err := c.Get(context.Background(), ""); err == nil {
 		t.Errorf("Get(\"\") err = nil, want validation error")
 	}
@@ -206,7 +156,7 @@ func TestClientGetNotFound(t *testing.T) {
 	// Empty array fixture: re-use get_domains_request via a hand-made
 	// soap.Response with a zero-length array.
 	resp := &soap.Response{Body: soap.ResponseBody{ReturnInfo: soap.Value{Kind: soap.KindArray}}}
-	c := domain.NewClient(&fakeCaller{resp: resp})
+	c := domain.NewClient(&testutil.FakeCaller{Resp: resp})
 	if _, err := c.Get(context.Background(), "missing.example"); err == nil {
 		t.Errorf("Get on empty result err = nil, want not-found")
 	}
@@ -214,14 +164,14 @@ func TestClientGetNotFound(t *testing.T) {
 
 func TestClientTopLevelDomains(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_topleveldomains_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "domain/get_topleveldomains_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := domain.NewClient(fc).TopLevelDomains(context.Background())
 	if err != nil {
 		t.Fatalf("TopLevelDomains: %v", err)
 	}
-	if fc.gotAction != "get_topleveldomains" {
-		t.Errorf("action = %q, want get_topleveldomains", fc.gotAction)
+	if fc.GotAction != "get_topleveldomains" {
+		t.Errorf("action = %q, want get_topleveldomains", fc.GotAction)
 	}
 	if len(list) != 1077 {
 		t.Errorf("len = %d, want 1077", len(list))
@@ -231,7 +181,7 @@ func TestClientTopLevelDomains(t *testing.T) {
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := domain.NewClient(&fakeCaller{err: want})
+	c := domain.NewClient(&testutil.FakeCaller{Err: want})
 	if _, err := c.List(context.Background()); !errors.Is(err, want) {
 		t.Errorf("List err = %v, want %v wrapped", err, want)
 	}
@@ -245,7 +195,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestDomainListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_domains_response_success.xml")
+	resp := testutil.DecodeFixture(t, "domain/get_domains_response_success.xml")
 	list, _ := domain.DecodeDomains(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 2 {
@@ -258,7 +208,7 @@ func TestDomainListTabular(t *testing.T) {
 
 func TestTLDListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_topleveldomains_response_success.xml")
+	resp := testutil.DecodeFixture(t, "domain/get_topleveldomains_response_success.xml")
 	list, _ := domain.DecodeTLDs(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 1077 {
@@ -271,7 +221,7 @@ func TestTLDListTabular(t *testing.T) {
 
 func TestDomainTabularSummarisesPEM(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_domain_response_success.xml")
+	resp := testutil.DecodeFixture(t, "domain/get_domain_response_success.xml")
 	list, _ := domain.DecodeDomains(resp.Body.ReturnInfo)
 	rows := list[0].TableRows()
 	for _, row := range rows {

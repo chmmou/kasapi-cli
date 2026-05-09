@@ -3,66 +3,15 @@ package directoryprotection_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/directoryprotection"
-	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
-
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
-func decodeFixture(t *testing.T, name string) *soap.Response {
-	t.Helper()
-	path := filepath.Join(repoRoot(t), "testdata", "directoryprotection", name)
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("open %s: %v", name, err)
-	}
-	defer func() { _ = f.Close() }()
-	resp, err := soap.Decode(f)
-	if err != nil {
-		t.Fatalf("decode %s: %v", name, err)
-	}
-	return resp
-}
-
-type fakeCaller struct {
-	resp *soap.Response
-	err  error
-
-	gotAction string
-	gotParams map[string]any
-}
-
-func (f *fakeCaller) Call(_ context.Context, action string, params map[string]any) (*soap.Response, error) {
-	f.gotAction = action
-	f.gotParams = params
-	return f.resp, f.err
-}
 
 func TestDecodeDirectoryProtections(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_directoryprotections_response_success.xml")
+	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotections_response_success.xml")
 	got, err := directoryprotection.DecodeDirectoryProtections(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDirectoryProtections: %v", err)
@@ -87,7 +36,7 @@ func TestDecodeDirectoryProtections(t *testing.T) {
 
 func TestDecodeDirectoryProtectionSingular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_directoryprotection_response_success.xml")
+	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotection_response_success.xml")
 	got, err := directoryprotection.DecodeDirectoryProtections(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDirectoryProtections: %v", err)
@@ -102,17 +51,17 @@ func TestDecodeDirectoryProtectionSingular(t *testing.T) {
 
 func TestClientListNoFilter(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_directoryprotections_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotections_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := directoryprotection.NewClient(fc).List(context.Background(), "")
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
-	if fc.gotAction != "get_directoryprotection" {
-		t.Errorf("action = %q, want get_directoryprotection", fc.gotAction)
+	if fc.GotAction != "get_directoryprotection" {
+		t.Errorf("action = %q, want get_directoryprotection", fc.GotAction)
 	}
-	if fc.gotParams != nil {
-		t.Errorf("params = %v, want nil", fc.gotParams)
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil", fc.GotParams)
 	}
 	if len(list) != 1 {
 		t.Errorf("len = %d, want 1", len(list))
@@ -121,17 +70,17 @@ func TestClientListNoFilter(t *testing.T) {
 
 func TestClientListWithPath(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_directoryprotection_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotection_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := directoryprotection.NewClient(fc).List(context.Background(), "/protected/directory/")
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
-	if fc.gotAction != "get_directoryprotection" {
-		t.Errorf("action = %q", fc.gotAction)
+	if fc.GotAction != "get_directoryprotection" {
+		t.Errorf("action = %q", fc.GotAction)
 	}
-	if got, _ := fc.gotParams["directory_path"].(string); got != "/protected/directory/" {
-		t.Errorf("params[directory_path] = %v", fc.gotParams["directory_path"])
+	if got, _ := fc.GotParams["directory_path"].(string); got != "/protected/directory/" {
+		t.Errorf("params[directory_path] = %v", fc.GotParams["directory_path"])
 	}
 	if len(list) != 1 {
 		t.Errorf("len = %d, want 1", len(list))
@@ -141,7 +90,7 @@ func TestClientListWithPath(t *testing.T) {
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := directoryprotection.NewClient(&fakeCaller{err: want})
+	c := directoryprotection.NewClient(&testutil.FakeCaller{Err: want})
 	if _, err := c.List(context.Background(), ""); !errors.Is(err, want) {
 		t.Errorf("List err = %v, want %v wrapped", err, want)
 	}
@@ -152,7 +101,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestDirectoryProtectionListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_directoryprotections_response_success.xml")
+	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotections_response_success.xml")
 	list, _ := directoryprotection.DecodeDirectoryProtections(resp.Body.ReturnInfo)
 	headers := list.TableHeaders()
 	if headers[0] != "PATH" {

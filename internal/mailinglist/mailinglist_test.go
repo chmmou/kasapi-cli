@@ -3,66 +3,16 @@ package mailinglist_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/mailinglist"
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
-
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
-func decodeFixture(t *testing.T, name string) *soap.Response {
-	t.Helper()
-	path := filepath.Join(repoRoot(t), "testdata", "mailinglist", name)
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("open %s: %v", name, err)
-	}
-	defer func() { _ = f.Close() }()
-	resp, err := soap.Decode(f)
-	if err != nil {
-		t.Fatalf("decode %s: %v", name, err)
-	}
-	return resp
-}
-
-type fakeCaller struct {
-	resp *soap.Response
-	err  error
-
-	gotAction string
-	gotParams map[string]any
-}
-
-func (f *fakeCaller) Call(_ context.Context, action string, params map[string]any) (*soap.Response, error) {
-	f.gotAction = action
-	f.gotParams = params
-	return f.resp, f.err
-}
 
 func TestDecodeMailingLists(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_mailinglists_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglists_response_success.xml")
 	got, err := mailinglist.DecodeMailingLists(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeMailingLists: %v", err)
@@ -84,7 +34,7 @@ func TestDecodeMailingLists(t *testing.T) {
 
 func TestDecodeMailingListSingular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_mailinglist_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglist_response_success.xml")
 	got, err := mailinglist.DecodeMailingLists(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeMailingLists: %v", err)
@@ -99,17 +49,17 @@ func TestDecodeMailingListSingular(t *testing.T) {
 
 func TestClientList(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_mailinglists_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglists_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := mailinglist.NewClient(fc).List(context.Background())
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
-	if fc.gotAction != "get_mailinglists" {
-		t.Errorf("action = %q, want get_mailinglists", fc.gotAction)
+	if fc.GotAction != "get_mailinglists" {
+		t.Errorf("action = %q, want get_mailinglists", fc.GotAction)
 	}
-	if fc.gotParams != nil {
-		t.Errorf("params = %v, want nil", fc.gotParams)
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil", fc.GotParams)
 	}
 	if len(list) != 2 {
 		t.Errorf("len = %d, want 2", len(list))
@@ -118,17 +68,17 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_mailinglist_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglist_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	m, err := mailinglist.NewClient(fc).Get(context.Background(), "announce@example.com")
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
-	if fc.gotAction != "get_mailinglists" {
-		t.Errorf("action = %q, want get_mailinglists", fc.gotAction)
+	if fc.GotAction != "get_mailinglists" {
+		t.Errorf("action = %q, want get_mailinglists", fc.GotAction)
 	}
-	if got, _ := fc.gotParams["mailinglist_name"].(string); got != "announce@example.com" {
-		t.Errorf("params[mailinglist_name] = %v, want announce@example.com", fc.gotParams["mailinglist_name"])
+	if got, _ := fc.GotParams["mailinglist_name"].(string); got != "announce@example.com" {
+		t.Errorf("params[mailinglist_name] = %v, want announce@example.com", fc.GotParams["mailinglist_name"])
 	}
 	if m.Name != "announce@example.com" {
 		t.Errorf("Name = %q", m.Name)
@@ -137,7 +87,7 @@ func TestClientGet(t *testing.T) {
 
 func TestClientGetEmptyName(t *testing.T) {
 	t.Parallel()
-	c := mailinglist.NewClient(&fakeCaller{})
+	c := mailinglist.NewClient(&testutil.FakeCaller{})
 	if _, err := c.Get(context.Background(), ""); err == nil {
 		t.Errorf("Get(\"\") err = nil, want validation error")
 	}
@@ -146,7 +96,7 @@ func TestClientGetEmptyName(t *testing.T) {
 func TestClientGetNotFound(t *testing.T) {
 	t.Parallel()
 	resp := &soap.Response{Body: soap.ResponseBody{ReturnInfo: soap.Value{Kind: soap.KindArray}}}
-	c := mailinglist.NewClient(&fakeCaller{resp: resp})
+	c := mailinglist.NewClient(&testutil.FakeCaller{Resp: resp})
 	if _, err := c.Get(context.Background(), "missing@example.com"); err == nil {
 		t.Errorf("Get on empty result err = nil, want not-found")
 	}
@@ -155,7 +105,7 @@ func TestClientGetNotFound(t *testing.T) {
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := mailinglist.NewClient(&fakeCaller{err: want})
+	c := mailinglist.NewClient(&testutil.FakeCaller{Err: want})
 	if _, err := c.List(context.Background()); !errors.Is(err, want) {
 		t.Errorf("List err = %v, want %v wrapped", err, want)
 	}
@@ -166,7 +116,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestMailingListListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_mailinglists_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglists_response_success.xml")
 	list, _ := mailinglist.DecodeMailingLists(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 2 {
@@ -179,7 +129,7 @@ func TestMailingListListTabular(t *testing.T) {
 
 func TestMailingListSingularTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_mailinglist_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglist_response_success.xml")
 	list, _ := mailinglist.DecodeMailingLists(resp.Body.ReturnInfo)
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))

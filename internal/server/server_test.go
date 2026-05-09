@@ -3,52 +3,15 @@ package server_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/server"
-	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
-
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
-func decodeFixture(t *testing.T) *soap.Response {
-	t.Helper()
-	path := filepath.Join(repoRoot(t), "testdata", "account", "get_server_information_response_success.xml")
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("open: %v", err)
-	}
-	defer func() { _ = f.Close() }()
-	resp, err := soap.Decode(f)
-	if err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	return resp
-}
 
 func TestDecodeServices(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t)
+	resp := testutil.DecodeFixture(t, "account/get_server_information_response_success.xml")
 	got, err := server.DecodeServices(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeServices: %v", err)
@@ -68,19 +31,10 @@ func TestDecodeServices(t *testing.T) {
 	}
 }
 
-type fakeCaller struct {
-	resp *soap.Response
-	err  error
-}
-
-func (f fakeCaller) Call(_ context.Context, _ string, _ map[string]any) (*soap.Response, error) {
-	return f.resp, f.err
-}
-
 func TestClientInformation(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t)
-	c := server.NewClient(fakeCaller{resp: resp})
+	resp := testutil.DecodeFixture(t, "account/get_server_information_response_success.xml")
+	c := server.NewClient(&testutil.FakeCaller{Resp: resp})
 	list, err := c.Information(context.Background())
 	if err != nil {
 		t.Fatalf("Information: %v", err)
@@ -93,7 +47,7 @@ func TestClientInformation(t *testing.T) {
 func TestClientInformationPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := server.NewClient(fakeCaller{err: want})
+	c := server.NewClient(&testutil.FakeCaller{Err: want})
 	if _, err := c.Information(context.Background()); !errors.Is(err, want) {
 		t.Errorf("err = %v, want %v wrapped", err, want)
 	}
@@ -101,7 +55,7 @@ func TestClientInformationPropagatesError(t *testing.T) {
 
 func TestServiceListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t)
+	resp := testutil.DecodeFixture(t, "account/get_server_information_response_success.xml")
 	list, _ := server.DecodeServices(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 8 {

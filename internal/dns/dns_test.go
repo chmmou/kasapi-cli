@@ -3,66 +3,15 @@ package dns_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/dns"
-	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
-
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
-func decodeFixture(t *testing.T, name string) *soap.Response {
-	t.Helper()
-	path := filepath.Join(repoRoot(t), "testdata", "dns", name)
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("open %s: %v", name, err)
-	}
-	defer func() { _ = f.Close() }()
-	resp, err := soap.Decode(f)
-	if err != nil {
-		t.Fatalf("decode %s: %v", name, err)
-	}
-	return resp
-}
-
-type fakeCaller struct {
-	resp *soap.Response
-	err  error
-
-	gotAction string
-	gotParams map[string]any
-}
-
-func (f *fakeCaller) Call(_ context.Context, action string, params map[string]any) (*soap.Response, error) {
-	f.gotAction = action
-	f.gotParams = params
-	return f.resp, f.err
-}
 
 func TestDecodeRecords(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_dns_settings_response_success.xml")
+	resp := testutil.DecodeFixture(t, "dns/get_dns_settings_response_success.xml")
 	got, err := dns.DecodeRecords(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeRecords: %v", err)
@@ -102,20 +51,20 @@ func TestDecodeRecords(t *testing.T) {
 
 func TestClientSettings(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_dns_settings_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "dns/get_dns_settings_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := dns.NewClient(fc).Settings(context.Background(), "example.com", "")
 	if err != nil {
 		t.Fatalf("Settings: %v", err)
 	}
-	if fc.gotAction != "get_dns_settings" {
-		t.Errorf("action = %q, want get_dns_settings", fc.gotAction)
+	if fc.GotAction != "get_dns_settings" {
+		t.Errorf("action = %q, want get_dns_settings", fc.GotAction)
 	}
-	if zh, _ := fc.gotParams["zone_host"].(string); zh != "example.com" {
-		t.Errorf("params[zone_host] = %v, want example.com", fc.gotParams["zone_host"])
+	if zh, _ := fc.GotParams["zone_host"].(string); zh != "example.com" {
+		t.Errorf("params[zone_host] = %v, want example.com", fc.GotParams["zone_host"])
 	}
-	if _, ok := fc.gotParams["nameserver"]; ok {
-		t.Errorf("params[nameserver] set but nameserver was empty: %v", fc.gotParams)
+	if _, ok := fc.GotParams["nameserver"]; ok {
+		t.Errorf("params[nameserver] set but nameserver was empty: %v", fc.GotParams)
 	}
 	if len(list) != 6 {
 		t.Errorf("len = %d, want 6", len(list))
@@ -124,19 +73,19 @@ func TestClientSettings(t *testing.T) {
 
 func TestClientSettingsWithNameserver(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_dns_settings_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "dns/get_dns_settings_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	if _, err := dns.NewClient(fc).Settings(context.Background(), "example.com", "ns.example.com"); err != nil {
 		t.Fatalf("Settings: %v", err)
 	}
-	if ns, _ := fc.gotParams["nameserver"].(string); ns != "ns.example.com" {
-		t.Errorf("params[nameserver] = %v, want ns.example.com", fc.gotParams["nameserver"])
+	if ns, _ := fc.GotParams["nameserver"].(string); ns != "ns.example.com" {
+		t.Errorf("params[nameserver] = %v, want ns.example.com", fc.GotParams["nameserver"])
 	}
 }
 
 func TestClientSettingsRequiresZoneHost(t *testing.T) {
 	t.Parallel()
-	c := dns.NewClient(&fakeCaller{})
+	c := dns.NewClient(&testutil.FakeCaller{})
 	if _, err := c.Settings(context.Background(), "", ""); err == nil {
 		t.Errorf("Settings(\"\") err = nil, want validation error")
 	}
@@ -145,7 +94,7 @@ func TestClientSettingsRequiresZoneHost(t *testing.T) {
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := dns.NewClient(&fakeCaller{err: want})
+	c := dns.NewClient(&testutil.FakeCaller{Err: want})
 	if _, err := c.Settings(context.Background(), "example.com", ""); !errors.Is(err, want) {
 		t.Errorf("Settings err = %v, want %v wrapped", err, want)
 	}
@@ -153,7 +102,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestRecordListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_dns_settings_response_success.xml")
+	resp := testutil.DecodeFixture(t, "dns/get_dns_settings_response_success.xml")
 	list, _ := dns.DecodeRecords(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 6 {

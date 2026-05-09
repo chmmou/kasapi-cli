@@ -3,52 +3,15 @@ package account_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/account"
-	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
-
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
-func decodeFixture(t *testing.T, name string) *soap.Response {
-	t.Helper()
-	path := filepath.Join(repoRoot(t), "testdata", "account", name)
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("open %s: %v", path, err)
-	}
-	defer func() { _ = f.Close() }()
-	resp, err := soap.Decode(f)
-	if err != nil {
-		t.Fatalf("decode %s: %v", path, err)
-	}
-	return resp
-}
 
 func TestDecodeAccounts(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_accounts_response_success.xml")
+	resp := testutil.DecodeFixture(t, "account/get_accounts_response_success.xml")
 	got, err := account.DecodeAccounts(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeAccounts: %v", err)
@@ -87,7 +50,7 @@ func TestDecodeAccounts(t *testing.T) {
 
 func TestDecodeAccountSettings(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_accountsettings_response_success.xml")
+	resp := testutil.DecodeFixture(t, "account/get_accountsettings_response_success.xml")
 	got, err := account.DecodeAccountSettings(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeAccountSettings: %v", err)
@@ -119,7 +82,7 @@ func TestDecodeAccountSettings(t *testing.T) {
 
 func TestDecodeAccountResources(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_accountresources_response_success.xml")
+	resp := testutil.DecodeFixture(t, "account/get_accountresources_response_success.xml")
 	got, err := account.DecodeAccountResources(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeAccountResources: %v", err)
@@ -148,33 +111,19 @@ func TestDecodeAccountResources(t *testing.T) {
 // the action / params it was called with. This is enough to exercise
 // Client.List / Get / Settings / Resources without a network
 // roundtrip.
-type fakeCaller struct {
-	resp *soap.Response
-	err  error
-
-	gotAction string
-	gotParams map[string]any
-}
-
-func (f *fakeCaller) Call(_ context.Context, action string, params map[string]any) (*soap.Response, error) {
-	f.gotAction = action
-	f.gotParams = params
-	return f.resp, f.err
-}
-
 func TestClientList(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_accounts_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "account/get_accounts_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	got, err := account.NewClient(fc).List(context.Background())
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
-	if fc.gotAction != "get_accounts" {
-		t.Errorf("action = %q, want get_accounts", fc.gotAction)
+	if fc.GotAction != "get_accounts" {
+		t.Errorf("action = %q, want get_accounts", fc.GotAction)
 	}
-	if fc.gotParams != nil {
-		t.Errorf("params = %v, want nil", fc.gotParams)
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil", fc.GotParams)
 	}
 	if len(got) != 4 {
 		t.Errorf("len = %d, want 4", len(got))
@@ -183,16 +132,16 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_account_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "account/get_account_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	got, err := account.NewClient(fc).Get(context.Background(), "w0000001")
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
-	if fc.gotAction != "get_accounts" {
-		t.Errorf("action = %q, want get_accounts", fc.gotAction)
+	if fc.GotAction != "get_accounts" {
+		t.Errorf("action = %q, want get_accounts", fc.GotAction)
 	}
-	if v, ok := fc.gotParams["account_login"]; !ok || v != "w0000001" {
+	if v, ok := fc.GotParams["account_login"]; !ok || v != "w0000001" {
 		t.Errorf("account_login param = %v (ok=%v), want w0000001", v, ok)
 	}
 	if got.Login != "w0000001" {
@@ -205,7 +154,7 @@ func TestClientGet(t *testing.T) {
 
 func TestClientGetEmptyLogin(t *testing.T) {
 	t.Parallel()
-	c := account.NewClient(&fakeCaller{})
+	c := account.NewClient(&testutil.FakeCaller{})
 	if _, err := c.Get(context.Background(), ""); err == nil {
 		t.Error("Get(\"\") returned nil, want error")
 	}
@@ -215,9 +164,9 @@ func TestClientGetNotFound(t *testing.T) {
 	t.Parallel()
 	// Synthesise an empty array response by reusing the singular
 	// fixture but with the array stripped to zero entries.
-	emptyResp := decodeFixture(t, "get_account_response_success.xml")
+	emptyResp := testutil.DecodeFixture(t, "account/get_account_response_success.xml")
 	emptyResp.Body.ReturnInfo.Array = nil
-	c := account.NewClient(&fakeCaller{resp: emptyResp})
+	c := account.NewClient(&testutil.FakeCaller{Resp: emptyResp})
 	if _, err := c.Get(context.Background(), "wXXXXXXX"); err == nil {
 		t.Error("Get on empty array returned nil, want not-found error")
 	}
@@ -226,7 +175,7 @@ func TestClientGetNotFound(t *testing.T) {
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := account.NewClient(&fakeCaller{err: want})
+	c := account.NewClient(&testutil.FakeCaller{Err: want})
 	if _, err := c.List(context.Background()); !errors.Is(err, want) {
 		t.Errorf("List err = %v, want %v wrapped", err, want)
 	}
@@ -237,7 +186,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestAccountListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_accounts_response_success.xml")
+	resp := testutil.DecodeFixture(t, "account/get_accounts_response_success.xml")
 	accs, _ := account.DecodeAccounts(resp.Body.ReturnInfo)
 	list := account.AccountList(accs)
 	headers := list.TableHeaders()
@@ -255,7 +204,7 @@ func TestAccountListTabular(t *testing.T) {
 
 func TestAccountTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_account_response_success.xml")
+	resp := testutil.DecodeFixture(t, "account/get_account_response_success.xml")
 	accs, _ := account.DecodeAccounts(resp.Body.ReturnInfo)
 	if len(accs) != 1 {
 		t.Fatalf("len = %d, want 1", len(accs))
@@ -273,7 +222,7 @@ func TestAccountTabular(t *testing.T) {
 
 func TestAccountResourcesTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_accountresources_response_success.xml")
+	resp := testutil.DecodeFixture(t, "account/get_accountresources_response_success.xml")
 	r, _ := account.DecodeAccountResources(resp.Body.ReturnInfo)
 	rows := r.TableRows()
 	if len(rows) != 12 {

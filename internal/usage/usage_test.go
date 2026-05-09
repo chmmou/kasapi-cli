@@ -3,66 +3,15 @@ package usage_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 
-	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 	"github.com/chmmou/kasapi-cli/internal/usage"
 )
 
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
-
-func decodeFixture(t *testing.T, name string) *soap.Response {
-	t.Helper()
-	path := filepath.Join(repoRoot(t), "testdata", "statistic", name)
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatalf("open %s: %v", name, err)
-	}
-	defer func() { _ = f.Close() }()
-	resp, err := soap.Decode(f)
-	if err != nil {
-		t.Fatalf("decode %s: %v", name, err)
-	}
-	return resp
-}
-
-type fakeCaller struct {
-	resp *soap.Response
-	err  error
-
-	gotAction string
-	gotParams map[string]any
-}
-
-func (f *fakeCaller) Call(_ context.Context, action string, params map[string]any) (*soap.Response, error) {
-	f.gotAction = action
-	f.gotParams = params
-	return f.resp, f.err
-}
-
 func TestDecodeSpace(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_space_response_success.xml")
+	resp := testutil.DecodeFixture(t, "statistic/get_space_response_success.xml")
 	got, err := usage.DecodeSpace(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeSpace: %v", err)
@@ -89,7 +38,7 @@ func TestDecodeSpace(t *testing.T) {
 
 func TestDecodeSpaceUsage(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_space_usage_response_success.xml")
+	resp := testutil.DecodeFixture(t, "statistic/get_space_usage_response_success.xml")
 	got, err := usage.DecodeSpaceUsage(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeSpaceUsage: %v", err)
@@ -115,7 +64,7 @@ func TestDecodeSpaceUsage(t *testing.T) {
 
 func TestDecodeTraffic(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_traffic_response_success.xml")
+	resp := testutil.DecodeFixture(t, "statistic/get_traffic_response_success.xml")
 	got, err := usage.DecodeTraffic(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeTraffic: %v", err)
@@ -155,17 +104,17 @@ func TestDecodeTraffic(t *testing.T) {
 
 func TestClientSpace(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_space_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "statistic/get_space_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := usage.NewClient(fc).Space(context.Background())
 	if err != nil {
 		t.Fatalf("Space: %v", err)
 	}
-	if fc.gotAction != "get_space" {
-		t.Errorf("action = %q, want get_space", fc.gotAction)
+	if fc.GotAction != "get_space" {
+		t.Errorf("action = %q, want get_space", fc.GotAction)
 	}
-	if fc.gotParams != nil {
-		t.Errorf("params = %v, want nil", fc.gotParams)
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil", fc.GotParams)
 	}
 	if len(list) != 5 {
 		t.Errorf("len = %d, want 5", len(list))
@@ -174,63 +123,63 @@ func TestClientSpace(t *testing.T) {
 
 func TestClientSpaceUsageWithDirectory(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_space_usage_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "statistic/get_space_usage_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	_, err := usage.NewClient(fc).SpaceUsage(context.Background(), "/htdocs")
 	if err != nil {
 		t.Fatalf("SpaceUsage: %v", err)
 	}
-	if fc.gotAction != "get_space_usage" {
-		t.Errorf("action = %q, want get_space_usage", fc.gotAction)
+	if fc.GotAction != "get_space_usage" {
+		t.Errorf("action = %q, want get_space_usage", fc.GotAction)
 	}
-	if dir, ok := fc.gotParams["directory"].(string); !ok || dir != "/htdocs" {
-		t.Errorf("params[directory] = %v, want /htdocs", fc.gotParams["directory"])
+	if dir, ok := fc.GotParams["directory"].(string); !ok || dir != "/htdocs" {
+		t.Errorf("params[directory] = %v, want /htdocs", fc.GotParams["directory"])
 	}
 }
 
 func TestClientSpaceUsageEmptyDirectoryOmitsParams(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_space_usage_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "statistic/get_space_usage_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	if _, err := usage.NewClient(fc).SpaceUsage(context.Background(), ""); err != nil {
 		t.Fatalf("SpaceUsage: %v", err)
 	}
-	if fc.gotParams != nil {
-		t.Errorf("params = %v, want nil for empty directory", fc.gotParams)
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil for empty directory", fc.GotParams)
 	}
 }
 
 func TestClientTrafficZeroOmitsParams(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_traffic_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "statistic/get_traffic_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	if _, err := usage.NewClient(fc).Traffic(context.Background(), 0, 0); err != nil {
 		t.Fatalf("Traffic: %v", err)
 	}
-	if fc.gotParams != nil {
-		t.Errorf("params = %v, want nil when year and month are zero", fc.gotParams)
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil when year and month are zero", fc.GotParams)
 	}
 }
 
 func TestClientTrafficWithYearMonthZeroPads(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_traffic_response_success.xml")
-	fc := &fakeCaller{resp: resp}
+	resp := testutil.DecodeFixture(t, "statistic/get_traffic_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
 	if _, err := usage.NewClient(fc).Traffic(context.Background(), 2026, 3); err != nil {
 		t.Fatalf("Traffic: %v", err)
 	}
-	if fc.gotParams["year"] != "2026" {
-		t.Errorf("params[year] = %v, want \"2026\"", fc.gotParams["year"])
+	if fc.GotParams["year"] != "2026" {
+		t.Errorf("params[year] = %v, want \"2026\"", fc.GotParams["year"])
 	}
-	if fc.gotParams["month"] != "03" {
-		t.Errorf("params[month] = %v, want \"03\" (zero-padded)", fc.gotParams["month"])
+	if fc.GotParams["month"] != "03" {
+		t.Errorf("params[month] = %v, want \"03\" (zero-padded)", fc.GotParams["month"])
 	}
 }
 
 func TestClientPropagatesError(t *testing.T) {
 	t.Parallel()
 	want := errors.New("boom")
-	c := usage.NewClient(&fakeCaller{err: want})
+	c := usage.NewClient(&testutil.FakeCaller{Err: want})
 	if _, err := c.Space(context.Background()); !errors.Is(err, want) {
 		t.Errorf("Space err = %v, want %v wrapped", err, want)
 	}
@@ -244,7 +193,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestSpaceListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_space_response_success.xml")
+	resp := testutil.DecodeFixture(t, "statistic/get_space_response_success.xml")
 	list, _ := usage.DecodeSpace(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 5 {
@@ -257,7 +206,7 @@ func TestSpaceListTabular(t *testing.T) {
 
 func TestSpaceUsageListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_space_usage_response_success.xml")
+	resp := testutil.DecodeFixture(t, "statistic/get_space_usage_response_success.xml")
 	list, _ := usage.DecodeSpaceUsage(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 13 {
@@ -273,7 +222,7 @@ func TestSpaceUsageListTabular(t *testing.T) {
 
 func TestTrafficListTabular(t *testing.T) {
 	t.Parallel()
-	resp := decodeFixture(t, "get_traffic_response_success.xml")
+	resp := testutil.DecodeFixture(t, "statistic/get_traffic_response_success.xml")
 	list, _ := usage.DecodeTraffic(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 2 {

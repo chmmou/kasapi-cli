@@ -5,31 +5,12 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
-
-func repoRoot(t *testing.T) string {
-	t.Helper()
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		t.Fatal("runtime.Caller failed")
-	}
-	dir := filepath.Dir(file)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			t.Fatalf("repo root not found from %q", file)
-		}
-		dir = parent
-	}
-}
 
 func isFaultEnvelope(t *testing.T, path string) bool {
 	t.Helper()
@@ -55,7 +36,7 @@ func decodeFile(t *testing.T, path string) (*soap.Response, error) {
 // by content: fixtures that contain SOAP-ENV:Fault must produce a
 // *FaultError; everything else must decode into a populated Response.
 func TestDecodeAllResponseFixtures(t *testing.T) {
-	root := filepath.Join(repoRoot(t), "testdata")
+	root := filepath.Join(testutil.RepoRoot(t), "testdata")
 	sessionPath := filepath.Join(root, "session") + string(filepath.Separator)
 	var paths []string
 	err := filepath.WalkDir(root, func(p string, d os.DirEntry, err error) error {
@@ -82,7 +63,7 @@ func TestDecodeAllResponseFixtures(t *testing.T) {
 		t.Fatal("no response fixtures found")
 	}
 	for _, p := range paths {
-		rel, _ := filepath.Rel(repoRoot(t), p)
+		rel, _ := filepath.Rel(testutil.RepoRoot(t), p)
 		t.Run(rel, func(t *testing.T) {
 			expectFault := isFaultEnvelope(t, p)
 			resp, err := decodeFile(t, p)
@@ -115,7 +96,7 @@ func TestDecodeAllResponseFixtures(t *testing.T) {
 // TestDecodeGetAccountsShape pins the most-used response fixture: it must
 // produce a 4-element array of account maps with the documented columns.
 func TestDecodeGetAccountsShape(t *testing.T) {
-	resp, err := decodeFile(t, filepath.Join(repoRoot(t), "testdata/account/get_accounts_response_success.xml"))
+	resp, err := decodeFile(t, filepath.Join(testutil.RepoRoot(t), "testdata/account/get_accounts_response_success.xml"))
 	if err != nil {
 		t.Fatalf("Decode: %v", err)
 	}
@@ -138,7 +119,7 @@ func TestDecodeGetAccountsShape(t *testing.T) {
 // TestDecodeGetServerInformationShape exercises the array-of-maps shape
 // where ReturnInfo lists installed services.
 func TestDecodeGetServerInformationShape(t *testing.T) {
-	resp, err := decodeFile(t, filepath.Join(repoRoot(t), "testdata/account/get_server_information_response_success.xml"))
+	resp, err := decodeFile(t, filepath.Join(testutil.RepoRoot(t), "testdata/account/get_server_information_response_success.xml"))
 	if err != nil {
 		t.Fatalf("Decode: %v", err)
 	}
@@ -158,7 +139,7 @@ func TestDecodeGetServerInformationShape(t *testing.T) {
 // TestDecodeFaultDetail verifies that fault fixtures expose faultstring and
 // detail correctly.
 func TestDecodeFaultDetail(t *testing.T) {
-	_, err := decodeFile(t, filepath.Join(repoRoot(t), "testdata/response_failed_no_auth.xml"))
+	_, err := decodeFile(t, filepath.Join(testutil.RepoRoot(t), "testdata/response_failed_no_auth.xml"))
 	var fe *soap.FaultError
 	if !errors.As(err, &fe) {
 		t.Fatalf("expected *FaultError, got %v", err)
@@ -175,7 +156,7 @@ func TestDecodeFaultDetail(t *testing.T) {
 // <value SOAP-ENC:arrayType="xsd:ur-type[0]" xsi:type="SOAP-ENC:Array"/>
 // case (empty KasRequestParams in the echoed request).
 func TestDecodeEmptyArray(t *testing.T) {
-	resp, err := decodeFile(t, filepath.Join(repoRoot(t), "testdata/account/get_accounts_response_success.xml"))
+	resp, err := decodeFile(t, filepath.Join(testutil.RepoRoot(t), "testdata/account/get_accounts_response_success.xml"))
 	if err != nil {
 		t.Fatalf("Decode: %v", err)
 	}
