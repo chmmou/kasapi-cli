@@ -230,6 +230,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `CLAUDE.md`: rewrite stale Repository State paragraph that still
+  described the project as greenfield (no `cmd/`, `internal/`,
+  `go.mod`, no git repository, no build/test runnable). Replace
+  with the current state: read-phase modules wired up, `main`
+  protected with required signatures, CI gate (`lint & test` +
+  `docs sync`) green on every push. Fix the `testdata/` filename
+  convention to match the real layout (`<module>/<kas_action>_
+  response_<status>[_<variant>].xml`, not `get_<thing>.xml`). Add
+  pointers to the `kasapi-cli-git-workflow` /
+  `kasapi-cli-code-review` skill files and `CONTRIBUTING.md`
+  alongside the existing `docs/go/` references. Wire the standard
+  command loop to the `Makefile` targets that exist today.
+
 - `go.mod`: bump dependency pins after a routine audit pass —
   `golang.org/x/term` v0.30.0 → v0.34.0 (last release that still
   builds against the project's `go 1.23.0` baseline; v0.35.0+

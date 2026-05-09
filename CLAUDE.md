@@ -4,13 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository State
 
-This is a **new, greenfield project**:
+The read-phase modules are wired up (accounts, server, domains/subdomains/TLDs, DNS, mail, databases, FTP/Samba users, cronjobs, directory protection, software installs, DDNS users, usage statistics) and the standard CI gate (`lint & test` + `docs sync`) runs on every push and pull request. `main` is protected: signed commits are required, force-pushes to `main` are blocked for the GitHub UI / `gh pr merge --rebase` (signatures are stripped server-side), and merging happens via a locally-rebased fast-forward push by the maintainer (see `.claude/skills/kasapi-cli-git-workflow/SKILL.md`).
 
-- No Go source tree yet (`cmd/`, `internal/`, `go.mod` are not present).
-- Not yet a git repository — `git init` is required before the first feature branch / PR.
-- Only docs, agent guidance, and KAS-API XML fixtures are checked in.
-
-When asked to "start" or "bootstrap", expect to be the one creating the module layout from scratch following `docs/go/ARCHITECTURE.md`.
+Write paths and the remaining read endpoints are part of the v0.2.0 backlog tracked on the *kasapi-cli v0.1.0* GitHub project; do not invent endpoints not documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>.
 
 There is no predecessor library and no inherited backlog. Do not assume or import patterns from any other KAS client; design from the KAS API docs and the fixtures in `testdata/`.
 
@@ -21,13 +17,23 @@ There is no predecessor library and no inherited backlog. Do not assume or impor
 - The two KAS endpoint URLs (auth and API), to be supplied by the user / config.
     - api: https://kasapi.kasserver.com/soap/KasApi.php
     - auth: https://kasapi.kasserver.com/soap/KasAuth.php
-- The KAS API documentation: <https://kasapi.kasserver.com/dokumentation/phpdoc/>.
+- The KAS API documentation: <https://kasapi.kasserver.com/dokumentation/phpdoc/>. Per-function pages live under `files/<kas_action>-inc.html` (e.g. `files/get-accounts-inc.html`).
 
 Treat that documentation as the contract for request shapes; treat `testdata/*.xml` as the contract for response shapes.
 
 ## testdata/
 
-`testdata/*.xml` are **real KAS API responses** captured for offline parser/mapping tests. They are the source of truth for response shape — when a mapping test fails, suspect the mapping before the fixture. Filenames follow the KAS function name (`get_<thing>.xml`; `get_<thing>_with_param.xml` for parameterized variants). Add a new fixture whenever a new KAS call is wired up.
+`testdata/<module>/*.xml` are **real KAS API responses** captured for offline parser/mapping tests. They are the source of truth for response shape — when a mapping test fails, suspect the mapping before the fixture.
+
+Filename convention:
+
+- Subdirectory per module: `testdata/<module>/`, e.g. `testdata/account/`, `testdata/mailinglist/`. Shared cross-module fault fixtures (`response_failed_no_auth.xml`, `response_failed_kas_session_invalid.xml`, ...) live at the top of `testdata/`.
+- One file per `(kas_action, kind)` pair: `<kas_action>_<kind>[_<variant>].xml`, where `kind` is `request` or `response_<status>`, and `status` is `success` or `failed`. Examples:
+    - `get_accounts_response_success.xml`
+    - `add_account_response_failed_account_kas_password_syntax_incorrect.xml`
+    - `get_ftpuser_response_success_empty_list.xml` (variant of the success shape)
+
+Add a new fixture whenever a new KAS call is wired up; redact secrets before committing.
 
 ## Authoritative Style & Architecture
 
@@ -39,20 +45,27 @@ Go style, architecture, patterns, and linting rules for this repo live in:
 - `docs/go/PATTERNS.md`
 - `docs/go/LINTING.md` — CI gate set.
 
+Project-specific operating rules (git/PR mechanics, code-review classification, vertical-slice pattern) live alongside the Go references:
+
+- `.claude/skills/kasapi-cli-git-workflow/SKILL.md` — branches, signed commits, FF-push merge model, no `Co-Authored-By` trailer.
+- `.claude/skills/kasapi-cli-code-review/SKILL.md` — Blocker / Should / Nice-to-have classification, re-review cycle.
+- `CONTRIBUTING.md` — vertical-slice pattern per KAS endpoint, language conventions, security reporting.
+
 Read these before designing or extending package layout. Do not duplicate their content into new docs — link to them.
 
 ## Commands
 
-Once `go.mod` exists, the standard loop is:
+The standard loop, available both as raw `go` invocations and as `make` targets defined in the top-level `Makefile`:
 
 ```sh
-go fmt ./...
-go vet ./...
-golangci-lint run ./...
-go test ./...
-go test -race ./...                     # for packages with concurrency
-go test ./internal/<pkg> -run TestXxx   # single test
-go build ./cmd/kasapi-cli
+go fmt ./...                          # or: make fmt
+go vet ./...                          # or: make vet
+golangci-lint run ./...               # or: make lint
+go test ./...                         # or: make test
+go test -race ./...                   # for packages with concurrency
+go test ./internal/<pkg> -run TestXxx # single test
+go build ./cmd/kasapi-cli             # or: make build
+make docs                             # regenerate docs/cli/ from the live command tree
 ```
 
-There is no build/test runnable yet — running these in the current tree will fail until the module is bootstrapped.
+The `docs sync` CI job runs `make docs` and fails when the checked-in `docs/cli/` differs from the regenerated output, so a flag, subcommand registration, or short/long-description change must come paired with a `make docs && git add docs/cli/` step.
