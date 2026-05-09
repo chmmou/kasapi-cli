@@ -88,7 +88,13 @@ jobs:
     name: govulncheck
     runs-on: ubuntu-latest
     steps:
+      # persist-credentials: false avoids an extraheader /
+      # duplicate-Authorization conflict when golang/govulncheck-action@v1
+      # runs its own internal checkout against actions/checkout@v6 — the
+      # action has not been updated for v6's credential persistence.
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-go@v6
         with:
