@@ -30,6 +30,7 @@ func NewGenDocsCmd() *cobra.Command {
 		Args:   cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out := args[0]
+			//nolint:gosec // G301: output dir holds public CLI reference docs (docs/cli/), 0o755 is the intentional umask-friendly default.
 			if err := os.MkdirAll(out, 0o755); err != nil {
 				return fmt.Errorf("gen-docs: mkdir %s: %w", out, err)
 			}

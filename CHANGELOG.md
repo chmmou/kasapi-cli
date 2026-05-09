@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Vulnerability and security scanning, stage 1 of two: a new
+  `govulncheck` CI job (official Go vulnerability scanner, call-graph
+  aware) on every PR + push to `main`; `gosec` added to the
+  `golangci-lint` linter set in `.golangci.yml`; Dependabot configured
+  for `gomod` and `github-actions` ecosystems via
+  `.github/dependabot.yml`. Existing call sites that triggered gosec
+  false-positives (test fixture loaders, `os.Stdin.Fd()` conversion,
+  public-docs `MkdirAll` mode) were annotated with targeted
+  `//nolint:gosec` markers carrying the rule ID and a one-line reason.
+  CodeQL, OSSF Scorecard, `SECURITY.md`, and SBOM-in-release land in
+  stage 2.
+
 - Release pipeline (`.goreleaser.yaml` + `.github/workflows/release.yml`)
   driven by `git tag v*`. Builds Linux + Windows × `amd64`/`arm64`
   binaries with `internal/version` ldflags wired up, packages Linux

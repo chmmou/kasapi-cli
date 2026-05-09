@@ -83,3 +83,23 @@ jobs:
           distribution: goreleaser
           version: "~> v2"
           args: check
+
+  govulncheck:
+    name: govulncheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache: true
+
+      # Official Go vulnerability scanner. Reads go.mod plus the call
+      # graph and only reports CVEs on reachable code paths, so the
+      # signal-to-noise ratio is much higher than a flat `go list -m`
+      # advisory check. Fails the job on any reachable advisory.
+      - uses: golang/govulncheck-action@v1
+        with:
+          go-version-input: "1.23"
+          check-latest: true

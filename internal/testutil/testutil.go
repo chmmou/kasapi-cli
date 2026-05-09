@@ -45,6 +45,7 @@ func RepoRoot(t *testing.T) string {
 func DecodeFixture(t *testing.T, relPath string) *soap.Response {
 	t.Helper()
 	path := filepath.Join(RepoRoot(t), "testdata", filepath.FromSlash(relPath))
+	//nolint:gosec // G304: test fixture loader, path is rooted at RepoRoot(t).
 	f, err := os.Open(path)
 	if err != nil {
 		t.Fatalf("open %s: %v", relPath, err)

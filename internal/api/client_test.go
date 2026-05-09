@@ -21,6 +21,7 @@ import (
 
 func loadFixture(t *testing.T, rel string) []byte {
 	t.Helper()
+	//nolint:gosec // G304: test fixture loader, path is rooted at testutil.RepoRoot(t).
 	b, err := os.ReadFile(filepath.Join(testutil.RepoRoot(t), "testdata", rel))
 	if err != nil {
 		t.Fatalf("load %s: %v", rel, err)

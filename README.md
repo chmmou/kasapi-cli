@@ -24,6 +24,8 @@
 
 Early development. The transport, authentication, configuration, and several read modules are wired up; many write paths and the remaining read endpoints are still pending — see [ROADMAP.md](ROADMAP.md) for the current state. The repository also ships recorded KAS-API response fixtures under `testdata/` that drive offline parser tests.
 
+CI gates `gofmt`/`go vet`/`golangci-lint` (with `gosec`)/`go test`/`go test -race`/`go build`, plus a `govulncheck` job on every PR. Dependabot keeps `gomod` and `github-actions` versions current.
+
 ## What it does
 
 `kasapi-cli` is a command-line client for the All-Inkl KAS-API. It wraps the SOAP/`ns2:Map` wire format the API uses, handles the `KasAuth` credential-token flow (plain or session, optional 2FA), enforces the `KasFloodDelay` between calls, and exposes read and write operations for the resources documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>.

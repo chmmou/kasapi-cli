@@ -128,6 +128,7 @@ type configIO struct {
 }
 
 func defaultConfigIO() configIO {
+	//nolint:gosec // G115: file descriptors fit in int on every platform Go targets; term.IsTerminal/term.ReadPassword take int.
 	stdinFD := int(os.Stdin.Fd())
 	return configIO{
 		In:    os.Stdin,

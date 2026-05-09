@@ -14,6 +14,7 @@ import (
 
 func isFaultEnvelope(t *testing.T, path string) bool {
 	t.Helper()
+	//nolint:gosec // G304: test-only helper, path comes from filepath.Walk over testdata/.
 	b, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read %s: %v", path, err)
@@ -23,6 +24,7 @@ func isFaultEnvelope(t *testing.T, path string) bool {
 
 func decodeFile(t *testing.T, path string) (*soap.Response, error) {
 	t.Helper()
+	//nolint:gosec // G304: test-only helper, path comes from filepath.Walk over testdata/.
 	f, err := os.Open(path)
 	if err != nil {
 		t.Fatalf("open %s: %v", path, err)
