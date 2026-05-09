@@ -218,7 +218,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CONTRIBUTING.md`: add explicit pointers to the
   `kasapi-cli-git-workflow` and `kasapi-cli-code-review` skill
   files alongside the existing references to `AGENTS.md` and the
-  `docs/go/` set.
+  `docs/go/` set; absorb the contributor-facing "Repository layout"
+  section that previously lived in `README.md`.
 
 - `internal/testutil`: extract the `repoRoot` / `decodeFixture` /
   `fakeCaller` helpers that every per-module `*_test.go` carried as

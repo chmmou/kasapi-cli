@@ -131,23 +131,9 @@ If you see `no_auth` with `auth_type=plain`, the password in `auth_data` is wron
 
 `--verbose` / `-v` enables logging on stderr, including the resolved credentials (with `auth_data` redacted) and the SOAP action being called. Use it to confirm which profile / env var / flag combination actually took effect.
 
-### Contributing & branch protection
-
-`main` is protected with `required_signatures` + `enforce_admins` + `linear_history`. The GitHub UI / `gh pr merge` strips signatures and is therefore not used for this repo. Contributors only need to keep their commits signed and the branch rebased on `main`; the maintainer performs the signed fast-forward push. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
-
-## Repository layout
-
-- `cmd/kasapi-cli/` — CLI entry point.
-- `internal/` — domain types, transport, mappers, CLI wiring; one package per KAS resource (see `internal/account/`, `internal/domain/`, `internal/dns/`, …) plus shared infrastructure (`internal/soap`, `internal/api`, `internal/auth`, `internal/transport`, `internal/session`, `internal/config`, `internal/cli`).
-- `testdata/` — recorded KAS-API SOAP responses; the source of truth for response shape, used by offline parser tests.
-- `docs/go/` — Go style, architecture, patterns, and linting reference for this repo.
-- `.claude/skills/kasapi-cli-git-workflow/` — git/PR/merge mechanics enforced for this project.
-- `.claude/skills/kasapi-cli-code-review/` — code-review loop (Blocker/Should/Nice classification, re-review cycle).
-- `AGENTS.md`, `CLAUDE.md` — agent guidance.
-
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, coding conventions, the vertical-slice pattern used per KAS endpoint, the commit/PR workflow, and the code-review loop.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the repository layout, setup, coding conventions, the vertical-slice pattern used per KAS endpoint, the commit/PR workflow (incl. signed commits and the FF-push merge model required by `main`'s branch protection), and the code-review loop.
 
 ## Roadmap
 

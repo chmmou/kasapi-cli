@@ -20,6 +20,16 @@ Read these before designing changes — do not duplicate their content into new 
 - [`.claude/skills/kasapi-cli-git-workflow/SKILL.md`](.claude/skills/kasapi-cli-git-workflow/SKILL.md) — git, branch, signed-commit, PR, and FF-push merge mechanics enforced for this project.
 - [`.claude/skills/kasapi-cli-code-review/SKILL.md`](.claude/skills/kasapi-cli-code-review/SKILL.md) — code-review loop (Blocker/Should/Nice classification, re-review cycle).
 
+## Repository layout
+
+- `cmd/kasapi-cli/` — CLI entry point.
+- `internal/` — domain types, transport, mappers, CLI wiring; one package per KAS resource (see `internal/account/`, `internal/domain/`, `internal/dns/`, …) plus shared infrastructure (`internal/soap`, `internal/api`, `internal/auth`, `internal/transport`, `internal/session`, `internal/config`, `internal/cli`).
+- `testdata/` — recorded KAS-API SOAP responses; the source of truth for response shape, used by offline parser tests.
+- `docs/go/` — Go style, architecture, patterns, and linting reference for this repo.
+- `.claude/skills/kasapi-cli-git-workflow/` — git/PR/merge mechanics enforced for this project.
+- `.claude/skills/kasapi-cli-code-review/` — code-review loop (Blocker/Should/Nice classification, re-review cycle).
+- `AGENTS.md`, `CLAUDE.md` — agent guidance.
+
 ## Development setup
 
 Prerequisites:
