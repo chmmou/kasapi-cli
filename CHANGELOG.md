@@ -23,13 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Go toolchain bumped from 1.23 to 1.24 (`go.mod` directive plus
-  `go-version: "1.24"` in both `ci.yml` and `release.yml`). Required
-  to clear 18 reachable Go-stdlib CVEs that the new `govulncheck`
-  job surfaced (asn1 / net/url / encoding/pem / crypto/tls /
-  crypto/x509 — all fixed in 1.24.8 / 1.24.9, no 1.23.x backport
-  available since 1.23 has dropped out of the security-supported
-  window). No source-level changes were needed for the bump itself.
+- Go toolchain bumped from 1.23 to 1.25 (`go.mod` directive plus
+  `go-version: "1.25"` in `ci.yml` and `release.yml`). Required to
+  clear all reachable Go-stdlib CVEs that the new `govulncheck` job
+  surfaced — 18 against 1.23, 7 of which (asn1 / net/url /
+  encoding/pem / crypto/tls / crypto/x509 / os) only have 1.25.x
+  backports, since 1.23 and 1.24 have both dropped out of the
+  security-supported window. No source-level changes were needed
+  for the bump itself.
 
 - Release pipeline (`.goreleaser.yaml` + `.github/workflows/release.yml`)
   driven by `git tag v*`. Builds Linux + Windows × `amd64`/`arm64`
