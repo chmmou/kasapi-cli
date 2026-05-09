@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- CI job `docs sync` (`.github/workflows/ci.yml`) that runs
+  `make docs` and fails when the checked-in `docs/cli/` differs
+  from the regenerated output. Ensures any change to a flag,
+  subcommand registration, or short/long description comes paired
+  with a `docs/cli/` refresh.
+
 - Per-resource usage docs under `docs/usage/` (eight pages — `accounts`,
   `server`, `domains`, `dns`, `mail`, `databases`, `usage`, `hosting` —
   plus an index `README.md`). Each page lists the most common

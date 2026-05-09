@@ -45,3 +45,29 @@ jobs:
 
       - name: build
         run: go build ./cmd/kasapi-cli
+
+  docs-sync:
+    name: docs sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache: true
+
+      # Regenerate docs/cli/ from the live command tree and fail if the
+      # checked-in copy drifted from what `make docs` produces. Ensures
+      # any flag, subcommand, or short/long-description change comes
+      # paired with a docs/cli/ refresh.
+      - name: regenerate docs/cli/
+        run: make docs
+
+      - name: verify docs/cli/ is up to date
+        run: |
+          if ! git diff --exit-code -- docs/cli; then
+            echo
+            echo "docs/cli/ is out of date — run 'make docs' locally and commit the result."
+            exit 1
+          fi
