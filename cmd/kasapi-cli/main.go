@@ -31,6 +31,7 @@ func main() {
 		cli.NewDDNSUsersCmd(opts),
 		cli.NewUsageCmd(opts),
 		cli.NewConfigCmd(opts),
+		cli.NewGenDocsCmd(),
 	)
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, "kasapi-cli:", err)

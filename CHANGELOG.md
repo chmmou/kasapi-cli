@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Per-resource usage docs under `docs/usage/` (eight pages — `accounts`,
+  `server`, `domains`, `dns`, `mail`, `databases`, `usage`, `hosting` —
+  plus an index `README.md`). Each page lists the most common
+  invocations, sketches the table / JSON output shape, and links to
+  the matching KAS-API documentation page.
+
+- Auto-generated Markdown CLI reference under `docs/cli/`, produced by
+  a new hidden `kasapi-cli gen-docs <out-dir>` subcommand wrapping
+  `cobra/doc.GenMarkdownTree`. The root command's `DisableAutoGenTag`
+  is flipped before generation so re-running the generator produces
+  byte-identical output when the CLI surface has not changed.
+
+- Top-level `Makefile` with a `docs` target (`make docs`) that wipes
+  `docs/cli/` and regenerates it via `go run ./cmd/kasapi-cli
+  gen-docs docs/cli`. Other targets (`build`, `test`, `lint`, `vet`,
+  `fmt`, `clean`) wrap the standard Go loop documented in
+  `CONTRIBUTING.md`. Closes #35.
+
+### Added
+
 - `internal/ddns` read module and `kasapi-cli ddnsusers list|get`
   subcommand tree wrapping `get_ddnsusers`. The list variant decodes
   the Array of Maps into a typed `DDNSUserList`; `get <dyndns-login>`
