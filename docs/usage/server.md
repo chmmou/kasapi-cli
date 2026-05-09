@@ -2,7 +2,7 @@
 
 Inspect the host server `kasapi-cli` is talking to.
 
-KAS API: [`get_server_information`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html).
+KAS API: [`get_server_information`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-server-information-inc.html).
 
 ## Server info
 

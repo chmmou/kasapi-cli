@@ -230,6 +230,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `docs/usage/`: replace 404 KAS-API anchor URL
+  (`packages/API%20Functions.html`, used as a generic placeholder
+  in every page) with per-function `files/<kas_action>-inc.html`
+  URLs. Five referenced KAS actions did not exist — replace with
+  the canonical names captured in `testdata/`: `get_accountusage`
+  → `get_space`, `get_accountusagedetail` → `get_space_usage`,
+  `get_accounttraffic` → `get_traffic`, `get_tlds` →
+  `get_topleveldomains`, `get_mailfilter` →
+  `get_mailstandardfilter`. All 24 external doc links in the
+  user-facing markdown set now resolve to HTTP 200.
+
 - `--verbose` / `-v` was bound to a `RootOptions` field but never
   read anywhere; the flag was effectively a no-op. Plumb a
   `*slog.Logger` (text handler on stderr when verbose, discard

@@ -2,7 +2,7 @@
 
 Inspect domains, subdomains, and the catalog of registrable top-level domains.
 
-KAS API: [`get_domains`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_subdomains`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_tlds`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html).
+KAS API: [`get_domains`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-domains-inc.html), [`get_subdomains`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-subdomains-inc.html), [`get_topleveldomains`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-topleveldomains-inc.html).
 
 ## List domains
 
@@ -35,7 +35,7 @@ kasapi-cli subdomains get www.example.com -o json
 
 ## Registrable TLDs
 
-`tlds list` calls `get_tlds` and returns the catalog of TLDs the All-Inkl registrar can register, with their per-year price and whether they support transfer / DNSSEC.
+`tlds list` calls `get_topleveldomains` and returns the catalog of TLDs the All-Inkl registrar can register, with their per-year price and whether they support transfer / DNSSEC.
 
 ```sh
 kasapi-cli tlds list -o json | jq '.[] | select(.tld_dnssec_supported == "Y") | .tld_name'

@@ -2,7 +2,7 @@
 
 Inspect KAS accounts visible to the authenticated login.
 
-KAS API: [`get_accounts`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_accountsettings`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_accountresources`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html).
+KAS API: [`get_accounts`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-accounts-inc.html), [`get_accountsettings`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-accountsettings-inc.html), [`get_accountresources`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-accountresources-inc.html).
 
 ## List accounts
 

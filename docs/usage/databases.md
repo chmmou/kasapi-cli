@@ -2,7 +2,7 @@
 
 Inspect MariaDB / MySQL databases visible to the login.
 
-KAS API: [`get_databases`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html).
+KAS API: [`get_databases`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-databases-inc.html).
 
 ## List databases
 

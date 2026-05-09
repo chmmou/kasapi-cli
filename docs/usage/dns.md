@@ -2,7 +2,7 @@
 
 List DNS records for a single zone.
 
-KAS API: [`get_dns_settings`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html).
+KAS API: [`get_dns_settings`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-dns-settings-inc.html).
 
 ## List records
 

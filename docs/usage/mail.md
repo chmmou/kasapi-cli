@@ -2,7 +2,7 @@
 
 Inspect mail accounts, forwards, filters, and mailing lists.
 
-KAS API: [`get_mailaccounts`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_mailforwards`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_mailfilter`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_mailinglists`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html).
+KAS API: [`get_mailaccounts`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-mailaccounts-inc.html), [`get_mailforwards`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-mailforwards-inc.html), [`get_mailstandardfilter`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-mailstandardfilter-inc.html), [`get_mailinglists`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-mailinglists-inc.html).
 
 ## Mail accounts
 
@@ -34,7 +34,7 @@ The `TARGETS` column flattens `mail_forward_target_*` into one comma-joined list
 
 ## Mail filters
 
-`mail filters list` returns the server-side filter rules (Sieve-style: condition + action). The filter view is read-only — write paths are part of the v0.2.0 backlog.
+`mail filters list` calls `get_mailstandardfilter` and returns the server-side filter rules (Sieve-style: condition + action). The filter view is read-only — write paths are part of the v0.2.0 backlog.
 
 ## Mailing lists
 

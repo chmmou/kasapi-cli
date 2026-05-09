@@ -2,7 +2,7 @@
 
 Read-only inspection of the various hosting features that hang off an All-Inkl webspace: FTP / Samba users, cronjobs, directory protection, software installs, and DDNS users. Grouped because they share the same shape (one resource type per top-level command, almost always with `list` + `get`).
 
-KAS API: [`get_ftpuser`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_sambauser`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_cronjobs`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_directoryprotection`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_softwareinstall`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html), [`get_ddnsusers`](https://kasapi.kasserver.com/dokumentation/phpdoc/packages/API%20Functions.html).
+KAS API: [`get_ftpusers`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-ftpusers-inc.html), [`get_sambausers`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-sambausers-inc.html), [`get_cronjobs`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-cronjobs-inc.html), [`get_directoryprotection`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-directoryprotection-inc.html), [`get_softwareinstall`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-softwareinstall-inc.html), [`get_ddnsusers`](https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-ddnsusers-inc.html).
 
 ## FTP users
 
