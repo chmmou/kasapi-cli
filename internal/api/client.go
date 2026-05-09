@@ -39,8 +39,8 @@ type Heartbeater interface {
 
 // StaticTokenSource is a TokenSource that returns the same credentials
 // every call. Suitable for plain auth and for tests; session-token
-// callers should use the source provided by the auth package once the
-// KasAuth client (issue #5) is in place.
+// callers should use the source provided by the auth package, which
+// wraps the KasAuth client.
 type StaticTokenSource struct {
 	Login    string
 	AuthData string

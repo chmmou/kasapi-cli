@@ -14,6 +14,10 @@ func (AccountList) TableHeaders() []string {
 }
 
 // TableRows returns one row per account, in the order returned by KAS.
+// KAS returns used_account_space in KiB (the phpdoc at
+// https://kasapi.kasserver.com/dokumentation/phpdoc/ does not state the
+// unit, but real responses have magnitudes and fractional digits
+// consistent with bytes/1024); /1024 yields MiB, displayed as MB.
 func (l AccountList) TableRows() [][]string {
 	rows := make([][]string, 0, len(l))
 	for _, a := range l {

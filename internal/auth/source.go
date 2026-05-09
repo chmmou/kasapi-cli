@@ -111,9 +111,10 @@ func (s *SessionTokenSource) Invalidate() {
 
 // Heartbeat extends the cached expiry by Lifetime when UpdateLifetime
 // is true, mirroring the server's session_update_lifetime=Y rolling
-// window. It is a no-op when there is no cached token, when
-// UpdateLifetime is false, or when no Store is wired up. Called by
-// api.Client after every successful KasApi call.
+// window. It is a no-op when UpdateLifetime is false or no token is
+// cached; when a Store is wired up the refreshed expiry is also
+// persisted, otherwise the rolling window stays in-memory only.
+// Called by api.Client after every successful KasApi call.
 func (s *SessionTokenSource) Heartbeat() {
 	s.mu.Lock()
 	defer s.mu.Unlock()

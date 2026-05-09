@@ -221,6 +221,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `internal/auth/source.go`: sharpen the `Heartbeat` doc comment.
+  The previous wording claimed Heartbeat was a no-op "when no Store
+  is wired up", but the in-memory rolling window is updated regardless
+  of `Store`; the comment now describes the actual conditions
+  (`UpdateLifetime` false or no cached token). Closes #41.
+
+- `internal/api/client.go`: drop the stale "(issue #5)" reference from
+  the `StaticTokenSource` doc comment. Issue #5 was closed by PR #29
+  when the KasAuth client landed; the surrounding sentence is kept.
+
+- `internal/account/table.go`: document the `used_account_space`
+  unit conversion. The KAS phpdoc does not state the unit, but the
+  magnitudes and fractional digits in real responses are consistent
+  with KiB (`bytes/1024`); a one-line code comment records the
+  derivation so future readers do not rediscover it.
+
 - `internal/usage`: drop the action name from `DecodeSpace` /
   `DecodeSpaceUsage` / `DecodeTraffic` error strings. The Client
   wrappers already prepend `usage: get_space:` / `usage: get_traffic:`
