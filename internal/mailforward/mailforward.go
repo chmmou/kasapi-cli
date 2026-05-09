@@ -2,16 +2,14 @@ package mailforward
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // MailForward is one entry of get_mailforwards. The list and singular
 // views (the latter being get_mailforwards called with a mail_forward
@@ -37,47 +35,32 @@ type MailForwardList []MailForward
 // Client groups the read endpoints scoped to mail forwards:
 // get_mailforwards (list and singular).
 type Client struct {
-	API Caller
+	lg kasread.ListGet[MailForwardList, MailForward]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[MailForwardList, MailForward]{
+		Caller:    c,
+		Action:    "get_mailforwards",
+		Label:     "mailforward",
+		ArgName:   "address",
+		FilterKey: "mail_forward",
+		Decoder:   DecodeMailForwards,
+	}}
+}
 
 // List calls get_mailforwards without parameters and decodes the
 // response into a MailForwardList covering every mail forward visible
 // to the login.
-func (c *Client) List(ctx context.Context) (MailForwardList, error) {
-	resp, err := c.API.Call(ctx, "get_mailforwards", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeMailForwards(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("mailforward: get_mailforwards: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (MailForwardList, error) { return c.lg.List(ctx) }
 
 // Get calls get_mailforwards with a mail_forward filter (the source
 // address) and returns the single matching MailForward. The KAS API
 // still wraps the result in an array; we unwrap it so callers do not
 // have to. An empty array surfaces as a not-found error.
 func (c *Client) Get(ctx context.Context, address string) (MailForward, error) {
-	if address == "" {
-		return MailForward{}, fmt.Errorf("mailforward: address is required")
-	}
-	resp, err := c.API.Call(ctx, "get_mailforwards", map[string]any{"mail_forward": address})
-	if err != nil {
-		return MailForward{}, err
-	}
-	list, err := DecodeMailForwards(resp.Body.ReturnInfo)
-	if err != nil {
-		return MailForward{}, fmt.Errorf("mailforward: get_mailforwards: %w", err)
-	}
-	if len(list) == 0 {
-		return MailForward{}, fmt.Errorf("mailforward: %q not found", address)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, address)
 }
 
 // DecodeMailForwards maps the ReturnInfo of a get_mailforwards response

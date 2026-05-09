@@ -6,15 +6,14 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // Subdomain is one entry of get_subdomains. The KAS list view exposes
 // the account/server placement and a flattened SSL summary; the
@@ -66,47 +65,32 @@ type SubdomainList []Subdomain
 // Client groups the read endpoints scoped to subdomains:
 // get_subdomains (list and singular).
 type Client struct {
-	API Caller
+	lg kasread.ListGet[SubdomainList, Subdomain]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[SubdomainList, Subdomain]{
+		Caller:    c,
+		Action:    "get_subdomains",
+		Label:     "subdomain",
+		ArgName:   "name",
+		FilterKey: "subdomain_name",
+		Decoder:   DecodeSubdomains,
+	}}
+}
 
 // List calls get_subdomains without parameters and decodes the
 // response into a SubdomainList covering every subdomain visible to
 // the login.
-func (c *Client) List(ctx context.Context) (SubdomainList, error) {
-	resp, err := c.API.Call(ctx, "get_subdomains", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeSubdomains(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("subdomain: get_subdomains: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (SubdomainList, error) { return c.lg.List(ctx) }
 
 // Get calls get_subdomains with a subdomain_name filter and returns
 // the single matching Subdomain. The KAS API still wraps the result
 // in an array; we unwrap it here so callers do not have to. An empty
 // array surfaces as a not-found error.
 func (c *Client) Get(ctx context.Context, name string) (Subdomain, error) {
-	if name == "" {
-		return Subdomain{}, fmt.Errorf("subdomain: name is required")
-	}
-	resp, err := c.API.Call(ctx, "get_subdomains", map[string]any{"subdomain_name": name})
-	if err != nil {
-		return Subdomain{}, err
-	}
-	list, err := DecodeSubdomains(resp.Body.ReturnInfo)
-	if err != nil {
-		return Subdomain{}, fmt.Errorf("subdomain: get_subdomains: %w", err)
-	}
-	if len(list) == 0 {
-		return Subdomain{}, fmt.Errorf("subdomain: %q not found", name)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, name)
 }
 
 // DecodeSubdomains maps the ReturnInfo of a get_subdomains response

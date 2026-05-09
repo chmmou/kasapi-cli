@@ -2,17 +2,15 @@ package ftpuser
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // FTPUser is one entry of get_ftpusers. List and singular views (the
 // latter being get_ftpusers called with an ftp_login filter) return
@@ -46,46 +44,31 @@ type FTPUserList []FTPUser
 // Client groups the read endpoints scoped to FTP users:
 // get_ftpusers (list and singular).
 type Client struct {
-	API Caller
+	lg kasread.ListGet[FTPUserList, FTPUser]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[FTPUserList, FTPUser]{
+		Caller:    c,
+		Action:    "get_ftpusers",
+		Label:     "ftpuser",
+		ArgName:   "login",
+		FilterKey: "ftp_login",
+		Decoder:   DecodeFTPUsers,
+	}}
+}
 
 // List calls get_ftpusers without parameters and decodes the response
 // into an FTPUserList covering every FTP user visible to the login.
-func (c *Client) List(ctx context.Context) (FTPUserList, error) {
-	resp, err := c.API.Call(ctx, "get_ftpusers", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeFTPUsers(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("ftpuser: get_ftpusers: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (FTPUserList, error) { return c.lg.List(ctx) }
 
 // Get calls get_ftpusers with an ftp_login filter and returns the
 // single matching FTPUser. The KAS API still wraps the result in an
 // array; we unwrap it here so callers do not have to. An empty array
 // surfaces as a not-found error.
 func (c *Client) Get(ctx context.Context, login string) (FTPUser, error) {
-	if login == "" {
-		return FTPUser{}, fmt.Errorf("ftpuser: login is required")
-	}
-	resp, err := c.API.Call(ctx, "get_ftpusers", map[string]any{"ftp_login": login})
-	if err != nil {
-		return FTPUser{}, err
-	}
-	list, err := DecodeFTPUsers(resp.Body.ReturnInfo)
-	if err != nil {
-		return FTPUser{}, fmt.Errorf("ftpuser: get_ftpusers: %w", err)
-	}
-	if len(list) == 0 {
-		return FTPUser{}, fmt.Errorf("ftpuser: %q not found", login)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, login)
 }
 
 // DecodeFTPUsers maps the ReturnInfo of a get_ftpusers response (an

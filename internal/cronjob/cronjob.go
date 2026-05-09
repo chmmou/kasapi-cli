@@ -2,19 +2,17 @@ package cronjob
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // Cronjob is one entry of get_cronjobs. The list and singular views
 // (the latter being get_cronjobs called with a cronjob_id filter)
@@ -84,46 +82,31 @@ type CronjobList []Cronjob
 // Client groups the read endpoints scoped to cronjobs:
 // get_cronjobs (list and singular).
 type Client struct {
-	API Caller
+	lg kasread.ListGet[CronjobList, Cronjob]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[CronjobList, Cronjob]{
+		Caller:    c,
+		Action:    "get_cronjobs",
+		Label:     "cronjob",
+		ArgName:   "id",
+		FilterKey: "cronjob_id",
+		Decoder:   DecodeCronjobs,
+	}}
+}
 
 // List calls get_cronjobs without parameters and decodes the response
 // into a CronjobList covering every cronjob visible to the login.
-func (c *Client) List(ctx context.Context) (CronjobList, error) {
-	resp, err := c.API.Call(ctx, "get_cronjobs", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeCronjobs(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("cronjob: get_cronjobs: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (CronjobList, error) { return c.lg.List(ctx) }
 
 // Get calls get_cronjobs with a cronjob_id filter and returns the
 // single matching Cronjob. The KAS API still wraps the result in an
 // array; we unwrap it here so callers do not have to. An empty array
 // surfaces as a not-found error.
 func (c *Client) Get(ctx context.Context, id string) (Cronjob, error) {
-	if id == "" {
-		return Cronjob{}, fmt.Errorf("cronjob: id is required")
-	}
-	resp, err := c.API.Call(ctx, "get_cronjobs", map[string]any{"cronjob_id": id})
-	if err != nil {
-		return Cronjob{}, err
-	}
-	list, err := DecodeCronjobs(resp.Body.ReturnInfo)
-	if err != nil {
-		return Cronjob{}, fmt.Errorf("cronjob: get_cronjobs: %w", err)
-	}
-	if len(list) == 0 {
-		return Cronjob{}, fmt.Errorf("cronjob: %q not found", id)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, id)
 }
 
 // DecodeCronjobs maps the ReturnInfo of a get_cronjobs response (an

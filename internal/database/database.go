@@ -2,18 +2,16 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // Database is one entry of get_databases. The list and singular views
 // (the latter being get_databases called with a database_login filter)
@@ -34,46 +32,31 @@ type DatabaseList []Database
 // Client groups the read endpoints scoped to databases:
 // get_databases (list and singular).
 type Client struct {
-	API Caller
+	lg kasread.ListGet[DatabaseList, Database]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[DatabaseList, Database]{
+		Caller:    c,
+		Action:    "get_databases",
+		Label:     "database",
+		ArgName:   "login",
+		FilterKey: "database_login",
+		Decoder:   DecodeDatabases,
+	}}
+}
 
 // List calls get_databases without parameters and decodes the response
 // into a DatabaseList covering every database visible to the login.
-func (c *Client) List(ctx context.Context) (DatabaseList, error) {
-	resp, err := c.API.Call(ctx, "get_databases", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeDatabases(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("database: get_databases: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (DatabaseList, error) { return c.lg.List(ctx) }
 
 // Get calls get_databases with a database_login filter and returns the
 // single matching Database. The KAS API still wraps the result in an
 // array; we unwrap it here so callers do not have to. An empty array
 // surfaces as a not-found error.
 func (c *Client) Get(ctx context.Context, login string) (Database, error) {
-	if login == "" {
-		return Database{}, fmt.Errorf("database: login is required")
-	}
-	resp, err := c.API.Call(ctx, "get_databases", map[string]any{"database_login": login})
-	if err != nil {
-		return Database{}, err
-	}
-	list, err := DecodeDatabases(resp.Body.ReturnInfo)
-	if err != nil {
-		return Database{}, fmt.Errorf("database: get_databases: %w", err)
-	}
-	if len(list) == 0 {
-		return Database{}, fmt.Errorf("database: %q not found", login)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, login)
 }
 
 // DecodeDatabases maps the ReturnInfo of a get_databases response (an

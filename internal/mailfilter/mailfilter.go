@@ -2,16 +2,14 @@ package mailfilter
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // StandardFilter is one entry of get_mailstandardfilter, describing a
 // preset spam/virus filter that can be referenced by `mail_spamfilter`
@@ -28,26 +26,26 @@ type StandardFilter struct {
 type StandardFilterList []StandardFilter
 
 // Client groups the read endpoint scoped to mail standard filters.
+// Get is intentionally absent — the KAS endpoint does not document a
+// filter parameter (see issue #73 NTH bundle), so only List is wired
+// up here.
 type Client struct {
-	API Caller
+	lg kasread.ListGet[StandardFilterList, StandardFilter]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[StandardFilterList, StandardFilter]{
+		Caller:  c,
+		Action:  "get_mailstandardfilter",
+		Label:   "mailfilter",
+		Decoder: DecodeStandardFilters,
+	}}
+}
 
 // List calls get_mailstandardfilter and decodes the response into a
 // StandardFilterList. The endpoint takes no parameters.
-func (c *Client) List(ctx context.Context) (StandardFilterList, error) {
-	resp, err := c.API.Call(ctx, "get_mailstandardfilter", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeStandardFilters(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("mailfilter: get_mailstandardfilter: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (StandardFilterList, error) { return c.lg.List(ctx) }
 
 // DecodeStandardFilters maps the ReturnInfo of a get_mailstandardfilter
 // response (an Array of Maps) into the typed StandardFilterList.

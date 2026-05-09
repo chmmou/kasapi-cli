@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Replaced the duplicated `Client.List` / `Client.Get` boilerplate
+  in 12 read modules (account, cronjob, database, ddns, domain,
+  ftpuser, mailaccount, mailforward, mailinglist, sambauser,
+  softwareinstall, subdomain) plus the `List`-only mailfilter with
+  a single generic helper `kasread.ListGet[L, E]`. Each module now
+  binds the action, label, filter key and decoder once in
+  `NewClient` and exposes `List` / `Get` as one-line delegates;
+  per-module `Caller` interfaces collapse to type aliases over
+  `kasread.Caller`. Behaviour and error messages are unchanged.
+  Part two of the cross-module-duplication clean-up bundle tracked
+  in issue #73.
 - Replaced the duplicated KAS `Array` of `Map` decoder boilerplate
   in 19 read decoders with a single generic helper
   `soap.DecodeArray[T]`. Each module's `Decode<Foo>s` now delegates

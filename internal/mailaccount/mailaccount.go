@@ -2,18 +2,16 @@ package mailaccount
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // MailAccount is one entry of get_mailaccounts. The list and singular
 // views (the latter being get_mailaccounts called with a mail_login
@@ -68,47 +66,32 @@ type MailAccountList []MailAccount
 // Client groups the read endpoints scoped to mail accounts:
 // get_mailaccounts (list and singular).
 type Client struct {
-	API Caller
+	lg kasread.ListGet[MailAccountList, MailAccount]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[MailAccountList, MailAccount]{
+		Caller:    c,
+		Action:    "get_mailaccounts",
+		Label:     "mailaccount",
+		ArgName:   "login",
+		FilterKey: "mail_login",
+		Decoder:   DecodeMailAccounts,
+	}}
+}
 
 // List calls get_mailaccounts without parameters and decodes the
 // response into a MailAccountList covering every mail account visible
 // to the login.
-func (c *Client) List(ctx context.Context) (MailAccountList, error) {
-	resp, err := c.API.Call(ctx, "get_mailaccounts", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeMailAccounts(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("mailaccount: get_mailaccounts: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (MailAccountList, error) { return c.lg.List(ctx) }
 
 // Get calls get_mailaccounts with a mail_login filter and returns the
 // single matching MailAccount. The KAS API still wraps the result in
 // an array; we unwrap it here so callers do not have to. An empty
 // array surfaces as a not-found error.
 func (c *Client) Get(ctx context.Context, login string) (MailAccount, error) {
-	if login == "" {
-		return MailAccount{}, fmt.Errorf("mailaccount: login is required")
-	}
-	resp, err := c.API.Call(ctx, "get_mailaccounts", map[string]any{"mail_login": login})
-	if err != nil {
-		return MailAccount{}, err
-	}
-	list, err := DecodeMailAccounts(resp.Body.ReturnInfo)
-	if err != nil {
-		return MailAccount{}, fmt.Errorf("mailaccount: get_mailaccounts: %w", err)
-	}
-	if len(list) == 0 {
-		return MailAccount{}, fmt.Errorf("mailaccount: %q not found", login)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, login)
 }
 
 // DecodeMailAccounts maps the ReturnInfo of a get_mailaccounts response

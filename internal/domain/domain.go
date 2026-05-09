@@ -6,15 +6,14 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // Domain is one entry of get_domains. The KAS list view exposes the
 // account/server placement and a flattened SSL summary; the singular
@@ -80,51 +79,40 @@ type TLDList []TLD
 // Client groups the read endpoints scoped to domains:
 // get_domains (list and singular) plus get_topleveldomains.
 type Client struct {
-	API Caller
+	api Caller
+	lg  kasread.ListGet[DomainList, Domain]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{
+		api: c,
+		lg: kasread.ListGet[DomainList, Domain]{
+			Caller:    c,
+			Action:    "get_domains",
+			Label:     "domain",
+			ArgName:   "name",
+			FilterKey: "domain_name",
+			Decoder:   DecodeDomains,
+		},
+	}
+}
 
 // List calls get_domains without parameters and decodes the response
 // into a DomainList covering every domain visible to the login.
-func (c *Client) List(ctx context.Context) (DomainList, error) {
-	resp, err := c.API.Call(ctx, "get_domains", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeDomains(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("domain: get_domains: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (DomainList, error) { return c.lg.List(ctx) }
 
 // Get calls get_domains with a domain_name filter and returns the
 // single matching Domain. The KAS API still wraps the result in an
 // array; we unwrap it here so callers do not have to. An empty array
 // surfaces as a not-found error.
 func (c *Client) Get(ctx context.Context, name string) (Domain, error) {
-	if name == "" {
-		return Domain{}, fmt.Errorf("domain: name is required")
-	}
-	resp, err := c.API.Call(ctx, "get_domains", map[string]any{"domain_name": name})
-	if err != nil {
-		return Domain{}, err
-	}
-	list, err := DecodeDomains(resp.Body.ReturnInfo)
-	if err != nil {
-		return Domain{}, fmt.Errorf("domain: get_domains: %w", err)
-	}
-	if len(list) == 0 {
-		return Domain{}, fmt.Errorf("domain: %q not found", name)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, name)
 }
 
 // TopLevelDomains calls get_topleveldomains and decodes the response.
 func (c *Client) TopLevelDomains(ctx context.Context) (TLDList, error) {
-	resp, err := c.API.Call(ctx, "get_topleveldomains", nil)
+	resp, err := c.api.Call(ctx, "get_topleveldomains", nil)
 	if err != nil {
 		return nil, err
 	}

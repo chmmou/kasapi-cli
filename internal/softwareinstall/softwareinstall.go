@@ -2,17 +2,15 @@ package softwareinstall
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // SoftwareInstall is one entry of get_softwareinstall (note: the KAS
 // action name is singular for both the list and the filtered variant).
@@ -58,47 +56,32 @@ type SoftwareInstallList []SoftwareInstall
 // Client groups the read endpoint scoped to software-install
 // templates: get_softwareinstall (list and singular).
 type Client struct {
-	API Caller
+	lg kasread.ListGet[SoftwareInstallList, SoftwareInstall]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[SoftwareInstallList, SoftwareInstall]{
+		Caller:    c,
+		Action:    "get_softwareinstall",
+		Label:     "softwareinstall",
+		ArgName:   "id",
+		FilterKey: "software_id",
+		Decoder:   DecodeSoftwareInstalls,
+	}}
+}
 
 // List calls get_softwareinstall without parameters and decodes the
 // response into a SoftwareInstallList covering every installable
 // software package visible to the login.
-func (c *Client) List(ctx context.Context) (SoftwareInstallList, error) {
-	resp, err := c.API.Call(ctx, "get_softwareinstall", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeSoftwareInstalls(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("softwareinstall: get_softwareinstall: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (SoftwareInstallList, error) { return c.lg.List(ctx) }
 
 // Get calls get_softwareinstall with a software_id filter and returns
 // the single matching SoftwareInstall. The KAS API still wraps the
 // result in an array; we unwrap it here so callers do not have to.
 // An empty array surfaces as a not-found error.
 func (c *Client) Get(ctx context.Context, id string) (SoftwareInstall, error) {
-	if id == "" {
-		return SoftwareInstall{}, fmt.Errorf("softwareinstall: id is required")
-	}
-	resp, err := c.API.Call(ctx, "get_softwareinstall", map[string]any{"software_id": id})
-	if err != nil {
-		return SoftwareInstall{}, err
-	}
-	list, err := DecodeSoftwareInstalls(resp.Body.ReturnInfo)
-	if err != nil {
-		return SoftwareInstall{}, fmt.Errorf("softwareinstall: get_softwareinstall: %w", err)
-	}
-	if len(list) == 0 {
-		return SoftwareInstall{}, fmt.Errorf("softwareinstall: %q not found", id)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, id)
 }
 
 // DecodeSoftwareInstalls maps the ReturnInfo of a get_softwareinstall

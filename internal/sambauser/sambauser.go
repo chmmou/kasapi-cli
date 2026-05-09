@@ -2,17 +2,15 @@ package sambauser
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // SambaUser is one entry of get_sambausers. The list and singular
 // views (the latter being get_sambausers called with a samba_login
@@ -34,47 +32,32 @@ type SambaUserList []SambaUser
 // Client groups the read endpoints scoped to Samba users:
 // get_sambausers (list and singular).
 type Client struct {
-	API Caller
+	lg kasread.ListGet[SambaUserList, SambaUser]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[SambaUserList, SambaUser]{
+		Caller:    c,
+		Action:    "get_sambausers",
+		Label:     "sambauser",
+		ArgName:   "login",
+		FilterKey: "samba_login",
+		Decoder:   DecodeSambaUsers,
+	}}
+}
 
 // List calls get_sambausers without parameters and decodes the
 // response into a SambaUserList covering every Samba user visible to
 // the login.
-func (c *Client) List(ctx context.Context) (SambaUserList, error) {
-	resp, err := c.API.Call(ctx, "get_sambausers", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeSambaUsers(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("sambauser: get_sambausers: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (SambaUserList, error) { return c.lg.List(ctx) }
 
 // Get calls get_sambausers with a samba_login filter and returns the
 // single matching SambaUser. The KAS API still wraps the result in
 // an array; we unwrap it here so callers do not have to. An empty
 // array surfaces as a not-found error.
 func (c *Client) Get(ctx context.Context, login string) (SambaUser, error) {
-	if login == "" {
-		return SambaUser{}, fmt.Errorf("sambauser: login is required")
-	}
-	resp, err := c.API.Call(ctx, "get_sambausers", map[string]any{"samba_login": login})
-	if err != nil {
-		return SambaUser{}, err
-	}
-	list, err := DecodeSambaUsers(resp.Body.ReturnInfo)
-	if err != nil {
-		return SambaUser{}, fmt.Errorf("sambauser: get_sambausers: %w", err)
-	}
-	if len(list) == 0 {
-		return SambaUser{}, fmt.Errorf("sambauser: %q not found", login)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, login)
 }
 
 // DecodeSambaUsers maps the ReturnInfo of a get_sambausers response

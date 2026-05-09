@@ -2,17 +2,15 @@ package ddns
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/chmmou/kasapi-cli/internal/kasread"
 	"github.com/chmmou/kasapi-cli/internal/soap"
 )
 
 // Caller is the subset of *api.Client this package depends on. The
 // indirection keeps tests free of network setup: a fake Caller can
 // return a *soap.Response decoded from a fixture.
-type Caller interface {
-	Call(ctx context.Context, action string, params map[string]any) (*soap.Response, error)
-}
+type Caller = kasread.Caller
 
 // DDNSUser is one entry of get_ddnsusers. The list and singular
 // views (the latter being get_ddnsusers called with a `ddns_login`
@@ -71,26 +69,25 @@ type DDNSUserList []DDNSUser
 // `api.IsNotFound`, so this client does not need a separate
 // not-found path.
 type Client struct {
-	API Caller
+	lg kasread.ListGet[DDNSUserList, DDNSUser]
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client {
+	return &Client{lg: kasread.ListGet[DDNSUserList, DDNSUser]{
+		Caller:    c,
+		Action:    "get_ddnsusers",
+		Label:     "ddns",
+		ArgName:   "login",
+		FilterKey: "ddns_login",
+		Decoder:   DecodeDDNSUsers,
+	}}
+}
 
 // List calls get_ddnsusers without parameters and decodes the
 // response into a DDNSUserList covering every DDNS user visible to
 // the login.
-func (c *Client) List(ctx context.Context) (DDNSUserList, error) {
-	resp, err := c.API.Call(ctx, "get_ddnsusers", nil)
-	if err != nil {
-		return nil, err
-	}
-	list, err := DecodeDDNSUsers(resp.Body.ReturnInfo)
-	if err != nil {
-		return nil, fmt.Errorf("ddns: get_ddnsusers: %w", err)
-	}
-	return list, nil
-}
+func (c *Client) List(ctx context.Context) (DDNSUserList, error) { return c.lg.List(ctx) }
 
 // Get calls get_ddnsusers with a ddns_login filter and returns the
 // single matching DDNSUser. The KAS API still wraps the result in an
@@ -99,21 +96,7 @@ func (c *Client) List(ctx context.Context) (DDNSUserList, error) {
 // other read modules even though the documented behaviour is a
 // `dyndns_login_not_found` SOAP fault.
 func (c *Client) Get(ctx context.Context, login string) (DDNSUser, error) {
-	if login == "" {
-		return DDNSUser{}, fmt.Errorf("ddns: login is required")
-	}
-	resp, err := c.API.Call(ctx, "get_ddnsusers", map[string]any{"ddns_login": login})
-	if err != nil {
-		return DDNSUser{}, err
-	}
-	list, err := DecodeDDNSUsers(resp.Body.ReturnInfo)
-	if err != nil {
-		return DDNSUser{}, fmt.Errorf("ddns: get_ddnsusers: %w", err)
-	}
-	if len(list) == 0 {
-		return DDNSUser{}, fmt.Errorf("ddns: %q not found", login)
-	}
-	return list[0], nil
+	return c.lg.Get(ctx, login)
 }
 
 // DecodeDDNSUsers maps the ReturnInfo of a get_ddnsusers response
