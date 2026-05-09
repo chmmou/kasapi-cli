@@ -193,6 +193,39 @@ func TestCallRetriesOnAuthFailure(t *testing.T) {
 	}
 }
 
+// TestCallRetriesOnSessionInvalid is the kas_session_invalid analogue
+// of TestCallRetriesOnAuthFailure: it pins the integration so a future
+// edit that drops kas_session_invalid from IsAuthFailure surfaces here
+// rather than only in TestPredicateClassesByCode.
+func TestCallRetriesOnSessionInvalid(t *testing.T) {
+	authBody := loadFixture(t, "response_failed_kas_session_invalid.xml")
+	okBody := loadFixture(t, "account/get_accounts_response_success.xml")
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		if calls.Add(1) == 1 {
+			_, _ = w.Write(authBody)
+			return
+		}
+		_, _ = w.Write(okBody)
+	}))
+	defer srv.Close()
+
+	ts := &countingTokens{login: "w0", data: "tok-1", typ: soap.AuthSession, refresh: "tok-2"}
+	c := newAPIClient(srv, ts)
+	if _, err := c.Call(context.Background(), "get_accounts", nil); err != nil {
+		t.Fatalf("Call: %v", err)
+	}
+	if calls.Load() != 2 {
+		t.Errorf("server calls = %d, want 2", calls.Load())
+	}
+	if ts.invalidations != 1 {
+		t.Errorf("invalidations = %d, want 1", ts.invalidations)
+	}
+	if ts.lastData != "tok-2" {
+		t.Errorf("retry used data = %q, want tok-2", ts.lastData)
+	}
+}
+
 func TestCallNoRetryOnNonAuthFault(t *testing.T) {
 	body := loadFixture(t, "account/add_account_response_failed_max_account_reached.xml")
 	var calls atomic.Int32

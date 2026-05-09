@@ -24,6 +24,13 @@ import (
 // extends ExpiresAt to Now+Lifetime so the cache tracks the rolling
 // window the server applies.
 //
+// Loading a persisted entry temporarily overrides Lifetime and
+// UpdateLifetime with the values the session was created with so
+// Heartbeats stay consistent. The user-supplied values are snapshotted
+// on first Credentials call and restored by Invalidate so the next
+// fresh session honours the current run's CLI flags rather than the
+// discarded session's properties.
+//
 // SessionTokenSource is safe for concurrent use.
 type SessionTokenSource struct {
 	Client         *Client

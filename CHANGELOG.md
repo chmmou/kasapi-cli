@@ -231,6 +231,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `[2000, currentYear+1]`) and `--month` (must be `1..12`) instead of
   forwarding obvious typos to KAS. Closes #45.
 
+### Changed
+
+- `internal/api/doc.go`: stop enumerating the auth-failure code list
+  inline; point to `IsAuthFailure` as the single source of truth so a
+  future code addition only has to update one place.
+
+- `internal/auth/source.go`: extend the `SessionTokenSource`
+  type-level doc to describe the snapshot/restore semantics applied
+  during `Invalidate`, so readers see the full lifecycle without
+  having to drill into the field block.
+
+- `internal/api`: add `testdata/response_failed_kas_session_invalid.xml`
+  and `TestCallRetriesOnSessionInvalid` to pin the full Client + retry
+  composition for the new code; complements the IsAuthFailure
+  table-test row.
+
 ### Fixed
 
 - Session re-authentication now triggers on `kas_session_invalid`.
