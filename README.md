@@ -28,7 +28,22 @@ Early development. The transport, authentication, configuration, and several rea
 
 `kasapi-cli` is a command-line client for the All-Inkl KAS-API. It wraps the SOAP/`ns2:Map` wire format the API uses, handles the `KasAuth` credential-token flow (plain or session, optional 2FA), enforces the `KasFloodDelay` between calls, and exposes read and write operations for the resources documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>.
 
-## Building
+## Install
+
+Pre-built binaries, `deb` and `rpm` packages, and `tar.gz` / `zip` archives for Linux and Windows (`amd64` + `arm64`) are published on the [Releases page](https://github.com/chmmou/kasapi-cli/releases). Each artefact ships with a cosign keyless signature (`*.sig` + `*.pem`); verify with:
+
+```sh
+cosign verify-blob \
+  --certificate kasapi-cli_<ver>_linux_amd64.tar.gz.pem \
+  --signature  kasapi-cli_<ver>_linux_amd64.tar.gz.sig \
+  --certificate-identity-regexp 'https://github.com/chmmou/kasapi-cli/.*' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  kasapi-cli_<ver>_linux_amd64.tar.gz
+```
+
+`SHA256SUMS` (and its signature) covers every artefact in the release.
+
+## Building from source
 
 ```sh
 go build ./cmd/kasapi-cli

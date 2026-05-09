@@ -1,0 +1,122 @@
+# Release pipeline for kasapi-cli.
+#
+# Local dry run:    goreleaser release --snapshot --clean
+# Real release:     git tag vX.Y.Z && git push --tags  (CI takes over)
+#
+# Docs: https://goreleaser.com/customization/
+
+version: 2
+
+project_name: kasapi-cli
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod verify
+
+builds:
+  - id: kasapi-cli
+    main: ./cmd/kasapi-cli
+    binary: kasapi-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X github.com/chmmou/kasapi-cli/internal/version.Version={{.Version}}
+      - -X github.com/chmmou/kasapi-cli/internal/version.Commit={{.ShortCommit}}
+      - -X github.com/chmmou/kasapi-cli/internal/version.Date={{.CommitDate}}
+    goos:
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+      - docs/cli/**/*
+      - docs/usage/**/*
+
+nfpms:
+  - id: linux-packages
+    package_name: kasapi-cli
+    vendor: Alexander Saal
+    homepage: https://github.com/chmmou/kasapi-cli
+    maintainer: Alexander Saal <alex.saal@gmx.de>
+    description: |-
+      Command-line client for the All-Inkl KAS API (Kunden-Administrations-System).
+      Read-phase coverage for accounts, server, domains, DNS, mail, databases,
+      FTP/Samba users, cronjobs, directory protection, software installs, DDNS
+      users, and usage statistics.
+    license: BSD-3-Clause
+    formats:
+      - deb
+      - rpm
+    bindir: /usr/bin
+    section: utils
+    contents:
+      - src: LICENSE
+        dst: /usr/share/doc/kasapi-cli/LICENSE
+      - src: README.md
+        dst: /usr/share/doc/kasapi-cli/README.md
+      - src: CHANGELOG.md
+        dst: /usr/share/doc/kasapi-cli/CHANGELOG.md
+
+checksum:
+  name_template: "SHA256SUMS"
+  algorithm: sha256
+
+# Keyless cosign signing via GitHub OIDC. The private key never exists on
+# disk — sigstore's Fulcio mints a short-lived certificate bound to the
+# workflow's OIDC identity. Verification:
+#
+#   cosign verify-blob \
+#     --certificate kasapi-cli_<ver>_linux_amd64.tar.gz.pem \
+#     --signature  kasapi-cli_<ver>_linux_amd64.tar.gz.sig \
+#     --certificate-identity-regexp 'https://github.com/chmmou/kasapi-cli/.*' \
+#     --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+#     kasapi-cli_<ver>_linux_amd64.tar.gz
+signs:
+  - id: cosign-artefacts
+    cmd: cosign
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    args:
+      - sign-blob
+      - "--output-signature=${signature}"
+      - "--output-certificate=${certificate}"
+      - "--yes"
+      - "${artifact}"
+    artifacts: all
+    output: true
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-snapshot"
+
+changelog:
+  # The repo maintains CHANGELOG.md by hand; let the release notes pull
+  # from there (configured per-release via gh / goreleaser body) instead
+  # of generating from commit history.
+  disable: true
+
+release:
+  github:
+    owner: chmmou
+    name: kasapi-cli
+  draft: false
+  prerelease: auto
+  mode: replace
+  name_template: "{{ .ProjectName }} {{ .Version }}"

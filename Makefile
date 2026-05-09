@@ -6,17 +6,19 @@ BIN      ?= kasapi-cli
 PKG      := ./cmd/kasapi-cli
 CLI_DOCS := docs/cli
 
-.PHONY: help build test lint vet fmt docs clean
+.PHONY: help build test lint vet fmt docs release-snapshot release-check clean
 
 help:
 	@echo "Targets:"
-	@echo "  build  — go build ./cmd/kasapi-cli"
-	@echo "  test   — go test ./..."
-	@echo "  lint   — golangci-lint run ./..."
-	@echo "  vet    — go vet ./..."
-	@echo "  fmt    — go fmt ./..."
-	@echo "  docs   — regenerate $(CLI_DOCS)/ from the live command tree"
-	@echo "  clean  — remove build output"
+	@echo "  build             — go build ./cmd/kasapi-cli"
+	@echo "  test              — go test ./..."
+	@echo "  lint              — golangci-lint run ./..."
+	@echo "  vet               — go vet ./..."
+	@echo "  fmt               — go fmt ./..."
+	@echo "  docs              — regenerate $(CLI_DOCS)/ from the live command tree"
+	@echo "  release-snapshot  — local goreleaser dry run into ./dist (no push, skips signing)"
+	@echo "  release-check     — validate .goreleaser.yaml"
+	@echo "  clean             — remove build output"
 
 build:
 	$(GO) build -o $(BIN) $(PKG)
@@ -43,5 +45,14 @@ docs:
 	mkdir -p $(CLI_DOCS)
 	$(GO) run $(PKG) gen-docs $(CLI_DOCS)
 
+# release-snapshot builds every artefact (binaries, deb, rpm, archives,
+# checksums) into ./dist without publishing or signing. Use to verify
+# .goreleaser.yaml changes locally before tagging.
+release-snapshot:
+	goreleaser release --snapshot --clean --skip=sign,publish
+
+release-check:
+	goreleaser check
+
 clean:
-	rm -f $(BIN)
+	rm -rf $(BIN) dist/

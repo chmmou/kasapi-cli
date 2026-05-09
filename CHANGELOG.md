@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Release pipeline (`.goreleaser.yaml` + `.github/workflows/release.yml`)
+  driven by `git tag v*`. Builds Linux + Windows × `amd64`/`arm64`
+  binaries with `internal/version` ldflags wired up, packages Linux
+  artefacts as `deb` and `rpm` via `nfpm`, ships tarballs (`tar.gz`) /
+  ZIPs alongside, and signs every artefact plus `SHA256SUMS` keylessly
+  with `cosign` via GitHub OIDC. A new CI job `goreleaser config check`
+  validates `.goreleaser.yaml` on every PR. README gains an `Install`
+  section pointing at the Releases page with a `cosign verify-blob`
+  recipe. Makefile gets `release-snapshot` (local dry run into `./dist`,
+  skips signing) and `release-check` targets. AUR `PKGBUILD` and a
+  Homebrew tap are tracked separately as a follow-up.
+
 - CI job `docs sync` (`.github/workflows/ci.yml`) that runs
   `make docs` and fails when the checked-in `docs/cli/` differs
   from the regenerated output. Ensures any change to a flag,
