@@ -204,6 +204,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `README.md`: expand with a Configuration section (TOML profile
+  example for both `auth_type=plain` and `auth_type=session`,
+  `KAS_LOGIN`/`KAS_AUTHDATA`/`KAS_AUTHTYPE` env-var reference,
+  flag/env/profile precedence), a Quick start section with the
+  read commands that exist today (`accounts list|get|resources`,
+  `server info`, `--output` formats), and a Troubleshooting section
+  covering `KasFloodDelay`, the `no_auth`/`unknown_session`/
+  `kas_session_invalid` retry behaviour, `--verbose`, and a pointer
+  at the signed-commit / branch-protection rules in `CONTRIBUTING.md`.
+  Closes #14.
+
+- `CONTRIBUTING.md`: add explicit pointers to the
+  `kasapi-cli-git-workflow` and `kasapi-cli-code-review` skill
+  files alongside the existing references to `AGENTS.md` and the
+  `docs/go/` set.
+
 - `internal/testutil`: extract the `repoRoot` / `decodeFixture` /
   `fakeCaller` helpers that every per-module `*_test.go` carried as
   a private copy into a single shared package, and migrate all 20

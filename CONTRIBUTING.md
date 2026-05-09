@@ -17,6 +17,8 @@ Read these before designing changes — do not duplicate their content into new 
 - [`docs/go/STYLE_GUIDE.md`](docs/go/STYLE_GUIDE.md) — Go style.
 - [`docs/go/PATTERNS.md`](docs/go/PATTERNS.md) — recurring patterns (e.g. the per-package `Caller` interface, fixture-backed decoders, `cli.Tabular`).
 - [`docs/go/LINTING.md`](docs/go/LINTING.md) — the CI gate set.
+- [`.claude/skills/kasapi-cli-git-workflow/SKILL.md`](.claude/skills/kasapi-cli-git-workflow/SKILL.md) — git, branch, signed-commit, PR, and FF-push merge mechanics enforced for this project.
+- [`.claude/skills/kasapi-cli-code-review/SKILL.md`](.claude/skills/kasapi-cli-code-review/SKILL.md) — code-review loop (Blocker/Should/Nice classification, re-review cycle).
 
 ## Development setup
 
