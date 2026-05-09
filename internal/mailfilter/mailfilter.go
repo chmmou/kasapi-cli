@@ -26,9 +26,13 @@ type StandardFilter struct {
 type StandardFilterList []StandardFilter
 
 // Client groups the read endpoint scoped to mail standard filters.
-// Get is intentionally absent — the KAS endpoint does not document a
-// filter parameter (see issue #73 NTH bundle), so only List is wired
-// up here.
+// Get is intentionally absent: the KAS docs at
+// https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-mailstandardfilter-inc.html
+// list only the three standard auth parameters (kas_login,
+// kas_auth_data, kas_auth_type) — there is no filter parameter
+// for looking up a single filter, the endpoint always returns the
+// full list. Verified against the KAS docs while closing the
+// mailfilter.Get follow-up from issue #73.
 type Client struct {
 	lg kasread.ListGet[StandardFilterList, StandardFilter]
 }

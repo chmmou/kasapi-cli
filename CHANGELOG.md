@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Closed the two remaining follow-ups from issue #73's NTH bundle:
+  verified against the KAS docs that `get_mailstandardfilter`
+  accepts no filter parameter (the `mailfilter.Client` doc-comment
+  now links the spec page authoritatively, no code change needed),
+  and added `TestClientGetNotFound` for `ddns.Client.Get` to pin
+  the empty-array fallback that the prior test suite did not
+  exercise.
+
 ### Changed
 
 - Unified the `get`-subcommand `Use:` placeholders to the

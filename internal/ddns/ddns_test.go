@@ -3,6 +3,7 @@ package ddns_test
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/ddns"
@@ -147,6 +148,27 @@ func TestClientGetEmptyLogin(t *testing.T) {
 	c := ddns.NewClient(&testutil.FakeCaller{})
 	if _, err := c.Get(context.Background(), ""); err == nil {
 		t.Errorf("Get(\"\") err = nil, want validation error")
+	}
+}
+
+// TestClientGetNotFound covers the empty-array fallback in
+// kasread.ListGet.Get. The KAS docs say a missing dyndns_login is
+// signalled via a SOAP fault (dyndns_login_not_found) rather than
+// an empty array, but ddns.Get carries a defensive len(list) == 0
+// branch for parity with the other read modules; this test pins
+// that branch's behaviour by feeding the singular fixture with the
+// array stripped down to zero entries.
+func TestClientGetNotFound(t *testing.T) {
+	t.Parallel()
+	emptyResp := testutil.DecodeFixture(t, "ddns/get_ddnsuser_response_success.xml")
+	emptyResp.Body.ReturnInfo.Array = nil
+	c := ddns.NewClient(&testutil.FakeCaller{Resp: emptyResp})
+	_, err := c.Get(context.Background(), "ghost")
+	if err == nil {
+		t.Fatal("Get on empty array returned nil, want not-found error")
+	}
+	if !strings.Contains(err.Error(), `"ghost" not found`) {
+		t.Errorf("err = %q, want it to contain '%q not found'", err, "ghost")
 	}
 }
 
