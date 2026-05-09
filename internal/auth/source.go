@@ -36,6 +36,16 @@ type SessionTokenSource struct {
 	loaded    bool
 	token     string
 	expiresAt time.Time
+
+	// Snapshot of the user-configured Lifetime / UpdateLifetime captured
+	// on first Credentials call. Loading a persisted session adopts the
+	// values it was created with so Heartbeats stay consistent for the
+	// rest of that session's life. Invalidate then restores these
+	// snapshot values so the *next* fresh session honours the CLI flags
+	// of the current run, not the stale persisted properties.
+	configCaptured           bool
+	configuredLifetime       time.Duration
+	configuredUpdateLifetime bool
 }
 
 // NewSessionTokenSource returns a source that lazily fetches the token
@@ -53,6 +63,12 @@ func NewSessionTokenSource(c *Client) *SessionTokenSource {
 func (s *SessionTokenSource) Credentials(ctx context.Context) (string, string, soap.AuthType, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	if !s.configCaptured {
+		s.configuredLifetime = s.Lifetime
+		s.configuredUpdateLifetime = s.UpdateLifetime
+		s.configCaptured = true
+	}
 
 	if s.cachedValid() {
 		return s.Client.Login, s.token, soap.AuthSession, nil
@@ -97,13 +113,21 @@ func (s *SessionTokenSource) Credentials(ctx context.Context) (string, string, s
 }
 
 // Invalidate clears the cached token in memory and on disk so the next
-// Credentials call re-authenticates against KasAuth.
+// Credentials call re-authenticates against KasAuth. If the source has
+// adopted a persisted session's Lifetime / UpdateLifetime, those are
+// reset to the user-configured values so the fresh session created by
+// the next Credentials call respects the current CLI flags rather than
+// the now-discarded session's properties.
 func (s *SessionTokenSource) Invalidate() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.token = ""
 	s.expiresAt = time.Time{}
 	s.loaded = true
+	if s.configCaptured {
+		s.Lifetime = s.configuredLifetime
+		s.UpdateLifetime = s.configuredUpdateLifetime
+	}
 	if s.Store != nil {
 		_ = s.Store.Delete(s.Client.Login)
 	}

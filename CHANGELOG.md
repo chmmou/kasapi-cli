@@ -233,6 +233,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Session re-authentication now triggers on `kas_session_invalid`.
+  `IsAuthFailure` previously covered only `no_auth`, `unknown_session`,
+  `kas_access_forbidden`, and `got_no_login_data`; KAS also returns
+  `kas_session_invalid` when a server-side session is no longer
+  accepted (e.g. it was created with `session_update_lifetime=N` and
+  the lifetime elapsed). Without this code the auto-retry path in
+  `*api.Client.Call` did not fire and the user saw the raw fault.
+
+- `internal/auth/source.go`: preserve the user-configured `Lifetime` /
+  `UpdateLifetime` across `Invalidate`. When a persisted session was
+  loaded its server-side properties are adopted for the duration of
+  that session's life (so Heartbeat stays consistent), but the wired
+  CLI-flag values are now snapshotted on first `Credentials` call and
+  restored by `Invalidate`. The fresh session created by the next
+  re-authentication therefore reflects the current run's flags rather
+  than the stale persisted properties — fixing the case where an
+  initial run without `--session-update-lifetime` would otherwise
+  pin the persisted entry to `update_lifetime=false` forever.
+
 - `internal/auth/source.go`: sharpen the `Heartbeat` doc comment.
   The previous wording claimed Heartbeat was a no-op "when no Store
   is wired up", but the in-memory rolling window is updated regardless

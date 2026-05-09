@@ -326,6 +326,62 @@ func TestSessionTokenSourceAdoptsLifetimeFromCachedEntry(t *testing.T) {
 	}
 }
 
+// TestSessionTokenSourceInvalidateRestoresConfiguredAfterAdopt covers
+// the case the user reported as kas_session_invalid: an earlier run
+// persisted a session with UpdateLifetime=N, the current run wires the
+// source with --session-update-lifetime=Y, and the cached entry is
+// adopted (overwriting the wired flags). When the server later rejects
+// the adopted token, Invalidate must restore the wired flags so the
+// fresh session is persisted with the user's current intent.
+func TestSessionTokenSourceInvalidateRestoresConfiguredAfterAdopt(t *testing.T) {
+	body := loadFixture(t, "session/add_session_response_success.xml")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	tNow := time.Date(2026, 5, 9, 12, 0, 0, 0, time.UTC)
+	store := newStore(t, tNow)
+	if err := store.Save("w0", session.Entry{
+		Token:           "stale-but-locally-valid",
+		ExpiresAt:       tNow.Add(30 * time.Minute),
+		LifetimeSeconds: 1800,
+		UpdateLifetime:  false,
+	}); err != nil {
+		t.Fatalf("seed Save: %v", err)
+	}
+
+	src := auth.NewSessionTokenSource(newAuthClient(srv, "w0", "secret", soap.AuthPlain, auth.Options{}))
+	src.Store = store
+	src.Lifetime = 2 * time.Hour
+	src.UpdateLifetime = true
+	src.Now = func() time.Time { return tNow }
+
+	// First Credentials call adopts the cached entry's lifetime / flag.
+	if _, _, _, err := src.Credentials(context.Background()); err != nil {
+		t.Fatalf("Credentials: %v", err)
+	}
+
+	// Simulate the server-side kas_session_invalid by invalidating, then
+	// fetching fresh credentials. The new entry must be persisted with
+	// the wired Lifetime+UpdateLifetime, not the adopted ones.
+	src.Invalidate()
+	if _, _, _, err := src.Credentials(context.Background()); err != nil {
+		t.Fatalf("Credentials after invalidate: %v", err)
+	}
+
+	got, _ := store.Load("w0")
+	if got == nil {
+		t.Fatal("expected fresh entry persisted after invalidate")
+	}
+	if got.LifetimeSeconds != int(2*time.Hour/time.Second) {
+		t.Errorf("LifetimeSeconds = %d, want %d (wired value)", got.LifetimeSeconds, int(2*time.Hour/time.Second))
+	}
+	if !got.UpdateLifetime {
+		t.Errorf("UpdateLifetime = false, want true (wired value)")
+	}
+}
+
 func TestSessionTokenSourceHeartbeatNoopWithoutUpdateLifetime(t *testing.T) {
 	body := loadFixture(t, "session/add_session_response_success.xml")
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {

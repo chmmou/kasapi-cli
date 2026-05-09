@@ -8,9 +8,11 @@
 // IsSyntaxError, IsMaxReached, IsInProgress) are provided so callers can
 // branch on classes of errors without enumerating individual codes.
 //
-// On unknown_session or no_auth, Call invalidates the TokenSource and
-// retries once with fresh credentials. All other faults surface to the
-// caller without retry.
+// On any code classified as an auth failure by IsAuthFailure
+// (currently no_auth, unknown_session, kas_session_invalid,
+// kas_access_forbidden, got_no_login_data), Call invalidates the
+// TokenSource and retries once with fresh credentials. All other
+// faults surface to the caller without retry.
 //
 // See issue #6.
 package api

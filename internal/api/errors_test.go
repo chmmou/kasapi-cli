@@ -27,6 +27,7 @@ func TestPredicateClassesByCode(t *testing.T) {
 	}{
 		{code: "no_auth", auth: true},
 		{code: "unknown_session", auth: true},
+		{code: "kas_session_invalid", auth: true},
 		{code: "kas_access_forbidden", auth: true},
 		{code: "got_no_login_data", auth: true},
 		{code: "flood_protection", flood: true},

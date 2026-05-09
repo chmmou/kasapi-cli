@@ -18,6 +18,7 @@ const (
 	CodeUnknownAction    = "unkown_action"
 	CodeGotNoLoginData   = "got_no_login_data"
 	CodeUnknownSession   = "unknown_session"
+	CodeSessionInvalid   = "kas_session_invalid"
 	CodeFloodProtection  = "flood_protection"
 	CodeInProgress       = "in_progress"
 	CodeMissingParameter = "missing_parameter"
@@ -75,12 +76,12 @@ func IsCode(err error, code string) bool { return codeOf(err) == code }
 
 // IsAuthFailure reports whether err is an authentication failure that a
 // session-token client should respond to by re-authenticating. This
-// includes no_auth, unknown_session, kas_access_forbidden, and the
-// generic got_no_login_data envelope returned when the request lacked
-// kas_login.
+// includes no_auth, unknown_session, kas_session_invalid,
+// kas_access_forbidden, and the generic got_no_login_data envelope
+// returned when the request lacked kas_login.
 func IsAuthFailure(err error) bool {
 	switch codeOf(err) {
-	case CodeNoAuth, CodeUnknownSession, CodeAccessForbidden, CodeGotNoLoginData:
+	case CodeNoAuth, CodeUnknownSession, CodeSessionInvalid, CodeAccessForbidden, CodeGotNoLoginData:
 		return true
 	}
 	return false
