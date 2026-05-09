@@ -112,11 +112,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   not-found error. Mapping test runs against
   `testdata/account/get_account_response_success.xml`.
 
-- `internal/mailinglist` read module and `kasapi-cli mail lists list`
-  subcommand wrapping `get_mailinglists`. Decodes the Array of
-  `{mailinglist_name, mailinglist_admin, mailinglist_url, in_progress}`
-  Maps into a typed `MailingListList` so callers can inspect the
-  Mailman lists provisioned for the account. Closes #9.
+- `internal/mailinglist` read module and `kasapi-cli mail lists list|get`
+  subcommand tree wrapping `get_mailinglists`. The list variant decodes
+  the Array of `{mailinglist_name, mailinglist_admin, mailinglist_url,
+  in_progress}` Maps into a typed `MailingListList`; `get <name>` reuses
+  the same endpoint with a `mailinglist_name` filter (per the KAS docs
+  at `get-mailinglists-inc.html`) and unwraps the single-entry result,
+  mirroring the mail-forwards pattern. The singular view falls back to
+  a key/value table so the URL stays readable without truncation.
+  Mapping tests run against
+  `testdata/mailinglist/get_mailinglists_response_success.xml` and
+  `get_mailinglist_response_success.xml`. Closes #9.
 
 - `internal/mailfilter` read module and `kasapi-cli mail filters list`
   subcommand wrapping `get_mailstandardfilter`. Decodes the Array of

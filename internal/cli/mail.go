@@ -31,7 +31,10 @@ func newMailListsCmd(opts *RootOptions) *cobra.Command {
 		Use:   "lists",
 		Short: "Inspect mailing lists (get_mailinglists)",
 	}
-	cmd.AddCommand(newMailListsListCmd(opts))
+	cmd.AddCommand(
+		newMailListsListCmd(opts),
+		newMailListsGetCmd(opts),
+	)
 	return cmd
 }
 
@@ -50,6 +53,28 @@ func newMailListsListCmd(opts *RootOptions) *cobra.Command {
 				return APIError(err, "get_mailinglists")
 			}
 			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
+				return UserError(err, "render")
+			}
+			return nil
+		},
+	}
+}
+
+func newMailListsGetCmd(opts *RootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "get <name>",
+		Short: "Show details for a single mailing list (get_mailinglists with mailinglist_name)",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			api, err := BuildAPIClient(opts)
+			if err != nil {
+				return err
+			}
+			m, err := mailinglist.NewClient(api).Get(cmd.Context(), args[0])
+			if err != nil {
+				return APIError(err, "get_mailinglists")
+			}
+			if err := Render(cmd.OutOrStdout(), opts.Output, m); err != nil {
 				return UserError(err, "render")
 			}
 			return nil
