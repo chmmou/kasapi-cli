@@ -104,15 +104,8 @@ func (c *Client) Get(ctx context.Context, id string) (SoftwareInstall, error) {
 // DecodeSoftwareInstalls maps the ReturnInfo of a get_softwareinstall
 // response (an Array of Maps) into the typed SoftwareInstallList.
 func DecodeSoftwareInstalls(returnInfo soap.Value) (SoftwareInstallList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("softwareinstall: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(SoftwareInstallList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("softwareinstall: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, SoftwareInstall{
+	out, err := soap.DecodeArray(returnInfo, "softwareinstall", func(item soap.Value) SoftwareInstall {
+		return SoftwareInstall{
 			ID:                 item.MapString("software_id"),
 			Name:               item.MapString("software_name"),
 			Category:           item.MapString("software_category"),
@@ -131,9 +124,12 @@ func DecodeSoftwareInstalls(returnInfo soap.Value) (SoftwareInstallList, error) 
 			MariaDBVersionUpto: item.MapString("software_version_mariadb_upto"),
 			CanBeInstalled:     item.MapString("software_can_be_installed"),
 			CanBeMessage:       item.MapString("software_can_be_message"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return SoftwareInstallList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

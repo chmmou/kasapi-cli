@@ -119,15 +119,8 @@ func (c *Client) Get(ctx context.Context, login string) (DDNSUser, error) {
 // DecodeDDNSUsers maps the ReturnInfo of a get_ddnsusers response
 // (an Array of Maps) into the typed DDNSUserList.
 func DecodeDDNSUsers(returnInfo soap.Value) (DDNSUserList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("ddns: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(DDNSUserList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("ddns: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, DDNSUser{
+	out, err := soap.DecodeArray(returnInfo, "ddns", func(item soap.Value) DDNSUser {
+		return DDNSUser{
 			Login:      item.MapString("dyndns_login"),
 			Password:   item.MapString("dyndns_password"),
 			Zone:       item.MapString("dyndns_zone"),
@@ -138,9 +131,12 @@ func DecodeDDNSUsers(returnInfo soap.Value) (DDNSUserList, error) {
 			DualStack:  item.MapString("dyndns_dual_stack"),
 			Comment:    item.MapString("dyndns_comment"),
 			InProgress: item.MapString("in_progress"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return DDNSUserList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

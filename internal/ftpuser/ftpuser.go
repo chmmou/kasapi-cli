@@ -91,15 +91,8 @@ func (c *Client) Get(ctx context.Context, login string) (FTPUser, error) {
 // DecodeFTPUsers maps the ReturnInfo of a get_ftpusers response (an
 // Array of Maps) into the typed FTPUserList.
 func DecodeFTPUsers(returnInfo soap.Value) (FTPUserList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("ftpuser: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(FTPUserList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("ftpuser: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, FTPUser{
+	out, err := soap.DecodeArray(returnInfo, "ftpuser", func(item soap.Value) FTPUser {
+		return FTPUser{
 			Login:           item.MapString("ftp_login"),
 			Password:        item.MapString("ftp_password"),
 			Passwort:        item.MapString("ftp_passwort"),
@@ -111,9 +104,12 @@ func DecodeFTPUsers(returnInfo soap.Value) (FTPUserList, error) {
 			PermissionWrite: item.MapString("ftp_permission_write"),
 			VirusClamAV:     item.MapString("ftp_virus_clamav"),
 			InProgress:      item.MapString("in_progress"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return FTPUserList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

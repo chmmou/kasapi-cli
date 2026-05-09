@@ -69,23 +69,19 @@ func (c *Client) List(ctx context.Context, path string) (DirectoryProtectionList
 // get_directoryprotection response (an Array of Maps) into the typed
 // DirectoryProtectionList.
 func DecodeDirectoryProtections(returnInfo soap.Value) (DirectoryProtectionList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("directoryprotection: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(DirectoryProtectionList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("directoryprotection: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, DirectoryProtection{
+	out, err := soap.DecodeArray(returnInfo, "directoryprotection", func(item soap.Value) DirectoryProtection {
+		return DirectoryProtection{
 			User:       item.MapString("directory_user"),
 			Path:       item.MapString("directory_path"),
 			AuthName:   item.MapString("directory_authname"),
 			Password:   item.MapString("directory_password"),
 			InProgress: item.MapString("in_progress"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return DirectoryProtectionList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

@@ -138,37 +138,27 @@ func (c *Client) TopLevelDomains(ctx context.Context) (TLDList, error) {
 // DecodeDomains maps the ReturnInfo of a get_domains response (an
 // Array of Maps) into the typed DomainList.
 func DecodeDomains(returnInfo soap.Value) (DomainList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("domain: expected ReturnInfo array, got kind %d", returnInfo.Kind)
+	out, err := soap.DecodeArray(returnInfo, "domain", decodeDomain)
+	if err != nil {
+		return nil, err
 	}
-	out := make(DomainList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("domain: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, decodeDomain(item))
-	}
-	return out, nil
+	return DomainList(out), nil
 }
 
 // DecodeTLDs maps the ReturnInfo of a get_topleveldomains response
 // (an Array of Maps) into the typed TLDList.
 func DecodeTLDs(returnInfo soap.Value) (TLDList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("domain: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(TLDList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("domain: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, TLD{
+	out, err := soap.DecodeArray(returnInfo, "domain", func(item soap.Value) TLD {
+		return TLD{
 			Name:   item.MapString("tld_name"),
 			MinLen: item.MapInt("tld_minlen"),
 			MaxLen: item.MapInt("tld_maxlen"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return TLDList(out), nil
 }
 
 func decodeDomain(m soap.Value) Domain {

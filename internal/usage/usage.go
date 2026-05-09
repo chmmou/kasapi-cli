@@ -154,15 +154,8 @@ func (c *Client) Traffic(ctx context.Context, year, month int) (TrafficList, err
 // DecodeSpace maps the ReturnInfo of a get_space response (an Array of
 // Maps) into the typed SpaceList.
 func DecodeSpace(returnInfo soap.Value) (SpaceList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("usage: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(SpaceList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("usage: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, Space{
+	out, err := soap.DecodeArray(returnInfo, "usage", func(item soap.Value) Space {
+		return Space{
 			AccountLogin:         item.MapString("account_login"),
 			LastCalculation:      item.MapInt64("last_calculation"),
 			UsedHTDocsSpace:      item.MapInt64("used_htdocs_space"),
@@ -171,31 +164,30 @@ func DecodeSpace(returnInfo soap.Value) (SpaceList, error) {
 			UsedMailaccountSpace: item.MapInt64("used_mailaccount_space"),
 			UsedWebspace:         item.MapInt64("used_webspace"),
 			MaxWebspace:          item.MapInt64("max_webspace"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return SpaceList(out), nil
 }
 
 // DecodeSpaceUsage maps the ReturnInfo of a get_space_usage response
 // (an Array of Maps) into the typed SpaceUsageList.
 func DecodeSpaceUsage(returnInfo soap.Value) (SpaceUsageList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("usage: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(SpaceUsageList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("usage: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, SpaceUsage{
+	out, err := soap.DecodeArray(returnInfo, "usage", func(item soap.Value) SpaceUsage {
+		return SpaceUsage{
 			Directory:       item.MapString("directory"),
 			Count:           item.MapInt64("count"),
 			Bytes:           item.MapInt64("bytes"),
 			LastCalculation: item.MapInt64("last_calculation"),
 			HasSubDirs:      getYN(item, "has_sub_dirs"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return SpaceUsageList(out), nil
 }
 
 // DecodeTraffic maps the ReturnInfo of a get_traffic response (a Map of

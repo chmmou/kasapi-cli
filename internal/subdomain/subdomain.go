@@ -112,15 +112,8 @@ func (c *Client) Get(ctx context.Context, name string) (Subdomain, error) {
 // DecodeSubdomains maps the ReturnInfo of a get_subdomains response
 // (an Array of Maps) into the typed SubdomainList.
 func DecodeSubdomains(returnInfo soap.Value) (SubdomainList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("subdomain: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(SubdomainList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("subdomain: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, Subdomain{
+	out, err := soap.DecodeArray(returnInfo, "subdomain", func(item soap.Value) Subdomain {
+		return Subdomain{
 			Name:           item.MapString("subdomain_name"),
 			RedirectStatus: item.MapInt("subdomain_redirect_status"),
 			Path:           item.MapString("subdomain_path"),
@@ -150,9 +143,12 @@ func DecodeSubdomains(returnInfo soap.Value) (SubdomainList, error) {
 				SNIForceHTTPS: item.MapString("ssl_certificate_sni_force_https"),
 				SNIHSTSMaxAge: item.MapString("ssl_certificate_sni_hsts_max_age"),
 			},
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return SubdomainList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

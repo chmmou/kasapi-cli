@@ -55,24 +55,20 @@ func (c *Client) Information(ctx context.Context) (ServiceList, error) {
 // DecodeServices maps ReturnInfo (an array of Maps) into the typed
 // ServiceList.
 func DecodeServices(returnInfo soap.Value) (ServiceList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("server: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(ServiceList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("server: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, Service{
+	out, err := soap.DecodeArray(returnInfo, "server", func(item soap.Value) Service {
+		return Service{
 			Service:       item.MapString("service"),
 			Version:       item.MapString("version"),
 			VersionType:   item.MapString("version_type"),
 			Interface:     item.MapString("interface"),
 			FileExtension: item.MapString("file_extension"),
 			Distribution:  item.MapString("distribution"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return ServiceList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table.

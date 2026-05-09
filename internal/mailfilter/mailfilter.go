@@ -52,22 +52,18 @@ func (c *Client) List(ctx context.Context) (StandardFilterList, error) {
 // DecodeStandardFilters maps the ReturnInfo of a get_mailstandardfilter
 // response (an Array of Maps) into the typed StandardFilterList.
 func DecodeStandardFilters(returnInfo soap.Value) (StandardFilterList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("mailfilter: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(StandardFilterList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("mailfilter: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, StandardFilter{
+	out, err := soap.DecodeArray(returnInfo, "mailfilter", func(item soap.Value) StandardFilter {
+		return StandardFilter{
 			Filter:      item.MapString("filter"),
 			Type:        item.MapString("type"),
 			Title:       item.MapString("title"),
 			Recommended: item.MapString("recommended"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return StandardFilterList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

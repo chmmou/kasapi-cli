@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced the duplicated KAS `Array` of `Map` decoder boilerplate
+  in 19 read decoders with a single generic helper
+  `soap.DecodeArray[T]`. Each module's `Decode<Foo>s` now delegates
+  the kind/item-shape checks to the helper and only declares its
+  per-item mapper; behaviour and error messages are unchanged. Part
+  one of the cross-module-duplication clean-up bundle tracked in
+  issue #73.
+
 ### Added
 
 - Vulnerability and security scanning, stage 2 of two: GitHub-native

@@ -129,15 +129,8 @@ func (c *Client) Get(ctx context.Context, id string) (Cronjob, error) {
 // DecodeCronjobs maps the ReturnInfo of a get_cronjobs response (an
 // Array of Maps) into the typed CronjobList.
 func DecodeCronjobs(returnInfo soap.Value) (CronjobList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("cronjob: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(CronjobList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("cronjob: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, Cronjob{
+	out, err := soap.DecodeArray(returnInfo, "cronjob", func(item soap.Value) Cronjob {
+		return Cronjob{
 			ID:            item.MapString("cronjob_id"),
 			Comment:       item.MapString("cronjob_comment"),
 			ShellCommand:  item.MapString("shell_command"),
@@ -155,9 +148,12 @@ func DecodeCronjobs(returnInfo soap.Value) (CronjobList, error) {
 			MailCondition: item.MapString("mail_condition"),
 			MailSubject:   item.MapString("mail_subject"),
 			IsActive:      item.MapString("is_active"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return CronjobList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

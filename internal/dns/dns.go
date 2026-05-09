@@ -69,15 +69,8 @@ func (c *Client) Settings(ctx context.Context, zoneHost, nameserver string) (Rec
 // DecodeRecords maps the ReturnInfo of a get_dns_settings response
 // (an Array of Maps) into the typed RecordList.
 func DecodeRecords(returnInfo soap.Value) (RecordList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("dns: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(RecordList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("dns: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, Record{
+	out, err := soap.DecodeArray(returnInfo, "dns", func(item soap.Value) Record {
+		return Record{
 			Zone:       item.MapString("record_zone"),
 			Name:       item.MapString("record_name"),
 			Type:       item.MapString("record_type"),
@@ -86,9 +79,12 @@ func DecodeRecords(returnInfo soap.Value) (RecordList, error) {
 			ID:         item.MapString("record_id"),
 			Changeable: item.MapString("record_changeable"),
 			Deleteable: item.MapString("record_deleteable"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return RecordList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

@@ -114,15 +114,8 @@ func (c *Client) Get(ctx context.Context, login string) (MailAccount, error) {
 // DecodeMailAccounts maps the ReturnInfo of a get_mailaccounts response
 // (an Array of Maps) into the typed MailAccountList.
 func DecodeMailAccounts(returnInfo soap.Value) (MailAccountList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("mailaccount: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(MailAccountList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("mailaccount: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, MailAccount{
+	out, err := soap.DecodeArray(returnInfo, "mailaccount", func(item soap.Value) MailAccount {
+		return MailAccount{
 			Login:                item.MapString("mail_login"),
 			Password:             item.MapString("mail_password"),
 			Adresses:             item.MapString("mail_adresses"),
@@ -150,9 +143,12 @@ func DecodeMailAccounts(returnInfo soap.Value) (MailAccountList, error) {
 			TwoFA:                item.MapString("mail_2fa"),
 			QuotaRule:            item.MapInt("quota_rule"),
 			WebmailAutologin:     item.MapString("webmail_autologin"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return MailAccountList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

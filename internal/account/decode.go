@@ -11,17 +11,7 @@ import (
 // the typed slice. ReturnInfo must be a Map[]; each entry is itself a
 // Map carrying the documented fields.
 func DecodeAccounts(returnInfo soap.Value) ([]Account, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("account: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make([]Account, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("account: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, decodeAccount(item))
-	}
-	return out, nil
+	return soap.DecodeArray(returnInfo, "account", decodeAccount)
 }
 
 // DecodeAccountSettings maps the ReturnInfo of a get_accountsettings

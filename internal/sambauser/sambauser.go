@@ -80,23 +80,19 @@ func (c *Client) Get(ctx context.Context, login string) (SambaUser, error) {
 // DecodeSambaUsers maps the ReturnInfo of a get_sambausers response
 // (an Array of Maps) into the typed SambaUserList.
 func DecodeSambaUsers(returnInfo soap.Value) (SambaUserList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("sambauser: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(SambaUserList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("sambauser: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, SambaUser{
+	out, err := soap.DecodeArray(returnInfo, "sambauser", func(item soap.Value) SambaUser {
+		return SambaUser{
 			Login:      item.MapString("samba_login"),
 			Password:   item.MapString("samba_password"),
 			Path:       item.MapString("samba_path"),
 			Comment:    item.MapString("samba_comment"),
 			InProgress: item.MapString("in_progress"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return SambaUserList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

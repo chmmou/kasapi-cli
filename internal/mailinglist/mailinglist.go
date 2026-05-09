@@ -76,22 +76,18 @@ func (c *Client) Get(ctx context.Context, name string) (MailingList, error) {
 // DecodeMailingLists maps the ReturnInfo of a get_mailinglists response
 // (an Array of Maps) into the typed MailingListList.
 func DecodeMailingLists(returnInfo soap.Value) (MailingListList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("mailinglist: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(MailingListList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("mailinglist: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, MailingList{
+	out, err := soap.DecodeArray(returnInfo, "mailinglist", func(item soap.Value) MailingList {
+		return MailingList{
 			Name:       item.MapString("mailinglist_name"),
 			Admin:      item.MapString("mailinglist_admin"),
 			URL:        item.MapString("mailinglist_url"),
 			InProgress: item.MapString("in_progress"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return MailingListList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for

@@ -79,24 +79,20 @@ func (c *Client) Get(ctx context.Context, login string) (Database, error) {
 // DecodeDatabases maps the ReturnInfo of a get_databases response (an
 // Array of Maps) into the typed DatabaseList.
 func DecodeDatabases(returnInfo soap.Value) (DatabaseList, error) {
-	if returnInfo.Kind != soap.KindArray {
-		return nil, fmt.Errorf("database: expected ReturnInfo array, got kind %d", returnInfo.Kind)
-	}
-	out := make(DatabaseList, 0, len(returnInfo.Array))
-	for i, item := range returnInfo.Array {
-		if item.Kind != soap.KindMap {
-			return nil, fmt.Errorf("database: ReturnInfo[%d] is not a Map", i)
-		}
-		out = append(out, Database{
+	out, err := soap.DecodeArray(returnInfo, "database", func(item soap.Value) Database {
+		return Database{
 			Name:              item.MapString("database_name"),
 			Login:             item.MapString("database_login"),
 			Password:          item.MapString("database_password"),
 			Comment:           item.MapString("database_comment"),
 			AllowedHosts:      item.MapString("database_allowed_hosts"),
 			UsedDatabaseSpace: item.MapFloat("used_database_space"),
-		})
+		}
+	})
+	if err != nil {
+		return nil, err
 	}
-	return out, nil
+	return DatabaseList(out), nil
 }
 
 // TableHeaders returns the columns used by --output=table for
