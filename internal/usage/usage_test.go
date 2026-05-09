@@ -145,6 +145,12 @@ func TestDecodeTraffic(t *testing.T) {
 	if day.Day != 1 {
 		t.Errorf("day.Day = %d, want 1", day.Day)
 	}
+	if !summary.IsSummary() {
+		t.Errorf("summary.IsSummary() = false, want true")
+	}
+	if day.IsSummary() {
+		t.Errorf("day.IsSummary() = true, want false")
+	}
 }
 
 func TestClientSpace(t *testing.T) {

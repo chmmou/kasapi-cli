@@ -1,10 +1,19 @@
 package cli
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/spf13/cobra"
 
 	"github.com/chmmou/kasapi-cli/internal/usage"
 )
+
+// minTrafficYear is the lower bound for --year. KAS predates this date
+// but the CLI is the kasapi-cli era, so 2000 is generous enough to be
+// indistinguishable from "no validation" for any realistic input while
+// still rejecting obvious typos like 200 or 20256.
+const minTrafficYear = 2000
 
 // NewUsageCmd returns the "kasapi-cli usage" subcommand tree:
 // space (get_space), space-detail (get_space_usage),
@@ -76,6 +85,17 @@ func newUsageTrafficCmd(opts *RootOptions) *cobra.Command {
 		Use:   "traffic",
 		Short: "Show monthly HTTP/FTP traffic (get_traffic)",
 		Args:  cobra.NoArgs,
+		PreRunE: func(_ *cobra.Command, _ []string) error {
+			maxYear := time.Now().Year() + 1
+			if year != 0 && (year < minTrafficYear || year > maxYear) {
+				return fmt.Errorf("--year must be between %d and %d, got %d",
+					minTrafficYear, maxYear, year)
+			}
+			if month != 0 && (month < 1 || month > 12) {
+				return fmt.Errorf("--month must be between 1 and 12, got %d", month)
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			api, err := BuildAPIClient(opts)
 			if err != nil {

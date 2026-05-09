@@ -219,6 +219,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   account visible to the login (every sub-account for a main login,
   just the login itself for a sub-account).
 
+### Changed
+
+- `internal/usage`: add a `(t Traffic) IsSummary() bool` helper so
+  callers no longer rely on the `Day == 0` magic number to distinguish
+  the monthly summary row from per-day entries; the table renderer is
+  switched over too. Document on `Space` that `UsedWebspace` is the sum
+  of the four sub-buckets so future readers do not double-count.
+
+- `kasapi-cli usage traffic`: pre-validate `--year` (must be in
+  `[2000, currentYear+1]`) and `--month` (must be `1..12`) instead of
+  forwarding obvious typos to KAS. Closes #45.
+
 ### Fixed
 
 - `internal/auth/source.go`: sharpen the `Heartbeat` doc comment.

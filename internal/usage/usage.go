@@ -21,6 +21,10 @@ type Caller interface {
 // resource type. KAS reports webspace and max_webspace as xsd:int and
 // the per-resource breakdowns as xsd:string-encoded numbers; we parse
 // both into int64 so the per-account totals add up without overflow.
+//
+// UsedWebspace is the sum of UsedHTDocsSpace, UsedChrootSpace,
+// UsedDatabaseSpace, and UsedMailaccountSpace — do not add the
+// sub-buckets to UsedWebspace when computing totals.
 type Space struct {
 	AccountLogin         string `json:"account_login" yaml:"account_login"`
 	LastCalculation      int64  `json:"last_calculation" yaml:"last_calculation"`
@@ -67,6 +71,11 @@ type Traffic struct {
 	FTPHits      int64  `json:"ftp_hits" yaml:"ftp_hits"`
 	Comment      string `json:"comment,omitempty" yaml:"comment,omitempty"`
 }
+
+// IsSummary reports whether t is the monthly summary row that KAS
+// emits alongside the per-day entries. The summary is identified by a
+// zero Day; literal day-zero never occurs in get_traffic responses.
+func (t Traffic) IsSummary() bool { return t.Day == 0 }
 
 // TrafficList is the typed payload of get_traffic; satisfies
 // cli.Tabular.
@@ -292,7 +301,7 @@ func (l TrafficList) TableRows() [][]string {
 	rows := make([][]string, 0, len(l))
 	for _, t := range l {
 		day := "*"
-		if t.Day != 0 {
+		if !t.IsSummary() {
 			day = fmt.Sprintf("%02d", t.Day)
 		}
 		rows = append(rows, []string{
