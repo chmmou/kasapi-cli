@@ -228,6 +228,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with the server-side window. Practical effect: rerun a command and
   no `--otp` prompt is needed for as long as the session is alive.
 
+### Changed
+
+- `go.mod`: bump dependency pins after a routine audit pass —
+  `golang.org/x/term` v0.30.0 → v0.34.0 (last release that still
+  builds against the project's `go 1.23.0` baseline; v0.35.0+
+  requires Go 1.24, v0.41.0+ requires Go 1.25 — out of scope for
+  this loop). Indirect bumps: `golang.org/x/sys` v0.31.0 →
+  v0.35.0, `github.com/spf13/pflag` v1.0.9 → v1.0.10,
+  `github.com/cpuguy83/go-md2man/v2` v2.0.6 → v2.0.7. The
+  generated `docs/cli/` is byte-identical after the bump.
+
 ### Fixed
 
 - `docs/usage/`: replace 404 KAS-API anchor URL
