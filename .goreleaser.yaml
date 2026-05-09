@@ -79,6 +79,22 @@ checksum:
   name_template: "SHA256SUMS"
   algorithm: sha256
 
+# SBOMs are generated per artefact via syft and uploaded next to the
+# binaries on the GitHub Release. SPDX is the lowest-friction format
+# for downstream tooling (Grype, Dependency-Track, GitHub's own SBOM
+# import). The `*.sbom.spdx.json` files are also picked up by the
+# `signs:` block below and end up cosign-signed alongside the
+# archives and packages.
+sboms:
+  - id: archive
+    artifacts: archive
+    documents:
+      - "${artifact}.sbom.spdx.json"
+  - id: package
+    artifacts: package
+    documents:
+      - "${artifact}.sbom.spdx.json"
+
 # Keyless cosign signing via GitHub OIDC. The private key never exists on
 # disk — sigstore's Fulcio mints a short-lived certificate bound to the
 # workflow's OIDC identity. Verification:

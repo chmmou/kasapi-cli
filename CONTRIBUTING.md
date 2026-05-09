@@ -102,7 +102,7 @@ Corrections from review land on a dedicated `fix/<topic>` branch via a separate 
 
 ## Reporting security issues
 
-Please do **not** open a public issue for security vulnerabilities. Contact the maintainer privately (see the commit author email or the `LICENSE` copyright holder) with a description, reproduction steps, and an assessment of impact.
+Please do **not** open a public issue for security vulnerabilities. Use the [private vulnerability reporting flow](https://github.com/chmmou/kasapi-cli/security/advisories/new) under the repository's Security tab, or e-mail the maintainer. Full policy in [SECURITY.md](SECURITY.md).
 
 ## License
 

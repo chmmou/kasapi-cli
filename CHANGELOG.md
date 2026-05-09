@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Vulnerability and security scanning, stage 2 of two: GitHub-native
+  CodeQL workflow (`.github/workflows/codeql.yml`) running on PR +
+  push to `main` + weekly cron, with the `security-extended` query
+  pack; OSSF Scorecard workflow (`.github/workflows/scorecard.yml`)
+  running weekly + on push to `main`, publishing the score for the
+  public dashboard at <https://securityscorecards.dev>; `SECURITY.md`
+  at the repo root with the disclosure policy, response expectations,
+  and verification recipe (the short hint in `CONTRIBUTING.md` now
+  links here); SBOMs (SPDX-JSON) generated per release artefact via
+  goreleaser's `sboms:` block — Syft is now load-bearing in
+  `release.yml`, so the previous `continue-on-error: true` was
+  removed.
+
 - Vulnerability and security scanning, stage 1 of two: a new
   `govulncheck` CI job (official Go vulnerability scanner, call-graph
   aware) on every PR + push to `main`; `gosec` added to the

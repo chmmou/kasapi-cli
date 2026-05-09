@@ -29,9 +29,8 @@ jobs:
         with:
           cosign-release: "v2.4.1"
 
-      - name: install syft (SBOM, future-proofing)
+      - name: "install syft (used by goreleaser sboms: block)"
         uses: anchore/sbom-action/download-syft@v0
-        continue-on-error: true
 
       - name: goreleaser release
         uses: goreleaser/goreleaser-action@v6
