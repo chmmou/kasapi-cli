@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/domain"
 )
 
@@ -25,20 +28,9 @@ func newDomainsListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all domains (get_domains)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := domain.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_domains")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_domains", func(c *api.Client, ctx context.Context) (domain.DomainList, error) {
+			return domain.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -47,19 +39,8 @@ func newDomainsGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <domain>",
 		Short: "Show details for a single domain (get_domains with domain_name)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			d, err := domain.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_domains")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, d); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_domains", func(c *api.Client, ctx context.Context, arg string) (domain.Domain, error) {
+			return domain.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }

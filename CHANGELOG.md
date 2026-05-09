@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Replaced the duplicated `cobra.RunE` bodies in 14 CLI files
+  (account, cronjobs, databases, ddnsusers, directoryprotection,
+  domains, ftpusers, mail, sambausers, server, softwareinstalls,
+  subdomains, tlds, usage) with two generic factories
+  `runListE[T]` / `runGetE[T]` in `internal/cli/run.go`. Each
+  subcommand now passes a one-line closure that owns its module
+  client construction and the actual call; the factory handles
+  `BuildAPIClient`, `APIError(action)` wrapping, and `Render`. 28
+  RunE bodies migrated; behaviour and exit codes are unchanged.
+  Part three of the cross-module-duplication clean-up bundle
+  tracked in issue #73.
 - Replaced the duplicated `Client.List` / `Client.Get` boilerplate
   in 12 read modules (account, cronjob, database, ddns, domain,
   ftpuser, mailaccount, mailforward, mailinglist, sambauser,

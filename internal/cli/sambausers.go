@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/sambauser"
 )
 
@@ -26,20 +29,9 @@ func newSambaUsersListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all Samba users (get_sambausers, no filter)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := sambauser.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_sambausers")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_sambausers", func(c *api.Client, ctx context.Context) (sambauser.SambaUserList, error) {
+			return sambauser.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -48,19 +40,8 @@ func newSambaUsersGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <samba-login>",
 		Short: "Show details for a single Samba user (get_sambausers with samba_login)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			u, err := sambauser.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_sambausers")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, u); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_sambausers", func(c *api.Client, ctx context.Context, arg string) (sambauser.SambaUser, error) {
+			return sambauser.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }

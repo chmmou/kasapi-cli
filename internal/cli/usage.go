@@ -1,11 +1,13 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/usage"
 )
 
@@ -36,20 +38,9 @@ func newUsageSpaceCmd(opts *RootOptions) *cobra.Command {
 		Use:   "space",
 		Short: "Show webspace totals per account (get_space)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := usage.NewClient(api).Space(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_space")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_space", func(c *api.Client, ctx context.Context) (usage.SpaceList, error) {
+			return usage.NewClient(c).Space(ctx)
+		}),
 	}
 }
 
@@ -59,20 +50,9 @@ func newUsageSpaceDetailCmd(opts *RootOptions) *cobra.Command {
 		Use:   "space-detail",
 		Short: "Show per-directory disk usage (get_space_usage)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := usage.NewClient(api).SpaceUsage(cmd.Context(), directory)
-			if err != nil {
-				return APIError(err, "get_space_usage")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_space_usage", func(c *api.Client, ctx context.Context) (usage.SpaceUsageList, error) {
+			return usage.NewClient(c).SpaceUsage(ctx, directory)
+		}),
 	}
 	cmd.Flags().StringVar(&directory, "directory", "",
 		"directory to drill into; empty queries the document-root level")
@@ -96,20 +76,9 @@ func newUsageTrafficCmd(opts *RootOptions) *cobra.Command {
 			}
 			return nil
 		},
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := usage.NewClient(api).Traffic(cmd.Context(), year, month)
-			if err != nil {
-				return APIError(err, "get_traffic")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_traffic", func(c *api.Client, ctx context.Context) (usage.TrafficList, error) {
+			return usage.NewClient(c).Traffic(ctx, year, month)
+		}),
 	}
 	cmd.Flags().IntVar(&year, "year", 0, "calendar year (e.g. 2026); 0 = current")
 	cmd.Flags().IntVar(&month, "month", 0, "calendar month 1..12; 0 = current")

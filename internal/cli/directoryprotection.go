@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/directoryprotection"
 )
 
@@ -27,20 +30,9 @@ func newDirectoryProtectionListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List directory protections, optionally filtered by --path",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := directoryprotection.NewClient(api).List(cmd.Context(), path)
-			if err != nil {
-				return APIError(err, "get_directoryprotection")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_directoryprotection", func(c *api.Client, ctx context.Context) (directoryprotection.DirectoryProtectionList, error) {
+			return directoryprotection.NewClient(c).List(ctx, path)
+		}),
 	}
 	cmd.Flags().StringVar(&path, "path", "",
 		"directory path to filter on (e.g. /protected/directory/); empty returns every protection")

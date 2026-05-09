@@ -1,9 +1,12 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
 	"github.com/chmmou/kasapi-cli/internal/account"
+	"github.com/chmmou/kasapi-cli/internal/api"
 )
 
 // NewAccountCmd returns the "kasapi-cli accounts" subcommand tree:
@@ -29,20 +32,10 @@ func newAccountsListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List accounts visible to the login (get_accounts, no filter)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			accs, err := account.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_accounts")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, account.AccountList(accs)); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_accounts", func(c *api.Client, ctx context.Context) (account.AccountList, error) {
+			accs, err := account.NewClient(c).List(ctx)
+			return account.AccountList(accs), err
+		}),
 	}
 }
 
@@ -51,20 +44,9 @@ func newAccountsGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <account-login>",
 		Short: "Show details for a single account (get_accounts with account_login)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			a, err := account.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_accounts")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, a); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_accounts", func(c *api.Client, ctx context.Context, arg string) (account.Account, error) {
+			return account.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }
 
@@ -73,20 +55,9 @@ func newAccountsSettingsCmd(opts *RootOptions) *cobra.Command {
 		Use:   "settings",
 		Short: "Show settings for the authenticated account (get_accountsettings)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			s, err := account.NewClient(api).Settings(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_accountsettings")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, s); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_accountsettings", func(c *api.Client, ctx context.Context) (account.AccountSettings, error) {
+			return account.NewClient(c).Settings(ctx)
+		}),
 	}
 }
 
@@ -95,19 +66,8 @@ func newAccountsResourcesCmd(opts *RootOptions) *cobra.Command {
 		Use:   "resources",
 		Short: "Show quota counters for the authenticated account (get_accountresources)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			r, err := account.NewClient(api).Resources(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_accountresources")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, r); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_accountresources", func(c *api.Client, ctx context.Context) (account.AccountResources, error) {
+			return account.NewClient(c).Resources(ctx)
+		}),
 	}
 }

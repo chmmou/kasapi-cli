@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/ddns"
 )
 
@@ -29,20 +32,9 @@ func newDDNSUsersListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all DDNS users (get_ddnsusers, no filter)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := ddns.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_ddnsusers")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_ddnsusers", func(c *api.Client, ctx context.Context) (ddns.DDNSUserList, error) {
+			return ddns.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -51,19 +43,8 @@ func newDDNSUsersGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <dyndns-login>",
 		Short: "Show details for a single DDNS user (get_ddnsusers with ddns_login)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			u, err := ddns.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_ddnsusers")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, u); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_ddnsusers", func(c *api.Client, ctx context.Context, arg string) (ddns.DDNSUser, error) {
+			return ddns.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }

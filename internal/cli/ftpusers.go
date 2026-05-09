@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/ftpuser"
 )
 
@@ -26,20 +29,9 @@ func newFTPUsersListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all FTP users (get_ftpusers, no filter)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := ftpuser.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_ftpusers")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_ftpusers", func(c *api.Client, ctx context.Context) (ftpuser.FTPUserList, error) {
+			return ftpuser.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -48,19 +40,8 @@ func newFTPUsersGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <ftp-login>",
 		Short: "Show details for a single FTP user (get_ftpusers with ftp_login)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			u, err := ftpuser.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_ftpusers")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, u); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_ftpusers", func(c *api.Client, ctx context.Context, arg string) (ftpuser.FTPUser, error) {
+			return ftpuser.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }

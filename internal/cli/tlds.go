@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/domain"
 )
 
@@ -22,19 +25,8 @@ func newTLDsListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all registrable TLDs (get_topleveldomains)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := domain.NewClient(api).TopLevelDomains(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_topleveldomains")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_topleveldomains", func(c *api.Client, ctx context.Context) (domain.TLDList, error) {
+			return domain.NewClient(c).TopLevelDomains(ctx)
+		}),
 	}
 }

@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/cronjob"
 )
 
@@ -26,20 +29,9 @@ func newCronjobsListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all cronjobs (get_cronjobs, no filter)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := cronjob.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_cronjobs")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_cronjobs", func(c *api.Client, ctx context.Context) (cronjob.CronjobList, error) {
+			return cronjob.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -48,19 +40,8 @@ func newCronjobsGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <cronjob-id>",
 		Short: "Show details for a single cronjob (get_cronjobs with cronjob_id)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			c, err := cronjob.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_cronjobs")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, c); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_cronjobs", func(c *api.Client, ctx context.Context, arg string) (cronjob.Cronjob, error) {
+			return cronjob.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }

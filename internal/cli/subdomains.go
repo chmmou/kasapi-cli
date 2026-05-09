@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/subdomain"
 )
 
@@ -25,20 +28,9 @@ func newSubdomainsListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all subdomains (get_subdomains)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := subdomain.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_subdomains")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_subdomains", func(c *api.Client, ctx context.Context) (subdomain.SubdomainList, error) {
+			return subdomain.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -47,19 +39,8 @@ func newSubdomainsGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <subdomain>",
 		Short: "Show details for a single subdomain (get_subdomains with subdomain_name)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			s, err := subdomain.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_subdomains")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, s); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_subdomains", func(c *api.Client, ctx context.Context, arg string) (subdomain.Subdomain, error) {
+			return subdomain.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }

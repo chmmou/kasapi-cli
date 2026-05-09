@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/database"
 )
 
@@ -26,20 +29,9 @@ func newDatabasesListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all databases (get_databases, no filter)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := database.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_databases")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_databases", func(c *api.Client, ctx context.Context) (database.DatabaseList, error) {
+			return database.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -48,19 +40,8 @@ func newDatabasesGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <database-login>",
 		Short: "Show details for a single database (get_databases with database_login)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			d, err := database.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_databases")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, d); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_databases", func(c *api.Client, ctx context.Context, arg string) (database.Database, error) {
+			return database.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }

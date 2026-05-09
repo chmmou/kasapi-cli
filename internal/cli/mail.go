@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/mailaccount"
 	"github.com/chmmou/kasapi-cli/internal/mailfilter"
 	"github.com/chmmou/kasapi-cli/internal/mailforward"
@@ -43,20 +46,9 @@ func newMailListsListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all mailing lists (get_mailinglists)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := mailinglist.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_mailinglists")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_mailinglists", func(c *api.Client, ctx context.Context) (mailinglist.MailingListList, error) {
+			return mailinglist.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -65,20 +57,9 @@ func newMailListsGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <mailinglist-name>",
 		Short: "Show details for a single mailing list (get_mailinglists with mailinglist_name)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			m, err := mailinglist.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_mailinglists")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, m); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_mailinglists", func(c *api.Client, ctx context.Context, arg string) (mailinglist.MailingList, error) {
+			return mailinglist.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }
 
@@ -96,20 +77,9 @@ func newMailFiltersListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List the available standard mail filters (get_mailstandardfilter)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := mailfilter.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_mailstandardfilter")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_mailstandardfilter", func(c *api.Client, ctx context.Context) (mailfilter.StandardFilterList, error) {
+			return mailfilter.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -130,20 +100,9 @@ func newMailAccountsListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all mail accounts (get_mailaccounts)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := mailaccount.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_mailaccounts")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_mailaccounts", func(c *api.Client, ctx context.Context) (mailaccount.MailAccountList, error) {
+			return mailaccount.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -152,20 +111,9 @@ func newMailAccountsGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <mail-login>",
 		Short: "Show details for a single mail account (get_mailaccounts with mail_login)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			a, err := mailaccount.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_mailaccounts")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, a); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_mailaccounts", func(c *api.Client, ctx context.Context, arg string) (mailaccount.MailAccount, error) {
+			return mailaccount.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }
 
@@ -186,20 +134,9 @@ func newMailForwardsListCmd(opts *RootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List all mail forwards (get_mailforwards)",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			list, err := mailforward.NewClient(api).List(cmd.Context())
-			if err != nil {
-				return APIError(err, "get_mailforwards")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, list); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runListE(opts, "get_mailforwards", func(c *api.Client, ctx context.Context) (mailforward.MailForwardList, error) {
+			return mailforward.NewClient(c).List(ctx)
+		}),
 	}
 }
 
@@ -208,19 +145,8 @@ func newMailForwardsGetCmd(opts *RootOptions) *cobra.Command {
 		Use:   "get <address>",
 		Short: "Show details for a single mail forward (get_mailforwards with mail_forward)",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			api, err := BuildAPIClient(opts)
-			if err != nil {
-				return err
-			}
-			f, err := mailforward.NewClient(api).Get(cmd.Context(), args[0])
-			if err != nil {
-				return APIError(err, "get_mailforwards")
-			}
-			if err := Render(cmd.OutOrStdout(), opts.Output, f); err != nil {
-				return UserError(err, "render")
-			}
-			return nil
-		},
+		RunE: runGetE(opts, "get_mailforwards", func(c *api.Client, ctx context.Context, arg string) (mailforward.MailForward, error) {
+			return mailforward.NewClient(c).Get(ctx, arg)
+		}),
 	}
 }
