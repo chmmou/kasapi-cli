@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `ROADMAP.md`: corrected the mail standard filter write entry from the
+  non-existent `update_mailstandardfilter` to the actual KAS actions
+  `add_mailstandardfilter` and `delete_mailstandardfilter` (the captured
+  fixtures and issue #116 are authoritative; the KAS API has no
+  `update_mailstandardfilter`).
+- `CONTRIBUTING.md`: roadmap links no longer detour through
+  `README.md#roadmap` (which is a one-line pointer with no checklist) —
+  they now point directly at `ROADMAP.md`. The CI gate description was
+  expanded to match what actually runs on every PR (`gosec`,
+  `govulncheck`, `go build`, `docs sync`, `goreleaser config check`,
+  CodeQL). The `kasapi-cli-vertical-slice` skill is now listed under
+  authoritative references alongside `kasapi-cli-git-workflow` and
+  `kasapi-cli-code-review`.
 - `README.md`: dropped the incorrect "read and write operations" claim
   from the "What it does" paragraph (writes are still pending), tightened
   the Status sentence to mention the v0.1.0 read modules instead of

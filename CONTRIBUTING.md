@@ -5,7 +5,7 @@ Thanks for your interest in contributing. This document collects the conventions
 ## Before you start
 
 - This project is **not affiliated with All-Inkl.com**. The KAS-API surface is reverse-engineered from the public documentation at <https://kasapi.kasserver.com/dokumentation/phpdoc/> and from real responses captured in `testdata/`.
-- The roadmap in [README.md](README.md#roadmap) shows which endpoints are already wired up. If you want to claim an unchecked item, please open an issue first so work is not duplicated.
+- The [ROADMAP.md](ROADMAP.md) tracks which KAS endpoints are already wired up end-to-end and which are still pending. If you want to claim an unchecked item, please open an issue first so work is not duplicated.
 - Bug reports and PRs that touch the KAS-API contract should reference the relevant doc page and, where possible, attach a redacted response fixture.
 
 ## Authoritative references
@@ -19,6 +19,7 @@ Read these before designing changes — do not duplicate their content into new 
 - [`docs/go/LINTING.md`](docs/go/LINTING.md) — the CI gate set.
 - [`.claude/skills/kasapi-cli-git-workflow/SKILL.md`](.claude/skills/kasapi-cli-git-workflow/SKILL.md) — git, branch, signed-commit, PR, and FF-push merge mechanics enforced for this project.
 - [`.claude/skills/kasapi-cli-code-review/SKILL.md`](.claude/skills/kasapi-cli-code-review/SKILL.md) — code-review loop (Blocker/Should/Nice classification, re-review cycle).
+- [`.claude/skills/kasapi-cli-vertical-slice/SKILL.md`](.claude/skills/kasapi-cli-vertical-slice/SKILL.md) — canonical slice anatomy and order of operations per KAS endpoint (fixture → mapping → client → CLI → docs → CHANGELOG). The summary in [Vertical-slice pattern](#vertical-slice-pattern) below is a contributor-facing recap; the skill file is authoritative.
 
 ## Repository layout
 
@@ -59,7 +60,7 @@ Each KAS endpoint is added as a single vertical slice; do not split it across mo
 4. **Fixture** in `testdata/<domain>/<kas_action>_response_success.xml` (and `_request.xml` if useful). The fixtures are real captured responses with secrets redacted — they are the source of truth for response shape.
 5. **CLI subcommand** in `internal/cli/<domain>.go`, registered in `cmd/kasapi-cli/main.go`.
 6. **CHANGELOG entry** under `## [Unreleased] / ### Added` (or `### Fixed`, etc.). One paragraph, ending with `Closes #<issue>` if applicable.
-7. **Roadmap update** in [README.md](README.md#roadmap) — flip the corresponding `- [ ]` to `- [x]`.
+7. **Roadmap update** in [ROADMAP.md](ROADMAP.md) — flip the corresponding `- [ ]` to `- [x]`.
 
 When the response shape differs between list and singular views (e.g. `get_domains` with vs. without `domain_name`), prefer one struct with `omitempty` on the view-specific fields rather than two structs.
 
@@ -86,7 +87,7 @@ git checkout -b chore/<topic>       # tooling / repo hygiene
 
 PR body: keep it short. Summary block describing *what*, not *how*. No "Test plan" section, no generated-by footer. If an issue is open, reference it with `Closes #<n>` so the project item flips to "Done" automatically on merge.
 
-CI must be green before merge. The CI workflow runs `go fmt` (check-only), `go vet`, `golangci-lint`, and `go test` (with `-race` where applicable).
+CI must be green before merge. On every PR the gate runs `go fmt` (check-only), `go vet`, `golangci-lint` (with `gosec`), `go test` (with `-race` where applicable), `go build`, `govulncheck`, a `docs sync` check (`make docs` must produce no diff against `docs/cli/`), a `goreleaser config check`, and CodeQL analysis.
 
 `main` is protected with `required_signatures` + `enforce_admins` + `linear_history`. The GitHub UI / `gh pr merge` strips signatures and is therefore **not** used for this repo. Merging is done by the maintainer via a locally-rebased, signed fast-forward push to `main`. As a contributor you do not need to do this — you only need to keep your branch rebased on `main` and your commits signed.
 
