@@ -55,7 +55,7 @@ nfpms:
     package_name: kasapi-cli
     vendor: Alexander Saal
     homepage: https://github.com/chmmou/kasapi-cli
-    maintainer: Alexander Saal <alex.saal@gmx.de>
+    maintainer: Alexander Saal <developer@kasapi-cli.chm-projects.de>
     description: |-
       Command-line client for the All-Inkl KAS API (Kunden-Administrations-System).
       Read-phase coverage for accounts, server, domains, DNS, mail, databases,
