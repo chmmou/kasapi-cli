@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `README.md`: dropped the incorrect "read and write operations" claim
+  from the "What it does" paragraph (writes are still pending), tightened
+  the Status sentence to mention the v0.1.0 read modules instead of
+  "several", and corrected the output-format section (`table` is the
+  default; the available formats are `json` / `yaml` / `table`, not just
+  JSON).
 - `docs/usage/mail.md`: corrected the description of `mail filters list`.
   The previous text claimed `get_mailstandardfilter` returns "server-side
   filter rules (Sieve-style: condition + action)"; the endpoint actually
