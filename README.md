@@ -4,8 +4,8 @@
 
 # kasapi-cli
 
-> [!IMPORTANT]
-> An independent open-source KAS-API CLI written in Go that communicates with the KAS-API from All-Inkl.com. Not affiliated with All-Inkl.com.
+> [!CAUTION]
+> Myself (chmmou) and this project (kasapi-cli) are not affiliated with any other websites related to kasapi-cli. There is no existing website for kasapi-cli other than this GitHub repository.
 
 ## Disclaimer
 
