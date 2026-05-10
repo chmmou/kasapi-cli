@@ -224,6 +224,16 @@ func TestAccountResourcesTabular(t *testing.T) {
 	t.Parallel()
 	resp := testutil.DecodeFixture(t, "account/get_accountresources_response_success.xml")
 	r, _ := account.DecodeAccountResources(resp.Body.ReturnInfo)
+	headers := r.TableHeaders()
+	wantHeaders := []string{"RESOURCE", "MAX", "USED", "FREE", "RESERVED", "EXCEEDED"}
+	if len(headers) != len(wantHeaders) {
+		t.Fatalf("len(headers) = %d, want %d", len(headers), len(wantHeaders))
+	}
+	for i, h := range wantHeaders {
+		if headers[i] != h {
+			t.Errorf("headers[%d] = %q, want %q", i, headers[i], h)
+		}
+	}
 	rows := r.TableRows()
 	if len(rows) != 12 {
 		t.Errorf("rows = %d, want 12", len(rows))
@@ -233,5 +243,91 @@ func TestAccountResourcesTabular(t *testing.T) {
 		if row[0] == "max_domain" && row[1] != "∞" {
 			t.Errorf("max_domain.Max = %q, want ∞", row[1])
 		}
+	}
+}
+
+func TestAccountSettingsTabular(t *testing.T) {
+	t.Parallel()
+	resp := testutil.DecodeFixture(t, "account/get_accountsettings_response_success.xml")
+	s, err := account.DecodeAccountSettings(resp.Body.ReturnInfo)
+	if err != nil {
+		t.Fatalf("DecodeAccountSettings: %v", err)
+	}
+	headers := s.TableHeaders()
+	if len(headers) != 2 || headers[0] != "FIELD" || headers[1] != "VALUE" {
+		t.Errorf("headers = %v, want [FIELD VALUE]", headers)
+	}
+	rows := s.TableRows()
+	if len(rows) == 0 {
+		t.Fatal("rows = 0, want at least one")
+	}
+	want := map[string]string{
+		"account_login": "w0000000",
+		"is_superuser":  "Y",
+	}
+	got := make(map[string]string, len(rows))
+	for _, r := range rows {
+		got[r[0]] = r[1]
+	}
+	for k, v := range want {
+		if got[k] != v {
+			t.Errorf("rows[%q] = %q, want %q", k, got[k], v)
+		}
+	}
+}
+
+func TestClientSettings(t *testing.T) {
+	t.Parallel()
+	resp := testutil.DecodeFixture(t, "account/get_accountsettings_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
+	got, err := account.NewClient(fc).Settings(context.Background())
+	if err != nil {
+		t.Fatalf("Settings: %v", err)
+	}
+	if fc.GotAction != "get_accountsettings" {
+		t.Errorf("action = %q, want get_accountsettings", fc.GotAction)
+	}
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil", fc.GotParams)
+	}
+	if got.Login != "w0000000" {
+		t.Errorf("Login = %q, want w0000000", got.Login)
+	}
+}
+
+func TestClientSettingsPropagatesError(t *testing.T) {
+	t.Parallel()
+	want := errors.New("boom")
+	c := account.NewClient(&testutil.FakeCaller{Err: want})
+	if _, err := c.Settings(context.Background()); !errors.Is(err, want) {
+		t.Errorf("Settings err = %v, want %v wrapped", err, want)
+	}
+}
+
+func TestClientResources(t *testing.T) {
+	t.Parallel()
+	resp := testutil.DecodeFixture(t, "account/get_accountresources_response_success.xml")
+	fc := &testutil.FakeCaller{Resp: resp}
+	got, err := account.NewClient(fc).Resources(context.Background())
+	if err != nil {
+		t.Fatalf("Resources: %v", err)
+	}
+	if fc.GotAction != "get_accountresources" {
+		t.Errorf("action = %q, want get_accountresources", fc.GotAction)
+	}
+	if fc.GotParams != nil {
+		t.Errorf("params = %v, want nil", fc.GotParams)
+	}
+	if got.MaxSubdomain.Max != 500 {
+		t.Errorf("MaxSubdomain.Max = %d, want 500", got.MaxSubdomain.Max)
+	}
+}
+
+func TestClientResourcesPropagatesError(t *testing.T) {
+	t.Parallel()
+	want := errors.New("boom")
+	c := account.NewClient(&testutil.FakeCaller{Err: want})
+	if _, err := c.Resources(context.Background()); !errors.Is(err, want) {
+		t.Errorf("Resources err = %v, want %v wrapped", err, want)
 	}
 }

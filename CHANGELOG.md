@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `docs/usage/mail.md`: corrected the description of `mail filters list`.
+  The previous text claimed `get_mailstandardfilter` returns "server-side
+  filter rules (Sieve-style: condition + action)"; the endpoint actually
+  returns the catalog of pre-defined spam/virus filter presets that an
+  account can attach via the `mail_spamfilter` setting on a mailaccount
+  or forward.
+
+### Tests
+
+- `internal/account`: added unit tests for `Client.Settings`,
+  `Client.Resources`, plus the previously-unexercised `TableHeaders`
+  on `AccountResources` and `AccountSettings` (and the `TableRows` of
+  `AccountSettings`). Lifts package coverage from 69.9% to 85.4%.
+- `internal/cli`: added help-output tests for the `dns`, `domains`,
+  `subdomains`, `tlds`, and `mail` (incl. `accounts` / `forwards` /
+  `filters` / `lists` subgroups) command factories, mirroring the
+  pattern already used for the cronjobs/databases/... factories.
+  Lifts package coverage from 60.0% to 69.9%.
+- `internal/auth`: added negative-path and nil-input tests for the
+  `IsLoginFailed`, `IsLoginLocked`, `IsUnknownSession`, `IsOTPPinIncorrect`,
+  `IsCode`, and `AsError` sentinel helpers.
+
 ## [0.1.0-alpha.1] - 2026-05-10
 
 First public pre-release. Scope: the **read-only** KAS API surface

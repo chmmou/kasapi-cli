@@ -34,7 +34,7 @@ The `TARGETS` column flattens `mail_forward_target_*` into one comma-joined list
 
 ## Mail filters
 
-`mail filters list` calls `get_mailstandardfilter` and returns the server-side filter rules (Sieve-style: condition + action). The filter view is read-only — write paths are part of the v0.2.0 backlog.
+`mail filters list` calls `get_mailstandardfilter` and returns the **catalog of pre-defined filter presets** an account can attach via the `mail_spamfilter` setting on a mailaccount or forward — `rspamd`, the SpamAssassin variants, the virus scanner modes, and the configured spam-database lookups. Each row carries the preset id, its category (`rspamd`, `content`, `spamc`, `virus`, `reject`), a human-readable title, and the All-Inkl `recommended` flag. The KAS endpoint takes no parameters and is read-only — adding a preset to a mailbox happens via the (not-yet-implemented) `add_mailstandardfilter` write endpoint, tracked in the v0.2.0 backlog.
 
 ## Mailing lists
 
