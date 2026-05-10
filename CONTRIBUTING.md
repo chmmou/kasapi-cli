@@ -100,6 +100,18 @@ Findings are classified:
 
 Corrections from review land on a dedicated `fix/<topic>` branch via a separate PR; the loop ends only when no Blocker or Should-finding remains.
 
+## Releases
+
+Before a release tag is pushed, run a local goreleaser snapshot to validate the pipeline against your branch:
+
+```sh
+make release-snapshot   # goreleaser release --snapshot --clean --skip=sign,publish
+```
+
+The snapshot exercises the same build/archive/package steps as the real release without producing signatures or publishing to GitHub. Inspect at least one of the resulting `dist/kasapi-cli_*_linux_amd64.tar.gz` archives — `tar -tzf` should list `LICENSE`, `README.md`, `CHANGELOG.md`, and the rendered docs under `docs/cli/` and `docs/usage/` alongside the binary. If the docs are missing, an `archives.files` glob in `.goreleaser.yaml` is silently failing to match (this caught a `**/*` regression on the v0.1.0-alpha.1 cut). The snapshot also catches `goreleaser check` config errors and any build-matrix mismatch.
+
+`make release-snapshot` requires `goreleaser` (and `syft`, if SBOM generation should also be exercised locally — append `,sbom` to the `--skip` list if syft is not installed).
+
 ## Reporting security issues
 
 Please do **not** open a public issue for security vulnerabilities. Use the [private vulnerability reporting flow](https://github.com/chmmou/kasapi-cli/security/advisories/new) under the repository's Security tab, or e-mail the maintainer. Full policy in [SECURITY.md](SECURITY.md).

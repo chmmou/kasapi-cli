@@ -74,6 +74,19 @@ git push origin --delete <branch>
 - **Do not skip hooks.** No `--no-verify`, no `--no-gpg-sign`. On hook failure, fix the underlying cause and create a **new** commit — do not `--amend`.
 - **Branch protection on `main`** (settings: `required_signatures`, `enforce_admins`, `required_linear_history`, `allow_force_pushes` kept on for retroactive history fixes, `allow_deletions` off). Pushes to `main` of unsigned commits will be rejected by GitHub.
 
+## Release tags
+
+Before pushing a `vX.Y.Z` tag that triggers `release.yml`, run the local goreleaser snapshot on the would-be release commit and verify the resulting archives contain everything the workflow will publish:
+
+```sh
+make release-snapshot                                       # = goreleaser release --snapshot --clean --skip=sign,publish
+tar -tzf dist/kasapi-cli_*_linux_amd64.tar.gz               # expect: LICENSE, README.md, CHANGELOG.md, docs/cli/*, docs/usage/*, kasapi-cli
+```
+
+Reason: the v0.1.0-alpha.1 cut surfaced two pipeline bugs that **the real workflow could not have caught quickly** — an `archives.files` glob (`docs/cli/**/*` matched zero entries because the directory is flat) and an action-version mismatch in `release.yml`. The snapshot reproduces every goreleaser step short of sign/publish, so silent glob failures and `goreleaser check` config errors land in your terminal instead of as a failed workflow run with a now-burned tag.
+
+How to apply: snapshot must succeed and the archive listing must include the expected docs files before you create the tag. If the runner has no `syft` installed, append `,sbom` to the `--skip` list (`--skip=sign,publish,sbom`) — that does not exercise SBOM generation but does not block the rest of the pre-check. Production SBOMs come from CI's `anchore/sbom-action/download-syft` step, which is independent.
+
 ## Post-Merge
 
 If a just-merged step has a natural follow-up (a CI flake that surfaced, feature-flag cleanup, triage routine, a "remove once X" TODO), briefly offer a `/schedule` suggestion with a concrete action and cadence. Otherwise skip — refactors, bug fixes with tests, and pure docs PRs do not need a follow-up task.
