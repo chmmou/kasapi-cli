@@ -8,10 +8,14 @@ import (
 )
 
 // DecodeAccounts maps the ReturnInfo of a get_accounts response into
-// the typed slice. ReturnInfo must be a Map[]; each entry is itself a
-// Map carrying the documented fields.
-func DecodeAccounts(returnInfo soap.Value) ([]Account, error) {
-	return soap.DecodeArray(returnInfo, "account", decodeAccount)
+// the typed AccountList. ReturnInfo must be a Map[]; each entry is
+// itself a Map carrying the documented fields.
+func DecodeAccounts(returnInfo soap.Value) (AccountList, error) {
+	out, err := soap.DecodeArray(returnInfo, "account", decodeAccount)
+	if err != nil {
+		return nil, err
+	}
+	return AccountList(out), nil
 }
 
 // DecodeAccountSettings maps the ReturnInfo of a get_accountsettings

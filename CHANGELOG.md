@@ -7,7 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `usage traffic --year` / `--month` range-validation errors now exit
+  with code 1 (user error) instead of code 2 (API error). The
+  `PreRunE` previously returned a plain `fmt.Errorf` which fell
+  through `cli.CodeFor`'s default branch.
+- `dns list --domain ""` now reports `required flag --domain not
+  provided` without the redundant `--domain:` prefix and exits with
+  code 1; the validation moved into a dedicated `PreRunE` so the
+  body can use the canonical `runListE` shape.
+
 ### Changed
+
+- `account.Client.List` now returns `account.AccountList` directly,
+  matching every other read module. The CLI no longer needs to
+  convert `[]Account` to the named list type, and the
+  `kasread.ListGet` field is parameterised on `AccountList`.
 
 - Collapsed the four remaining stand-alone `Caller interface`
   declarations in `internal/directoryprotection`, `internal/dns`,

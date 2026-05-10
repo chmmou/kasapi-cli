@@ -16,7 +16,7 @@ type Caller = kasread.Caller
 // get_accountsettings, get_accountresources.
 type Client struct {
 	api Caller
-	lg  kasread.ListGet[[]Account, Account]
+	lg  kasread.ListGet[AccountList, Account]
 }
 
 // NewClient returns a Client backed by the given Caller. It does not
@@ -24,7 +24,7 @@ type Client struct {
 func NewClient(c Caller) *Client {
 	return &Client{
 		api: c,
-		lg: kasread.ListGet[[]Account, Account]{
+		lg: kasread.ListGet[AccountList, Account]{
 			Caller:    c,
 			Action:    "get_accounts",
 			Label:     "account",
@@ -36,10 +36,10 @@ func NewClient(c Caller) *Client {
 }
 
 // List calls get_accounts without a filter and decodes the response
-// into a slice of Account values. For a main login this returns every
+// into an AccountList. For a main login this returns every
 // sub-account; for a sub-login it returns just the authenticated
 // account.
-func (c *Client) List(ctx context.Context) ([]Account, error) { return c.lg.List(ctx) }
+func (c *Client) List(ctx context.Context) (AccountList, error) { return c.lg.List(ctx) }
 
 // Get calls get_accounts with an account_login filter and returns the
 // single matching Account. The KAS API still wraps the result in an

@@ -68,11 +68,11 @@ func newUsageTrafficCmd(opts *RootOptions) *cobra.Command {
 		PreRunE: func(_ *cobra.Command, _ []string) error {
 			maxYear := time.Now().Year() + 1
 			if year != 0 && (year < minTrafficYear || year > maxYear) {
-				return fmt.Errorf("--year must be between %d and %d, got %d",
-					minTrafficYear, maxYear, year)
+				return UserError(fmt.Errorf("--year must be between %d and %d, got %d",
+					minTrafficYear, maxYear, year), "")
 			}
 			if month != 0 && (month < 1 || month > 12) {
-				return fmt.Errorf("--month must be between 1 and 12, got %d", month)
+				return UserError(fmt.Errorf("--month must be between 1 and 12, got %d", month), "")
 			}
 			return nil
 		},

@@ -33,8 +33,7 @@ func newAccountsListCmd(opts *RootOptions) *cobra.Command {
 		Short: "List accounts visible to the login (get_accounts, no filter)",
 		Args:  cobra.NoArgs,
 		RunE: runListE(opts, "get_accounts", func(c *api.Client, ctx context.Context) (account.AccountList, error) {
-			accs, err := account.NewClient(c).List(ctx)
-			return account.AccountList(accs), err
+			return account.NewClient(c).List(ctx)
 		}),
 	}
 }
