@@ -7,8 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-alpha.1] - 2026-05-10
+
+First public pre-release. Scope: the **read-only** KAS API surface
+(accounts, server info, domains/subdomains/TLDs, DNS, mail, databases,
+FTP/Samba users, cronjobs, directory protection, software installs,
+DDNS users, usage statistics) plus session and plain authentication,
+output formatters (`table` / `json` / `yaml`), config-file plumbing,
+and the goreleaser pipeline (multi-arch binaries, deb/rpm,
+keyless-cosign signatures, SPDX SBOMs). **Write endpoints are out of
+scope** for this alpha and are tracked under v0.2.0 (#13). Expect
+breaking changes between this alpha and the stable `v0.1.0` tag — CLI
+flag names, output structures, and exit-code mappings are not yet
+frozen.
+
 ### Fixed
 
+- `.goreleaser.yaml` `archives.files` glob: `docs/cli/**/*` and
+  `docs/usage/**/*` matched nothing (both directories are flat) so
+  the rendered docs were missing from the release archives. Switched
+  to `docs/cli/*` / `docs/usage/*` so the docs land alongside
+  `LICENSE`, `README.md`, and `CHANGELOG.md` in every tarball/zip.
 - `usage traffic --year` / `--month` range-validation errors now exit
   with code 1 (user error) instead of code 2 (API error). The
   `PreRunE` previously returned a plain `fmt.Errorf` which fell
