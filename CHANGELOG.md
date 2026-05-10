@@ -23,6 +23,13 @@ frozen.
 
 ### Fixed
 
+- `.github/workflows/release.yml` cosign pin: `sigstore/cosign-installer@v3`
+  was pinned to `v2.4.1`, which cannot read the bundle format that
+  newer `goreleaser-action@v7` releases ship. The release workflow
+  failed during `goreleaser-action`'s self-verification with
+  `bundle does not contain cert for verification, please provide
+  public key`. The pin is dropped so the installer picks its current
+  default; goreleaser-action keeps in step with it.
 - `.goreleaser.yaml` `archives.files` glob: `docs/cli/**/*` and
   `docs/usage/**/*` matched nothing (both directories are flat) so
   the rendered docs were missing from the release archives. Switched

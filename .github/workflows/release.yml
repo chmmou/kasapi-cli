@@ -25,9 +25,13 @@ jobs:
           cache: true
 
       - name: install cosign
+        # Do not pin cosign-release: goreleaser-action verifies its own
+        # download with the cosign installed here, and newer
+        # goreleaser releases ship a bundle format that cosign 2.4.1
+        # cannot read ("bundle does not contain cert for
+        # verification"). Letting cosign-installer pick its current
+        # default keeps it in step with goreleaser-action.
         uses: sigstore/cosign-installer@v3
-        with:
-          cosign-release: "v2.4.1"
 
       - name: "install syft (used by goreleaser sboms: block)"
         uses: anchore/sbom-action/download-syft@v0
