@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `.claude/skills/kasapi-cli-vertical-slice/SKILL.md`: corrected two
+  factually wrong claims in the slice anatomy. The mapper naming
+  convention is `Decode<Thing>` (e.g. `DecodeAccounts`), not
+  `Map<Action>Response`; the client accessor lives on the **module's**
+  own `*Client` in the module package (dispatching via a per-package
+  `Caller` interface), not in `internal/api/client.go`. The transport-
+  level `KasRequestParams` envelope is filled centrally in
+  `internal/soap/request.go`; module code passes plain `map[string]any`
+  to `Caller.Call`. `CONTRIBUTING.md:57-58` was already correct on both
+  points; the skill drifted.
 - `ROADMAP.md`: added a new `CLI write safety` section listing the
   cross-cutting prerequisites that gate every destructive subcommand —
   the destructive-write confirmation infrastructure (#109), the
