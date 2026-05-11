@@ -19,6 +19,14 @@ The list is kept in sync with the code on `main`. To claim an unchecked item, pl
 - [x] Environment overrides (`KAS_LOGIN`, `KAS_AUTHDATA`, `KAS_AUTHTYPE`, `KAS_PROFILE`)
 - [x] Secrets are never echoed in `--help` or default log output
 
+## CLI write safety
+
+Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API endpoints themselves but gate every destructive subcommand.
+
+- [ ] Destructive-write confirmation infrastructure (`--yes` / interactive `[y/N]` prompt, see #109)
+- [ ] Structured write-action audit log (`--audit-log <path>` / `KAS_AUDIT_LOG`, see #131)
+- [ ] `--dry-run` for write commands (preview KAS action + parameters without dispatching, see #132)
+
 ## Accounts & server
 
 - [x] `accounts list` / `accounts get <account-login>` (`get_accounts`, with `account_login` filter)

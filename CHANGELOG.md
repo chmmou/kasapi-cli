@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `ROADMAP.md`: added a new `CLI write safety` section listing the
+  cross-cutting prerequisites that gate every destructive subcommand —
+  the destructive-write confirmation infrastructure (#109), the
+  structured write-action audit log (#131), and `--dry-run` for write
+  commands (#132). These are not KAS-API endpoints but block the entire
+  v0.2.0 write phase; tracking them on the roadmap keeps the contributor
+  view of "what is still pending" honest.
 - `ROADMAP.md`: corrected the mail standard filter write entry from the
   non-existent `update_mailstandardfilter` to the actual KAS actions
   `add_mailstandardfilter` and `delete_mailstandardfilter` (the captured
