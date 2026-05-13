@@ -7,6 +7,14 @@ import (
 	"io"
 )
 
+// MaxResponseBytes caps the byte count the KAS-API decoders will read
+// from a single response body. Real KAS responses are well under 1 MB
+// (the largest captured fixture is ~70 KB); 16 MB is comfortable
+// headroom while still preventing a pathological response (compromised
+// endpoint, MITM, server bug) from exhausting memory through a
+// streaming XML payload that never ends.
+const MaxResponseBytes = 16 << 20
+
 // Response is the parsed body of a successful KasApi SOAP envelope. It
 // keeps both the typed shortcuts (KasFloodDelay, ReturnString, ReturnInfo)
 // and the full ordered Map for callers needing extras.
@@ -47,8 +55,15 @@ func (e *FaultError) Error() string {
 
 // Decode parses a KasApi SOAP envelope. It returns a typed Response on
 // success and a *FaultError when the body contained a SOAP-ENV:Fault.
+//
+// The reader is wrapped in an io.LimitReader (MaxResponseBytes) and the
+// decoder runs in Strict mode (the encoding/xml default, set explicitly
+// here so a future refactor cannot silently flip it). The KAS server is
+// trusted, so this is defense-in-depth against a malformed or hostile
+// response rather than a security boundary.
 func Decode(r io.Reader) (*Response, error) {
-	dec := xml.NewDecoder(r)
+	dec := xml.NewDecoder(io.LimitReader(r, MaxResponseBytes))
+	dec.Strict = true
 	for {
 		tok, err := dec.Token()
 		if err == io.EOF {

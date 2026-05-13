@@ -72,8 +72,12 @@ func EncodeRequest(w io.Writer, r Request) error {
 // DecodeResponse parses a KasAuth SOAP envelope. On success it returns
 // the credential token; on a SOAP-ENV:Fault body it returns
 // *soap.FaultError so callers can wrap it into auth.Error.
+//
+// The reader is wrapped in an io.LimitReader (soap.MaxResponseBytes)
+// and Strict mode is set explicitly; see soap.Decode for the rationale.
 func DecodeResponse(r io.Reader) (string, error) {
-	dec := xml.NewDecoder(r)
+	dec := xml.NewDecoder(io.LimitReader(r, soap.MaxResponseBytes))
+	dec.Strict = true
 	for {
 		tok, err := dec.Token()
 		if errors.Is(err, io.EOF) {

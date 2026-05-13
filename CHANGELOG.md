@@ -72,6 +72,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Tabular`, so this error always indicates a kasapi-cli bug rather than
   a user choice; the message now says so while keeping the
   `--output=json` / `--output=yaml` workaround hint.
+- `internal/soap/envelope.go` + `internal/auth/codec.go`: wrap the SOAP
+  decoder's input reader in `io.LimitReader(r, soap.MaxResponseBytes)`
+  (16 MB) and set `dec.Strict = true` explicitly. The KAS server is
+  trusted, so this is defense-in-depth against a malformed or hostile
+  response (compromised endpoint, MITM, server bug) — the largest
+  captured fixture is ~70 KB, so the cap is well above any legitimate
+  payload.
+- `internal/cli/wire.go`: rename `sessionOpts.any()` to `isSet()` to
+  stop shadowing the Go 1.18 builtin alias `any` in IDE auto-complete
+  and code review. Behaviour and the single call site are unchanged.
+- `internal/session/store.go`: document why the explicit
+  `tmp.Chmod(0o600)` after `os.CreateTemp` is kept — redundant on Unix
+  but Windows ignores the create-mode bits, so the set is
+  defense-in-depth across platforms.
+- test: `internal/account` — added unit tests for `Client.Settings`,
+  `Client.Resources`, plus the previously-unexercised `TableHeaders`
+  on `AccountResources` and `AccountSettings` (and the `TableRows` of
+  `AccountSettings`). Lifts package coverage from 69.9% to 85.4%.
+- test: `internal/cli` — added help-output tests for the `dns`,
+  `domains`, `subdomains`, `tlds`, and `mail` (incl. `accounts` /
+  `forwards` / `filters` / `lists` subgroups) command factories,
+  mirroring the pattern already used for the
+  cronjobs/databases/... factories. Lifts package coverage from 60.0%
+  to 69.9%.
+- test: `internal/auth` — added negative-path and nil-input tests for
+  the `IsLoginFailed`, `IsLoginLocked`, `IsUnknownSession`,
+  `IsOTPPinIncorrect`, `IsCode`, and `AsError` sentinel helpers.
 
 ### Fixed
 
@@ -127,21 +154,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   returns the catalog of pre-defined spam/virus filter presets that an
   account can attach via the `mail_spamfilter` setting on a mailaccount
   or forward.
-
-### Tests
-
-- `internal/account`: added unit tests for `Client.Settings`,
-  `Client.Resources`, plus the previously-unexercised `TableHeaders`
-  on `AccountResources` and `AccountSettings` (and the `TableRows` of
-  `AccountSettings`). Lifts package coverage from 69.9% to 85.4%.
-- `internal/cli`: added help-output tests for the `dns`, `domains`,
-  `subdomains`, `tlds`, and `mail` (incl. `accounts` / `forwards` /
-  `filters` / `lists` subgroups) command factories, mirroring the
-  pattern already used for the cronjobs/databases/... factories.
-  Lifts package coverage from 60.0% to 69.9%.
-- `internal/auth`: added negative-path and nil-input tests for the
-  `IsLoginFailed`, `IsLoginLocked`, `IsUnknownSession`, `IsOTPPinIncorrect`,
-  `IsCode`, and `AsError` sentinel helpers.
 
 ## [0.1.0-alpha.1] - 2026-05-10
 

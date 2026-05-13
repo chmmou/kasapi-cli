@@ -249,6 +249,9 @@ func (s *Store) write(file fileFormat) error {
 	}
 	tmpPath := tmp.Name()
 	cleanup := func() { _ = os.Remove(tmpPath) }
+	// Chmod is redundant on Unix where os.CreateTemp already opens the
+	// file with mode 0600, but Windows ignores the create-mode bits, so
+	// we set them explicitly as defense-in-depth across platforms.
 	if cherr := tmp.Chmod(0o600); cherr != nil {
 		_ = tmp.Close()
 		cleanup()

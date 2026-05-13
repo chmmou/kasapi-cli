@@ -93,14 +93,17 @@ type sessionOpts struct {
 	UpdateLifetime string
 }
 
-func (s sessionOpts) any() bool {
+// isSet reports whether the caller passed any of the KasAuth-only flags
+// captured by sessionOpts. Named to avoid shadowing the Go 1.18 builtin
+// `any` alias for interface{} in IDE auto-complete and code review.
+func (s sessionOpts) isSet() bool {
 	return s.OTP != "" || s.Lifetime != 0 || s.UpdateLifetime != ""
 }
 
 func tokenSource(tr *transport.Client, creds config.Credentials, s sessionOpts, logger *slog.Logger) (api.TokenSource, error) {
 	switch creds.AuthType {
 	case config.AuthPlain:
-		if s.any() {
+		if s.isSet() {
 			return nil, fmt.Errorf(
 				"--otp / --session-lifetime / --session-update-lifetime cannot be used with " +
 					"auth_type=plain: these are KasAuth-only parameters and KasAuth is not " +
