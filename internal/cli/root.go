@@ -95,5 +95,5 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 }
 
 func joinFormats() string {
-	return strings.Join(formatNames(), "|")
+	return strings.Join(formatNames, "|")
 }

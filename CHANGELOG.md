@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `internal/auth/source.go` + `auth/client.go` + `api/client.go` +
+  `transport/client.go`: consolidated the `slog.New(slog.NewTextHandler(io.Discard, nil))`
+  discard-logger pattern. Each of the three packages now has a single
+  package-level `var discardLogger` built once at init; previously the
+  same expression was inline-duplicated across constructors and
+  `logger()` helpers (and `transport` had a `discardLogger()` function
+  that re-allocated per call). `NewSessionTokenSource` now seeds
+  `Logger` to that discard logger in its constructor, matching the
+  pattern already used by `auth.New`, `api.New`, and `transport.New`.
+- `internal/cli/output.go` + `cli/root.go`: `formatNames` is now a
+  package-level `var` (built once at init) instead of a function that
+  re-built the `[]string` on every call. `ParseFormat`'s error message
+  and `joinFormats` consume it as a value; both call sites are
+  read-only, so sharing the backing array is safe.
+- `internal/cli/output.go`: tightened the `ErrTableNotSupported`
+  message to a single phrase per Go error-style guidance — same
+  meaning, but easier to skim in logs.
+- `internal/soap/value.go`: `KindUnknown`'s doc now explains why the
+  sentinel value is exactly 255 (max of `Kind`'s underlying `uint8`,
+  giving the iota block room to grow without collision).
+
+### Changed
+
 - `internal/cli/wire.go`: documented why the `auth.New(... soap.AuthPlain, authOpts)`
   call inside the `auth_type=session` branch hardcodes `AuthPlain` — KasAuth
   always bootstraps in plain mode regardless of session mode, and the

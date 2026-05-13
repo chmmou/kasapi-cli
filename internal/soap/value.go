@@ -22,9 +22,10 @@ const (
 )
 
 // KindUnknown is the sentinel classifyType returns for xsi:type values
-// that do not match any KAS-supported kind. It is intentionally placed
-// outside the iota block at 255 so it stays out of the enumerated range
-// and never collides with a future addition.
+// that do not match any KAS-supported kind. Placed outside the iota
+// block at 255 — the maximum value of Kind's underlying uint8 — so the
+// sentinel stays out of the enumerated range and any future KindFoo
+// added to the iota block cannot collide with it.
 const KindUnknown Kind = 255
 
 // KV is one entry of an ordered Map. The Apache xml-soap ns2:Map preserves

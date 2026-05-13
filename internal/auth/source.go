@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"io"
 	"log/slog"
 	"sync"
 	"time"
@@ -67,9 +66,11 @@ type SessionTokenSource struct {
 // NewSessionTokenSource returns a source that lazily fetches the token
 // on first use and does not persist it. Set Store, Lifetime, and
 // UpdateLifetime on the returned value to enable cross-invocation
-// caching.
+// caching. Logger is seeded with the package discard logger so callers
+// may write to it unconditionally; replace it (e.g. with a stderr
+// handler) to surface persist/delete failures from the field.
 func NewSessionTokenSource(c *Client) *SessionTokenSource {
-	return &SessionTokenSource{Client: c}
+	return &SessionTokenSource{Client: c, Logger: discardLogger}
 }
 
 // Credentials returns the cached token. Order of preference:
@@ -179,13 +180,13 @@ func (s *SessionTokenSource) Heartbeat() {
 	}
 }
 
-// logger returns the configured Logger or a discard logger so call sites
-// may invoke s.logger().Warn unconditionally.
+// logger returns the configured Logger or the package discard logger
+// so call sites may invoke s.logger().Warn unconditionally.
 func (s *SessionTokenSource) logger() *slog.Logger {
 	if s.Logger != nil {
 		return s.Logger
 	}
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
+	return discardLogger
 }
 
 func (s *SessionTokenSource) cachedValid() bool {

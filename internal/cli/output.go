@@ -29,17 +29,18 @@ const DefaultFormat = FormatTable
 // Used by the root command help text and validation.
 var AllFormats = []Format{FormatJSON, FormatYAML, FormatTable}
 
-// formatNames returns AllFormats as a []string in the same order.
-// Single source of truth for the strings used by both the --output flag
-// help (joined with "|") and the ParseFormat error message (joined with
-// ", "); callers join with whatever separator they need.
-func formatNames() []string {
+// formatNames is the cached []string view of AllFormats. Single source
+// of truth for the strings used by both the --output flag help (joined
+// with "|") and the ParseFormat error message (joined with ", "); built
+// once at package init so callers do not re-allocate per call. Treat as
+// read-only.
+var formatNames = func() []string {
 	names := make([]string, len(AllFormats))
 	for i, f := range AllFormats {
 		names[i] = string(f)
 	}
 	return names
-}
+}()
 
 // ParseFormat returns the Format matching s or an error listing valid
 // values. The empty string maps to DefaultFormat.
@@ -52,7 +53,7 @@ func ParseFormat(s string) (Format, error) {
 			return f, nil
 		}
 	}
-	return "", fmt.Errorf("invalid output format %q (want one of %s)", s, strings.Join(formatNames(), ", "))
+	return "", fmt.Errorf("invalid output format %q (want one of %s)", s, strings.Join(formatNames, ", "))
 }
 
 // Tabular is implemented by values that can render themselves as a
@@ -100,7 +101,7 @@ func renderYAML(w io.Writer, v any) error {
 // this error means a subcommand is missing its TableHeaders/TableRows
 // pair — i.e. a kasapi-cli bug, not a user choice. The workaround hint
 // keeps the user unblocked in the meantime.
-var ErrTableNotSupported = errors.New("table output is not implemented for this command (kasapi-cli bug, please report it; workaround: --output=json or --output=yaml)")
+var ErrTableNotSupported = errors.New("table output not implemented for this command (programming bug; use --output=json or --output=yaml)")
 
 func renderTable(w io.Writer, v any) error {
 	t, ok := v.(Tabular)

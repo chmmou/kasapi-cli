@@ -49,6 +49,11 @@ type Client struct {
 	nextEarliest time.Time
 }
 
+// discardLogger is the shared no-op logger used as the package default
+// so callers can invoke Logger / logger() unconditionally. Built once
+// at package init.
+var discardLogger = slog.New(slog.NewTextHandler(io.Discard, nil))
+
 // New returns a Client with sensible defaults: a 30s HTTP timeout, a
 // version-stamped User-Agent, and three retries on 5xx / network errors.
 func New() *Client {
@@ -56,14 +61,10 @@ func New() *Client {
 		HTTPClient: &http.Client{Timeout: DefaultTimeout},
 		UserAgent:  DefaultUserAgent,
 		MaxRetries: DefaultMaxRetries,
-		Logger:     discardLogger(),
+		Logger:     discardLogger,
 		Now:        time.Now,
 		Sleep:      ctxSleep,
 	}
-}
-
-func discardLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
 // RecordDelay schedules a window during which subsequent calls to Do
@@ -134,7 +135,7 @@ func (c *Client) logger() *slog.Logger {
 	if c.Logger != nil {
 		return c.Logger
 	}
-	return discardLogger()
+	return discardLogger
 }
 
 func (c *Client) doOnce(ctx context.Context, endpoint string, body []byte) ([]byte, error) {

@@ -45,6 +45,11 @@ type Client struct {
 	Logger *slog.Logger
 }
 
+// discardLogger is the shared no-op logger used as the package default
+// so callers can invoke Logger / logger() unconditionally. Built once
+// at package init.
+var discardLogger = slog.New(slog.NewTextHandler(io.Discard, nil))
+
 // New returns a Client configured for the given credentials and options.
 // Endpoint defaults to DefaultEndpoint.
 func New(t *transport.Client, login, authData string, authType soap.AuthType, opts Options) *Client {
@@ -55,7 +60,7 @@ func New(t *transport.Client, login, authData string, authType soap.AuthType, op
 		AuthType:  authType,
 		Options:   opts,
 		Endpoint:  DefaultEndpoint,
-		Logger:    slog.New(slog.NewTextHandler(io.Discard, nil)),
+		Logger:    discardLogger,
 	}
 }
 
@@ -63,7 +68,7 @@ func (c *Client) logger() *slog.Logger {
 	if c.Logger != nil {
 		return c.Logger
 	}
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
+	return discardLogger
 }
 
 // GetCredentialToken posts the KasAuth request and returns the
