@@ -29,9 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `internal/soap/value.go`: `KindUnknown`'s doc now explains why the
   sentinel value is exactly 255 (max of `Kind`'s underlying `uint8`,
   giving the iota block room to grow without collision).
-
-### Changed
-
 - `internal/cli/wire.go`: documented why the `auth.New(... soap.AuthPlain, authOpts)`
   call inside the `auth_type=session` branch hardcodes `AuthPlain` — KasAuth
   always bootstraps in plain mode regardless of session mode, and the
