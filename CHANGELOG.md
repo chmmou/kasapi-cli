@@ -62,6 +62,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `internal/session/store.go`: serialise `Load` / `Save` / `Delete`
+  through an advisory file lock (`github.com/gofrs/flock`) at
+  `<sessions.toml>.lock`. Previously two `kasapi-cli` processes running
+  in parallel (scripts, CI pipelines) could race on the read-modify-
+  write cycle so a Heartbeat from one silently lost a Save from
+  another. Atomic temp+rename already protected the file against
+  corruption; this fix protects the logical transaction. Worst-case
+  symptom was a lost token causing one extra KasAuth refresh — the
+  cache is self-healing, but surfacing the race is preferable.
+
 - `.claude/skills/kasapi-cli-vertical-slice/SKILL.md`: corrected two
   factually wrong claims in the slice anatomy. The mapper naming
   convention is `Decode<Thing>` (e.g. `DecodeAccounts`), not

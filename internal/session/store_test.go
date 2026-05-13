@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gofrs/flock"
+
 	"github.com/chmmou/kasapi-cli/internal/session"
 )
 
@@ -190,4 +192,83 @@ func TestSaveWritesMode0600(t *testing.T) {
 	if mode := info.Mode().Perm(); mode != 0o600 {
 		t.Errorf("mode = %#o, want 0600", mode)
 	}
+}
+
+// TestSaveBlocksWhileLockHeld pins the cross-process serialisation
+// guarantee from the advisory lock at LockPath: while another holder
+// has the lock, Save must block instead of racing the read-modify-
+// write. Same-process fd-distinct flocks serve as a proxy for
+// cross-process behaviour — flock(2) is per-fd on Linux/macOS, so
+// holding the lock from a different *flock.Flock instance produces
+// the same blocking that two separate processes would.
+func TestSaveBlocksWhileLockHeld(t *testing.T) {
+	s := newStore(t, time.Now())
+
+	// Force the lock-file directory + path to exist by running one Save
+	// first; otherwise the external flock.New below would lock a path
+	// that the production code creates on demand.
+	if err := s.Save("seed", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
+		t.Fatalf("seed Save: %v", err)
+	}
+
+	ext := flock.New(s.LockPath())
+	if err := ext.Lock(); err != nil {
+		t.Fatalf("external Lock: %v", err)
+	}
+	released := false
+	t.Cleanup(func() {
+		if !released {
+			_ = ext.Unlock()
+		}
+	})
+
+	done := make(chan error, 1)
+	go func() {
+		done <- s.Save("w0", session.Entry{Token: "blocked", LifetimeSeconds: 60})
+	}()
+
+	select {
+	case err := <-done:
+		t.Fatalf("Save returned %v while external lock was held; expected to block", err)
+	case <-time.After(100 * time.Millisecond):
+		// expected: Save is blocked on the lock
+	}
+
+	if err := ext.Unlock(); err != nil {
+		t.Fatalf("external Unlock: %v", err)
+	}
+	released = true
+
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatalf("Save after Unlock: %v", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("Save did not complete after external Unlock")
+	}
+
+	got, err := s.Load("w0")
+	if err != nil || got == nil || got.Token != "blocked" {
+		t.Fatalf("post-unlock Load = %+v, %v; want token=blocked", got, err)
+	}
+}
+
+// TestStoreReleasesLockAfterSave verifies the lock is released once
+// Save returns, so the next call from any process can take it again
+// without timing out.
+func TestStoreReleasesLockAfterSave(t *testing.T) {
+	s := newStore(t, time.Now())
+	if err := s.Save("w0", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	ext := flock.New(s.LockPath())
+	locked, err := ext.TryLock()
+	if err != nil {
+		t.Fatalf("TryLock: %v", err)
+	}
+	if !locked {
+		t.Fatal("lock not released after Save returned")
+	}
+	_ = ext.Unlock()
 }

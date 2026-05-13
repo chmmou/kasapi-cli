@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/gofrs/flock"
 )
 
 // DefaultLifetime is applied when an Entry is saved without a
@@ -89,31 +90,69 @@ func PathFor(configPath string) (string, error) {
 	return filepath.Join(filepath.Dir(configPath), "sessions.toml"), nil
 }
 
+// LockPath returns the advisory-lock-file path that pairs with the
+// sessions file. Two CLI processes serialise their read-modify-write
+// cycle on this lock so a Heartbeat from one cannot silently overwrite
+// a Save from another.
+func (s *Store) LockPath() string {
+	return s.Path + ".lock"
+}
+
+// withLock runs fn while holding an exclusive advisory lock on
+// LockPath. The lock file is created next to sessions.toml so its
+// permissions inherit from the same parent directory (created 0700
+// by write). The lock is released even if fn panics.
+func (s *Store) withLock(fn func() error) error {
+	if err := os.MkdirAll(filepath.Dir(s.Path), 0o700); err != nil {
+		return fmt.Errorf("session: create lock dir: %w", err)
+	}
+	lock := flock.New(s.LockPath())
+	if err := lock.Lock(); err != nil {
+		return fmt.Errorf("session: acquire lock %s: %w", s.LockPath(), err)
+	}
+	defer func() { _ = lock.Unlock() }()
+	return fn()
+}
+
 // Load returns the entry stored for login. nil is returned (without
 // error) when the file is absent, the login is not present, or the
 // entry has expired; expired entries are best-effort removed.
+//
+// Load serialises with concurrent Save / Delete calls (including from
+// other kasapi-cli processes) via an advisory file lock at LockPath so
+// a concurrent write cannot tear the read-modify-write of an expiry
+// cleanup.
 func (s *Store) Load(login string) (*Entry, error) {
 	if login == "" {
 		return nil, errors.New("session: Load requires login")
 	}
-	file, err := s.read()
-	if err != nil {
-		return nil, err
-	}
-	e, ok := file.Sessions[login]
-	if !ok {
-		return nil, nil
-	}
-	if !e.ExpiresAt.IsZero() && !s.now().Before(e.ExpiresAt) {
-		_ = s.Delete(login)
-		return nil, nil
-	}
-	return &e, nil
+	var out *Entry
+	err := s.withLock(func() error {
+		file, err := s.read()
+		if err != nil {
+			return err
+		}
+		e, ok := file.Sessions[login]
+		if !ok {
+			return nil
+		}
+		if !e.ExpiresAt.IsZero() && !s.now().Before(e.ExpiresAt) {
+			return s.deleteLocked(login)
+		}
+		out = &e
+		return nil
+	})
+	return out, err
 }
 
 // Save writes e under login, replacing any existing entry. If
 // ExpiresAt is zero, it is computed as Now+LifetimeSeconds (or
 // Now+DefaultLifetime when LifetimeSeconds is 0).
+//
+// Save serialises with concurrent Load / Delete / Save calls (including
+// from other kasapi-cli processes) via an advisory file lock at
+// LockPath so a Heartbeat from one process cannot lose another
+// process's update.
 func (s *Store) Save(login string, e Entry) error {
 	if login == "" {
 		return errors.New("session: Save requires login")
@@ -124,24 +163,36 @@ func (s *Store) Save(login string, e Entry) error {
 	if e.ExpiresAt.IsZero() {
 		e.ExpiresAt = s.now().Add(s.lifetime(e))
 	}
-	file, err := s.read()
-	if err != nil {
-		return err
-	}
-	if file.Sessions == nil {
-		file.Sessions = map[string]Entry{}
-	}
-	file.Sessions[login] = e
-	return s.write(file)
+	return s.withLock(func() error {
+		file, err := s.read()
+		if err != nil {
+			return err
+		}
+		if file.Sessions == nil {
+			file.Sessions = map[string]Entry{}
+		}
+		file.Sessions[login] = e
+		return s.write(file)
+	})
 }
 
 // Delete removes the entry for login. Missing files and missing
 // entries are not errors. The file itself is removed when the last
 // entry is taken out so the on-disk state matches "no sessions".
+//
+// Delete serialises with concurrent Load / Save / Delete calls via the
+// advisory file lock at LockPath.
 func (s *Store) Delete(login string) error {
 	if login == "" {
 		return errors.New("session: Delete requires login")
 	}
+	return s.withLock(func() error { return s.deleteLocked(login) })
+}
+
+// deleteLocked is the un-locked Delete body, callable from inside a
+// withLock-protected block (e.g. by Load when an expired entry is
+// dropped) without re-entering the lock.
+func (s *Store) deleteLocked(login string) error {
 	file, err := s.read()
 	if err != nil {
 		return err
