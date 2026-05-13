@@ -116,9 +116,12 @@ func tokenSource(tr *transport.Client, creds config.Credentials, s sessionOpts, 
 		if err != nil {
 			return nil, err
 		}
+		// KasAuth bootstrap is always plain regardless of session mode; the
+		// session token returned by KasAuth is what subsequent KasApi calls use.
 		authClient := auth.New(tr, creds.Login, creds.AuthData, soap.AuthPlain, authOpts)
 		authClient.Logger = logger
 		src := auth.NewSessionTokenSource(authClient)
+		src.Logger = logger
 		storePath, serr := session.PathFor(s.ConfigPath)
 		if serr != nil {
 			return nil, fmt.Errorf("session store: %w", serr)

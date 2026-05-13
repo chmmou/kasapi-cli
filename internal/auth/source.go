@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"io"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -38,6 +40,13 @@ type SessionTokenSource struct {
 	Lifetime       time.Duration
 	UpdateLifetime bool
 	Now            func() time.Time
+
+	// Logger receives Warn events when persisting or deleting the session
+	// cache on disk fails. The in-memory cache still works in that case
+	// and the next invocation simply re-bootstraps via KasAuth, but
+	// surfacing disk-full / permission errors helps debug field issues.
+	// Nil is treated as a discard logger.
+	Logger *slog.Logger
 
 	mu        sync.Mutex
 	loaded    bool
@@ -114,7 +123,9 @@ func (s *SessionTokenSource) Credentials(ctx context.Context) (string, string, s
 			LifetimeSeconds: int(s.lifetime() / time.Second),
 			UpdateLifetime:  s.UpdateLifetime,
 		}
-		_ = s.Store.Save(s.Client.Login, entry)
+		if err := s.Store.Save(s.Client.Login, entry); err != nil {
+			s.logger().Warn("auth: session store save failed; cache stays in-memory", "err", err)
+		}
 	}
 	return s.Client.Login, s.token, soap.AuthSession, nil
 }
@@ -136,7 +147,9 @@ func (s *SessionTokenSource) Invalidate() {
 		s.UpdateLifetime = s.configuredUpdateLifetime
 	}
 	if s.Store != nil {
-		_ = s.Store.Delete(s.Client.Login)
+		if err := s.Store.Delete(s.Client.Login); err != nil {
+			s.logger().Warn("auth: session store delete failed; in-memory cache cleared", "err", err)
+		}
 	}
 }
 
@@ -160,8 +173,19 @@ func (s *SessionTokenSource) Heartbeat() {
 			LifetimeSeconds: int(s.lifetime() / time.Second),
 			UpdateLifetime:  true,
 		}
-		_ = s.Store.Save(s.Client.Login, entry)
+		if err := s.Store.Save(s.Client.Login, entry); err != nil {
+			s.logger().Warn("auth: session store heartbeat save failed; rolling window stays in-memory", "err", err)
+		}
 	}
+}
+
+// logger returns the configured Logger or a discard logger so call sites
+// may invoke s.logger().Warn unconditionally.
+func (s *SessionTokenSource) logger() *slog.Logger {
+	if s.Logger != nil {
+		return s.Logger
+	}
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
 func (s *SessionTokenSource) cachedValid() bool {

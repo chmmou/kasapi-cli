@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -94,12 +95,5 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 }
 
 func joinFormats() string {
-	out := ""
-	for i, f := range AllFormats {
-		if i > 0 {
-			out += "|"
-		}
-		out += string(f)
-	}
-	return out
+	return strings.Join(formatNames(), "|")
 }

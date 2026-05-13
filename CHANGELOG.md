@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `internal/cli/wire.go`: documented why the `auth.New(... soap.AuthPlain, authOpts)`
+  call inside the `auth_type=session` branch hardcodes `AuthPlain` — KasAuth
+  always bootstraps in plain mode regardless of session mode, and the
+  session token is what subsequent KasApi calls use. Prevents future
+  drive-by "fixes" that would replace the constant with `AuthSession`.
+- `internal/transport/client.go`: documented why `waitGate` runs once
+  before the retry loop, not inside it. 5xx-driven retries do not decode
+  envelopes, so no fresh `KasFloodDelay` can be recorded between attempts
+  — re-checking the gate would always be a no-op.
+- `internal/auth/source.go`: `SessionTokenSource` now exposes a `Logger`
+  field; the three previously silent `s.Store.Save` / `s.Store.Delete`
+  call sites now log a `Warn` event when persistence fails so disk-full
+  or permission issues surface in `--verbose` output. The in-memory
+  cache still works in that case and the next invocation re-bootstraps
+  via KasAuth, so behaviour is unchanged for the success path. The CLI
+  wires `--verbose` into the new field via `internal/cli/wire.go`.
+- `internal/cli/output.go` + `internal/cli/root.go`: deduplicated the
+  `AllFormats → []string` conversion. A new package-internal
+  `formatNames()` is now the single source of truth used by both the
+  `--output` flag help (joined with `|`) and the `ParseFormat` error
+  message (joined with `, `).
+- `internal/soap/value.go`: replaced the magic `Kind(255)` sentinel
+  returned by `classifyType` for unknown `xsi:type` values with a named
+  `KindUnknown = 255` constant. Documented why the constant lives
+  outside the iota block (so future enum additions cannot collide).
+- `internal/cli/output.go`: clarified the `ErrTableNotSupported`
+  message. Every subcommand result type is expected to implement
+  `Tabular`, so this error always indicates a kasapi-cli bug rather than
+  a user choice; the message now says so while keeping the
+  `--output=json` / `--output=yaml` workaround hint.
+
 ### Fixed
 
 - `.claude/skills/kasapi-cli-vertical-slice/SKILL.md`: corrected two

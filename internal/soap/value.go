@@ -21,6 +21,12 @@ const (
 	KindArray
 )
 
+// KindUnknown is the sentinel classifyType returns for xsi:type values
+// that do not match any KAS-supported kind. It is intentionally placed
+// outside the iota block at 255 so it stays out of the enumerated range
+// and never collides with a future addition.
+const KindUnknown Kind = 255
+
 // KV is one entry of an ordered Map. The Apache xml-soap ns2:Map preserves
 // insertion order; we keep that order so callers can render or compare
 // without surprise.
@@ -258,7 +264,7 @@ func classifyType(t string) Kind {
 	case "Array":
 		return KindArray
 	}
-	return Kind(255)
+	return KindUnknown
 }
 
 // Get looks up a key in a Map Value. It returns the zero Value and false if

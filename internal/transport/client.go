@@ -88,6 +88,10 @@ func (c *Client) Do(ctx context.Context, endpoint string, body []byte) ([]byte, 
 		return nil, err
 	}
 
+	// Gate is checked once before the loop, not inside it. 5xx-driven
+	// retries do not decode envelopes, so no fresh KasFloodDelay can be
+	// recorded between attempts — re-checking the gate would always be a
+	// no-op.
 	backoff := defaultBackoff
 	var lastErr error
 	for attempt := 0; attempt <= c.MaxRetries; attempt++ {
