@@ -157,7 +157,7 @@ func TestSessionTokenSourceLoadsFromStore(t *testing.T) {
 
 	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
 	store := newStore(t, now)
-	if err := store.Save("w0", session.Entry{
+	if err := store.Save(t.Context(), "w0", session.Entry{
 		Token:           "cached-tok",
 		ExpiresAt:       now.Add(time.Hour),
 		LifetimeSeconds: 3600,
@@ -189,7 +189,7 @@ func TestSessionTokenSourceFetchesWhenStoredEntryExpired(t *testing.T) {
 
 	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
 	store := newStore(t, now)
-	if err := store.Save("w0", session.Entry{
+	if err := store.Save(t.Context(), "w0", session.Entry{
 		Token:     "stale",
 		ExpiresAt: now.Add(-time.Second),
 	}); err != nil {
@@ -211,7 +211,7 @@ func TestSessionTokenSourceFetchesWhenStoredEntryExpired(t *testing.T) {
 	if calls.Load() != 1 {
 		t.Errorf("KasAuth calls = %d, want 1", calls.Load())
 	}
-	saved, err := store.Load("w0")
+	saved, err := store.Load(t.Context(), "w0")
 	if err != nil || saved == nil {
 		t.Fatalf("expected fresh entry persisted, got %v %v", saved, err)
 	}
@@ -237,11 +237,11 @@ func TestSessionTokenSourceInvalidateDeletesPersisted(t *testing.T) {
 	if _, _, _, err := src.Credentials(context.Background()); err != nil {
 		t.Fatalf("Credentials: %v", err)
 	}
-	if got, _ := store.Load("w0"); got == nil {
+	if got, _ := store.Load(t.Context(), "w0"); got == nil {
 		t.Fatal("expected entry persisted after fresh fetch")
 	}
 	src.Invalidate()
-	if got, _ := store.Load("w0"); got != nil {
+	if got, _ := store.Load(t.Context(), "w0"); got != nil {
 		t.Errorf("expected entry deleted after Invalidate, got %+v", got)
 	}
 }
@@ -264,16 +264,16 @@ func TestSessionTokenSourceHeartbeatExtendsExpiry(t *testing.T) {
 	if _, _, _, err := src.Credentials(context.Background()); err != nil {
 		t.Fatalf("Credentials: %v", err)
 	}
-	first, _ := store.Load("w0")
+	first, _ := store.Load(t.Context(), "w0")
 	if first == nil {
 		t.Fatal("expected initial entry")
 	}
 
 	tNow = tNow.Add(15 * time.Minute)
 	store.Now = func() time.Time { return tNow }
-	src.Heartbeat()
+	src.Heartbeat(t.Context())
 
-	got, _ := store.Load("w0")
+	got, _ := store.Load(t.Context(), "w0")
 	if got == nil {
 		t.Fatal("expected entry after Heartbeat")
 	}
@@ -295,7 +295,7 @@ func TestSessionTokenSourceAdoptsLifetimeFromCachedEntry(t *testing.T) {
 
 	tNow := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
 	store := newStore(t, tNow)
-	if err := store.Save("w0", session.Entry{
+	if err := store.Save(t.Context(), "w0", session.Entry{
 		Token:           "cached",
 		ExpiresAt:       tNow.Add(time.Hour),
 		LifetimeSeconds: 3600,
@@ -314,9 +314,9 @@ func TestSessionTokenSourceAdoptsLifetimeFromCachedEntry(t *testing.T) {
 
 	tNow = tNow.Add(15 * time.Minute)
 	store.Now = func() time.Time { return tNow }
-	src.Heartbeat()
+	src.Heartbeat(t.Context())
 
-	got, _ := store.Load("w0")
+	got, _ := store.Load(t.Context(), "w0")
 	if got == nil {
 		t.Fatal("expected entry after Heartbeat")
 	}
@@ -342,7 +342,7 @@ func TestSessionTokenSourceInvalidateRestoresConfiguredAfterAdopt(t *testing.T) 
 
 	tNow := time.Date(2026, 5, 9, 12, 0, 0, 0, time.UTC)
 	store := newStore(t, tNow)
-	if err := store.Save("w0", session.Entry{
+	if err := store.Save(t.Context(), "w0", session.Entry{
 		Token:           "stale-but-locally-valid",
 		ExpiresAt:       tNow.Add(30 * time.Minute),
 		LifetimeSeconds: 1800,
@@ -370,7 +370,7 @@ func TestSessionTokenSourceInvalidateRestoresConfiguredAfterAdopt(t *testing.T) 
 		t.Fatalf("Credentials after invalidate: %v", err)
 	}
 
-	got, _ := store.Load("w0")
+	got, _ := store.Load(t.Context(), "w0")
 	if got == nil {
 		t.Fatal("expected fresh entry persisted after invalidate")
 	}
@@ -399,15 +399,15 @@ func TestSessionTokenSourceHeartbeatNoopWithoutUpdateLifetime(t *testing.T) {
 	if _, _, _, err := src.Credentials(context.Background()); err != nil {
 		t.Fatalf("Credentials: %v", err)
 	}
-	original, _ := store.Load("w0")
+	original, _ := store.Load(t.Context(), "w0")
 	if original == nil {
 		t.Fatal("expected initial entry")
 	}
 
 	tNow = tNow.Add(15 * time.Minute)
-	src.Heartbeat()
+	src.Heartbeat(t.Context())
 
-	got, _ := store.Load("w0")
+	got, _ := store.Load(t.Context(), "w0")
 	if got == nil || !got.ExpiresAt.Equal(original.ExpiresAt) {
 		t.Errorf("ExpiresAt changed without UpdateLifetime: %+v", got)
 	}

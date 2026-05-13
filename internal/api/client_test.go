@@ -302,5 +302,5 @@ type beatingTokens struct {
 func (b *beatingTokens) Credentials(_ context.Context) (string, string, soap.AuthType, error) {
 	return b.login, b.data, b.typ, nil
 }
-func (b *beatingTokens) Invalidate() {}
-func (b *beatingTokens) Heartbeat()  { b.heartbeats++ }
+func (b *beatingTokens) Invalidate()                 {}
+func (b *beatingTokens) Heartbeat(_ context.Context) { b.heartbeats++ }

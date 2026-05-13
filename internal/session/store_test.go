@@ -30,10 +30,10 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		LifetimeSeconds: 3600,
 		UpdateLifetime:  true,
 	}
-	if err := s.Save("w0000000", want); err != nil {
+	if err := s.Save(t.Context(), "w0000000", want); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
-	got, err := s.Load("w0000000")
+	got, err := s.Load(t.Context(), "w0000000")
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
@@ -49,10 +49,10 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 func TestSaveComputesExpiresAtFromLifetime(t *testing.T) {
 	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
 	s := newStore(t, now)
-	if err := s.Save("w0", session.Entry{Token: "t", LifetimeSeconds: 600}); err != nil {
+	if err := s.Save(t.Context(), "w0", session.Entry{Token: "t", LifetimeSeconds: 600}); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
-	got, err := s.Load("w0")
+	got, err := s.Load(t.Context(), "w0")
 	if err != nil || got == nil {
 		t.Fatalf("Load: %v %v", got, err)
 	}
@@ -65,10 +65,10 @@ func TestSaveComputesExpiresAtFromLifetime(t *testing.T) {
 func TestSaveFallsBackToDefaultLifetime(t *testing.T) {
 	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
 	s := newStore(t, now)
-	if err := s.Save("w0", session.Entry{Token: "t"}); err != nil {
+	if err := s.Save(t.Context(), "w0", session.Entry{Token: "t"}); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
-	got, err := s.Load("w0")
+	got, err := s.Load(t.Context(), "w0")
 	if err != nil || got == nil {
 		t.Fatalf("Load: %v %v", got, err)
 	}
@@ -80,7 +80,7 @@ func TestSaveFallsBackToDefaultLifetime(t *testing.T) {
 
 func TestLoadReturnsNilWhenFileMissing(t *testing.T) {
 	s := newStore(t, time.Now())
-	got, err := s.Load("anything")
+	got, err := s.Load(t.Context(), "anything")
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
@@ -91,10 +91,10 @@ func TestLoadReturnsNilWhenFileMissing(t *testing.T) {
 
 func TestLoadReturnsNilWhenLoginAbsent(t *testing.T) {
 	s := newStore(t, time.Now())
-	if err := s.Save("w0", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
+	if err := s.Save(t.Context(), "w0", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
-	got, err := s.Load("other")
+	got, err := s.Load(t.Context(), "other")
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
@@ -106,13 +106,13 @@ func TestLoadReturnsNilWhenLoginAbsent(t *testing.T) {
 func TestLoadDropsExpiredEntry(t *testing.T) {
 	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
 	s := newStore(t, now)
-	if err := s.Save("w0", session.Entry{
+	if err := s.Save(t.Context(), "w0", session.Entry{
 		Token:     "t",
 		ExpiresAt: now.Add(-time.Second),
 	}); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
-	got, err := s.Load("w0")
+	got, err := s.Load(t.Context(), "w0")
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
@@ -120,7 +120,7 @@ func TestLoadDropsExpiredEntry(t *testing.T) {
 		t.Errorf("expected expired Load to return nil, got %+v", got)
 	}
 	// File should be gone since it had only one entry.
-	if _, err := s.Load("w0"); err != nil {
+	if _, err := s.Load(t.Context(), "w0"); err != nil {
 		t.Errorf("second Load on cleaned file: %v", err)
 	}
 }
@@ -128,26 +128,26 @@ func TestLoadDropsExpiredEntry(t *testing.T) {
 func TestDeleteRemovesEntryOnly(t *testing.T) {
 	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
 	s := newStore(t, now)
-	if err := s.Save("a", session.Entry{Token: "1", LifetimeSeconds: 60}); err != nil {
+	if err := s.Save(t.Context(), "a", session.Entry{Token: "1", LifetimeSeconds: 60}); err != nil {
 		t.Fatalf("Save a: %v", err)
 	}
-	if err := s.Save("b", session.Entry{Token: "2", LifetimeSeconds: 60}); err != nil {
+	if err := s.Save(t.Context(), "b", session.Entry{Token: "2", LifetimeSeconds: 60}); err != nil {
 		t.Fatalf("Save b: %v", err)
 	}
-	if err := s.Delete("a"); err != nil {
+	if err := s.Delete(t.Context(), "a"); err != nil {
 		t.Fatalf("Delete a: %v", err)
 	}
-	if got, _ := s.Load("a"); got != nil {
+	if got, _ := s.Load(t.Context(), "a"); got != nil {
 		t.Errorf("a still present after Delete")
 	}
-	if got, _ := s.Load("b"); got == nil {
+	if got, _ := s.Load(t.Context(), "b"); got == nil {
 		t.Errorf("b should still be present")
 	}
 }
 
 func TestDeleteMissingIsNoop(t *testing.T) {
 	s := newStore(t, time.Now())
-	if err := s.Delete("nope"); err != nil {
+	if err := s.Delete(t.Context(), "nope"); err != nil {
 		t.Errorf("Delete on missing file: %v", err)
 	}
 }
@@ -182,7 +182,7 @@ func TestSaveWritesMode0600(t *testing.T) {
 		t.Skip("file mode bits not meaningful on Windows")
 	}
 	s := newStore(t, time.Now())
-	if err := s.Save("w0", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
+	if err := s.Save(t.Context(), "w0", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
 	info, err := statFile(s.Path)
@@ -207,7 +207,7 @@ func TestSaveBlocksWhileLockHeld(t *testing.T) {
 	// Force the lock-file directory + path to exist by running one Save
 	// first; otherwise the external flock.New below would lock a path
 	// that the production code creates on demand.
-	if err := s.Save("seed", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
+	if err := s.Save(t.Context(), "seed", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
 		t.Fatalf("seed Save: %v", err)
 	}
 
@@ -224,7 +224,7 @@ func TestSaveBlocksWhileLockHeld(t *testing.T) {
 
 	done := make(chan error, 1)
 	go func() {
-		done <- s.Save("w0", session.Entry{Token: "blocked", LifetimeSeconds: 60})
+		done <- s.Save(t.Context(), "w0", session.Entry{Token: "blocked", LifetimeSeconds: 60})
 	}()
 
 	select {
@@ -248,7 +248,7 @@ func TestSaveBlocksWhileLockHeld(t *testing.T) {
 		t.Fatal("Save did not complete after external Unlock")
 	}
 
-	got, err := s.Load("w0")
+	got, err := s.Load(t.Context(), "w0")
 	if err != nil || got == nil || got.Token != "blocked" {
 		t.Fatalf("post-unlock Load = %+v, %v; want token=blocked", got, err)
 	}
@@ -259,7 +259,7 @@ func TestSaveBlocksWhileLockHeld(t *testing.T) {
 // without timing out.
 func TestStoreReleasesLockAfterSave(t *testing.T) {
 	s := newStore(t, time.Now())
-	if err := s.Save("w0", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
+	if err := s.Save(t.Context(), "w0", session.Entry{Token: "t", LifetimeSeconds: 60}); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
 	ext := flock.New(s.LockPath())

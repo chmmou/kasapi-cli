@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `internal/session/store.go` + `auth/source.go` + `api/client.go`:
+  thread the call's `context.Context` through `session.Store.Load` /
+  `Save` / `Delete` and through `api.Heartbeater.Heartbeat`. The lock
+  wait now uses `flock.TryLockContext` so a user `Ctrl-C` while
+  another `kasapi-cli` process holds the sessions-file lock aborts
+  cleanly instead of blocking forever; the synchronous toml/os calls
+  are local-FS only so a `ctx.Err()` check at the boundary is
+  sufficient. `SessionTokenSource.Invalidate` deliberately uses
+  `context.Background` for the delete so a cancelled run still clears
+  the stale on-disk token, matching the "cleanup is finalisation"
+  pattern. Tests updated; behaviour for non-cancelled calls is
+  unchanged.
+
 - `internal/auth/source.go` + `auth/client.go` + `api/client.go` +
   `transport/client.go`: consolidated the `slog.New(slog.NewTextHandler(io.Discard, nil))`
   discard-logger pattern. Each of the three packages now has a single

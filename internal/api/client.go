@@ -34,9 +34,11 @@ type TokenSource interface {
 // Heartbeater is an optional TokenSource extension. After every
 // successful Call, Client invokes Heartbeat so a session-token source
 // configured with session_update_lifetime=Y can extend its locally
-// cached expiry to mirror the rolling window the server applies.
+// cached expiry to mirror the rolling window the server applies. The
+// call's context is forwarded so a slow disk write during Heartbeat
+// honours user cancellation.
 type Heartbeater interface {
-	Heartbeat()
+	Heartbeat(ctx context.Context)
 }
 
 // StaticTokenSource is a TokenSource that returns the same credentials
@@ -122,7 +124,7 @@ func (c *Client) Call(ctx context.Context, action string, params map[string]any)
 	}
 	if err == nil {
 		if hb, ok := c.Tokens.(Heartbeater); ok {
-			hb.Heartbeat()
+			hb.Heartbeat(ctx)
 		}
 		return resp, nil
 	}

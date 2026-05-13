@@ -12,6 +12,7 @@
 package session
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -22,6 +23,11 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/gofrs/flock"
 )
+
+// lockRetry is the polling interval used by flock.LockContext while
+// waiting for a contended lock. Small enough to feel responsive when
+// another process drops the lock, large enough not to spin on syscalls.
+const lockRetry = 50 * time.Millisecond
 
 // DefaultLifetime is applied when an Entry is saved without a
 // LifetimeSeconds value. It matches the documented KasAuth default
@@ -101,14 +107,23 @@ func (s *Store) LockPath() string {
 // withLock runs fn while holding an exclusive advisory lock on
 // LockPath. The lock file is created next to sessions.toml so its
 // permissions inherit from the same parent directory (created 0700
-// by write). The lock is released even if fn panics.
-func (s *Store) withLock(fn func() error) error {
+// by write). The lock is released even if fn panics. ctx cancels both
+// the wait for the lock (via flock.LockContext) and the body via the
+// caller's pre-I/O ctx.Err() checks.
+func (s *Store) withLock(ctx context.Context, fn func() error) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if err := os.MkdirAll(filepath.Dir(s.Path), 0o700); err != nil {
 		return fmt.Errorf("session: create lock dir: %w", err)
 	}
 	lock := flock.New(s.LockPath())
-	if err := lock.Lock(); err != nil {
+	locked, err := lock.TryLockContext(ctx, lockRetry)
+	if err != nil {
 		return fmt.Errorf("session: acquire lock %s: %w", s.LockPath(), err)
+	}
+	if !locked {
+		return fmt.Errorf("session: acquire lock %s: %w", s.LockPath(), ctx.Err())
 	}
 	defer func() { _ = lock.Unlock() }()
 	return fn()
@@ -121,13 +136,15 @@ func (s *Store) withLock(fn func() error) error {
 // Load serialises with concurrent Save / Delete calls (including from
 // other kasapi-cli processes) via an advisory file lock at LockPath so
 // a concurrent write cannot tear the read-modify-write of an expiry
-// cleanup.
-func (s *Store) Load(login string) (*Entry, error) {
+// cleanup. ctx cancels the wait for the lock and short-circuits the
+// pre-I/O entry; the underlying toml/os calls are synchronous and not
+// further interruptible, but the file is local so blocking is bounded.
+func (s *Store) Load(ctx context.Context, login string) (*Entry, error) {
 	if login == "" {
 		return nil, errors.New("session: Load requires login")
 	}
 	var out *Entry
-	err := s.withLock(func() error {
+	err := s.withLock(ctx, func() error {
 		file, err := s.read()
 		if err != nil {
 			return err
@@ -152,8 +169,8 @@ func (s *Store) Load(login string) (*Entry, error) {
 // Save serialises with concurrent Load / Delete / Save calls (including
 // from other kasapi-cli processes) via an advisory file lock at
 // LockPath so a Heartbeat from one process cannot lose another
-// process's update.
-func (s *Store) Save(login string, e Entry) error {
+// process's update. ctx cancels the wait for the lock.
+func (s *Store) Save(ctx context.Context, login string, e Entry) error {
 	if login == "" {
 		return errors.New("session: Save requires login")
 	}
@@ -163,7 +180,7 @@ func (s *Store) Save(login string, e Entry) error {
 	if e.ExpiresAt.IsZero() {
 		e.ExpiresAt = s.now().Add(s.lifetime(e))
 	}
-	return s.withLock(func() error {
+	return s.withLock(ctx, func() error {
 		file, err := s.read()
 		if err != nil {
 			return err
@@ -181,12 +198,12 @@ func (s *Store) Save(login string, e Entry) error {
 // entry is taken out so the on-disk state matches "no sessions".
 //
 // Delete serialises with concurrent Load / Save / Delete calls via the
-// advisory file lock at LockPath.
-func (s *Store) Delete(login string) error {
+// advisory file lock at LockPath. ctx cancels the wait for the lock.
+func (s *Store) Delete(ctx context.Context, login string) error {
 	if login == "" {
 		return errors.New("session: Delete requires login")
 	}
-	return s.withLock(func() error { return s.deleteLocked(login) })
+	return s.withLock(ctx, func() error { return s.deleteLocked(login) })
 }
 
 // deleteLocked is the un-locked Delete body, callable from inside a

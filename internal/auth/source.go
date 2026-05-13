@@ -92,7 +92,7 @@ func (s *SessionTokenSource) Credentials(ctx context.Context) (string, string, s
 	}
 	if !s.loaded && s.Store != nil {
 		s.loaded = true
-		if e, err := s.Store.Load(s.Client.Login); err == nil && e != nil {
+		if e, err := s.Store.Load(ctx, s.Client.Login); err == nil && e != nil {
 			s.token = e.Token
 			s.expiresAt = e.ExpiresAt
 			if s.cachedValid() {
@@ -124,7 +124,7 @@ func (s *SessionTokenSource) Credentials(ctx context.Context) (string, string, s
 			LifetimeSeconds: int(s.lifetime() / time.Second),
 			UpdateLifetime:  s.UpdateLifetime,
 		}
-		if err := s.Store.Save(s.Client.Login, entry); err != nil {
+		if err := s.Store.Save(ctx, s.Client.Login, entry); err != nil {
 			s.logger().Warn("auth: session store save failed; cache stays in-memory", "err", err)
 		}
 	}
@@ -137,6 +137,12 @@ func (s *SessionTokenSource) Credentials(ctx context.Context) (string, string, s
 // reset to the user-configured values so the fresh session created by
 // the next Credentials call respects the current CLI flags rather than
 // the now-discarded session's properties.
+//
+// Invalidate is called by api.Client on auth-failure paths where the
+// caller's ctx may already be cancelled; the disk delete therefore uses
+// context.Background so a successful invalidation cannot be lost just
+// because the user pressed Ctrl-C between the API failure and the
+// cleanup. The in-memory clear happens unconditionally either way.
 func (s *SessionTokenSource) Invalidate() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -148,7 +154,7 @@ func (s *SessionTokenSource) Invalidate() {
 		s.UpdateLifetime = s.configuredUpdateLifetime
 	}
 	if s.Store != nil {
-		if err := s.Store.Delete(s.Client.Login); err != nil {
+		if err := s.Store.Delete(context.Background(), s.Client.Login); err != nil {
 			s.logger().Warn("auth: session store delete failed; in-memory cache cleared", "err", err)
 		}
 	}
@@ -159,8 +165,9 @@ func (s *SessionTokenSource) Invalidate() {
 // window. It is a no-op when UpdateLifetime is false or no token is
 // cached; when a Store is wired up the refreshed expiry is also
 // persisted, otherwise the rolling window stays in-memory only.
-// Called by api.Client after every successful KasApi call.
-func (s *SessionTokenSource) Heartbeat() {
+// Called by api.Client after every successful KasApi call; ctx is the
+// call's context so cancellation cuts off the persistence write too.
+func (s *SessionTokenSource) Heartbeat(ctx context.Context) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if !s.UpdateLifetime || s.token == "" {
@@ -174,7 +181,7 @@ func (s *SessionTokenSource) Heartbeat() {
 			LifetimeSeconds: int(s.lifetime() / time.Second),
 			UpdateLifetime:  true,
 		}
-		if err := s.Store.Save(s.Client.Login, entry); err != nil {
+		if err := s.Store.Save(ctx, s.Client.Login, entry); err != nil {
 			s.logger().Warn("auth: session store heartbeat save failed; rolling window stays in-memory", "err", err)
 		}
 	}
