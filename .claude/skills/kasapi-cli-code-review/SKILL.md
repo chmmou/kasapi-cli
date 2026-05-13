@@ -1,6 +1,6 @@
 ---
 name: kasapi-cli-code-review
-description: Code-review loop for kasapi-cli — classification of findings (Blocker/Should/Nice-to-have) and the re-review cycle that ends only when no Blocker or Should-finding remains. TRIGGER when the user asks for a code-review pass, before any larger new step, or after corrections have been merged. The git/PR mechanics (branch naming, signed FF-push, PR shape) live in the companion skill `kasapi-cli-git-workflow`.
+description: Code-review loop for kasapi-cli — kasapi-cli-specific review anchors (fixture ↔ mapping alignment, clean-architecture layering, vertical-slice completeness, stable error identifiers), classification of findings (Blocker/Should/Nice-to-have), and the re-review cycle that ends only when no Blocker or Should-finding remains. TRIGGER when the user asks for a code-review pass, asks what to look for in a diff, before any larger new step, or after corrections have been merged. The git/PR mechanics (branch naming, signed FF-push, PR shape) live in the companion skill `kasapi-cli-git-workflow`.
 ---
 
 # kasapi-cli Code-Review Loop
@@ -10,6 +10,15 @@ Use this skill whenever the user asks for a review pass, before starting a large
 ## Stance
 
 Act in the role of code reviewer, not implementer. Read the diff or the affected code path with fresh eyes; resist the temptation to silently fix what you find while reading. Surface findings first, decide together what to address, then switch back to implementer mode on a dedicated branch.
+
+## Review Anchors (kasapi-cli-specific)
+
+Go-level hygiene (DRY, error-wrapping convention, type discipline, exhaustiveness) is the domain of `docs/go/STYLE_GUIDE.md`, `docs/go/PATTERNS.md`, and `docs/go/LINTING.md` — and `golangci-lint` enforces most of it mechanically. Do **not** re-derive those rules here; trust the lint gate, then focus the review on anchors unique to this repo:
+
+- **Fixture ↔ mapping alignment** — `testdata/<module>/*.xml` is captured from the live API and is the source of truth for response shape. When a mapping test fails, suspect the mapping before the fixture; when a mapping change is proposed without a touching fixture, flag it.
+- **Clean-architecture layering** — domain code in `internal/<domain>/` must not import the outer-layer adapters (SOAP, HTTP, Cobra/CLI); conversely the outer-layer packages (`internal/soap/`, `internal/transport/`, `internal/cli/`, `cmd/kasapi-cli/`) carry no domain logic. See `docs/go/ARCHITECTURE.md` for the full split.
+- **Vertical-slice completeness** — every new endpoint touches fixture → mapping (+ test) → client accessor → CLI subcommand → `docs/cli/` regen → CHANGELOG entry. A missing leg is a Should-finding by default; a missing fixture or test is a Blocker.
+- **Stable error identifiers** — where a caller needs to branch on a failure (auth refresh, flood-protection fallback, `ErrNoConfig`), the error must carry a typed sentinel or `errors.Is`-able marker, not a string match.
 
 ## Classification
 
