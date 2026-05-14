@@ -1,11 +1,16 @@
-## kasapi-cli config
+## kasapi-cli config add-profile
 
-Inspect and bootstrap the kasapi-cli configuration
+Interactively add a new profile to the config file
+
+```
+kasapi-cli config add-profile <name> [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for config
+      --force   overwrite an existing profile of the same name
+  -h, --help    help for add-profile
 ```
 
 ### Options inherited from parent commands
@@ -27,11 +32,5 @@ Inspect and bootstrap the kasapi-cli configuration
 
 ### SEE ALSO
 
-* [kasapi-cli](kasapi-cli.md)	 - Command-line client for the All-Inkl KAS API
-* [kasapi-cli config add-profile](kasapi-cli_config_add-profile.md)	 - Interactively add a new profile to the config file
-* [kasapi-cli config init](kasapi-cli_config_init.md)	 - Interactively create or replace a profile in the config file
-* [kasapi-cli config list-profiles](kasapi-cli_config_list-profiles.md)	 - List configured profiles and their auth_type (auth_data redacted)
-* [kasapi-cli config path](kasapi-cli_config_path.md)	 - Print the resolved config-file path
-* [kasapi-cli config show](kasapi-cli_config_show.md)	 - Print the resolved effective config (auth_data redacted)
-* [kasapi-cli config use-profile](kasapi-cli_config_use-profile.md)	 - Switch the persistent default_profile and invalidate the outgoing session
+* [kasapi-cli config](kasapi-cli_config.md)	 - Inspect and bootstrap the kasapi-cli configuration
 

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `kasapi-cli config add-profile <name>` / `use-profile <name>` /
+  `list-profiles` for managing multiple profiles in `config.toml`.
+  `add-profile` reuses the `config init` prompt flow with `--force` to
+  overwrite an existing profile; `use-profile` flips `default_profile`
+  and, if the outgoing profile had a non-expired cached session token,
+  invokes the KAS API `delete_session` action on it before removing
+  the local entry from `sessions.toml`. The server-side revoke is
+  best-effort — a transport or `unknown_session` fault is logged
+  under `--verbose` but does not abort the switch, because the local
+  cache is the authoritative client-side state. `list-profiles` prints
+  one line per profile, marks the default with `* `, and never writes
+  `auth_data`. Closes #39.
+
 ### Changed
 
 - `internal/cli/wire.go`: the first-run error from `BuildAPIClient` now

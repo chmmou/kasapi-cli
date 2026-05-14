@@ -10,3 +10,16 @@ type ConfigIO = configIO
 // Tests use it instead of executing the cobra subcommand directly so
 // the IsTTY/ReadPassword hooks can be substituted.
 var RunConfigInit = runConfigInit
+
+// RunConfigAddProfile, RunConfigUseProfile, RunConfigListProfiles are
+// the test-visible entry points for the multi-profile management
+// subcommands.
+var (
+	RunConfigAddProfile   = runConfigAddProfile
+	RunConfigUseProfile   = runConfigUseProfile
+	RunConfigListProfiles = runConfigListProfiles
+)
+
+// RevokeFunc mirrors the unexported revokeFunc dependency injected
+// into runConfigUseProfile so tests can supply a spy.
+type RevokeFunc = revokeFunc

@@ -2,9 +2,11 @@ package cli
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"sort"
 	"strings"
@@ -12,7 +14,11 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
+	"github.com/chmmou/kasapi-cli/internal/api"
 	"github.com/chmmou/kasapi-cli/internal/config"
+	"github.com/chmmou/kasapi-cli/internal/session"
+	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/transport"
 )
 
 // NewConfigCmd returns the "kasapi-cli config" subcommand tree: init
@@ -27,6 +33,9 @@ func NewConfigCmd(opts *RootOptions) *cobra.Command {
 		newConfigInitCmd(opts),
 		newConfigShowCmd(opts),
 		newConfigPathCmd(opts),
+		newConfigAddProfileCmd(opts),
+		newConfigUseProfileCmd(opts),
+		newConfigListProfilesCmd(opts),
 	)
 	return cmd
 }
@@ -261,6 +270,268 @@ func profileNames(cfg *config.Config) string {
 	}
 	sort.Strings(names)
 	return "[" + strings.Join(names, ", ") + "]"
+}
+
+// revokeFunc abstracts the server-side session-invalidation call so
+// tests can drive `use-profile` switches without an httptest server.
+// Production wires it to revokeSession; tests inject a spy.
+type revokeFunc func(ctx context.Context, login, token string) error
+
+// revokeSession server-side invalidates one cached session token by
+// calling kas_action=delete_session with that token. The KAS API
+// identifies the session via the (login, token) tuple supplied as
+// auth_data / auth_type=session — no extra parameters are required.
+//
+// Best-effort: transport, decode, or KAS-fault errors are returned so
+// the caller (runConfigUseProfile) can log them, but the caller must
+// not propagate them — the local cache is the authoritative
+// client-side state, and a failed revoke must not block a profile
+// switch.
+func revokeSession(ctx context.Context, login, token string, logger *slog.Logger) error {
+	tr := transport.New()
+	tr.Logger = logger
+	c := api.New(tr, &api.StaticTokenSource{
+		Login:    login,
+		AuthData: token,
+		AuthType: soap.AuthSession,
+	})
+	c.Logger = logger
+	_, err := c.Call(ctx, "delete_session", nil)
+	return err
+}
+
+func newConfigAddProfileCmd(opts *RootOptions) *cobra.Command {
+	var force bool
+	cmd := &cobra.Command{
+		Use:   "add-profile <name>",
+		Short: "Interactively add a new profile to the config file",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cio := defaultConfigIO()
+			cio.In = cmd.InOrStdin()
+			cio.Out = cmd.OutOrStdout()
+			return runConfigAddProfile(opts.ConfigPath, args[0], force, cio)
+		},
+	}
+	cmd.Flags().BoolVar(&force, "force", false, "overwrite an existing profile of the same name")
+	return cmd
+}
+
+// runConfigAddProfile is structurally identical to runConfigInit but
+// takes the profile name as a positional argument and never offers a
+// default-profile prompt on a non-empty existing config. It still sets
+// default_profile to the new name when the file had no default before,
+// matching `init`'s behaviour for a fresh file.
+func runConfigAddProfile(configPath, name string, force bool, cio configIO) error {
+	if !cio.IsTTY() {
+		return UserError(errors.New("kasapi-cli config add-profile requires an interactive terminal (stdin is not a TTY)"), "")
+	}
+	if name == "" {
+		return UserError(errors.New("profile name must not be empty"), "")
+	}
+	path, err := resolveConfigPath(configPath)
+	if err != nil {
+		return UserError(err, "")
+	}
+	cfg, err := config.Load(path)
+	if err != nil && !errors.Is(err, config.ErrNoConfig) {
+		return UserError(err, "load config")
+	}
+	if cfg == nil {
+		cfg = &config.Config{}
+	}
+	if cfg.Profiles == nil {
+		cfg.Profiles = map[string]config.Profile{}
+	}
+	if _, exists := cfg.Profiles[name]; exists && !force {
+		return UserError(fmt.Errorf("profile %q already exists in %s (rerun with --force to overwrite)", name, path), "")
+	}
+
+	r := bufio.NewReader(cio.In)
+	login, err := promptLine(r, cio.Out, "KAS login (e.g. w0000000): ")
+	if err != nil {
+		return UserError(err, "")
+	}
+	if login == "" {
+		return UserError(errors.New("login is required"), "")
+	}
+	authType, err := promptAuthType(r, cio.Out)
+	if err != nil {
+		return UserError(err, "")
+	}
+	if _, perr := fmt.Fprint(cio.Out, "auth_data (input hidden): "); perr != nil {
+		return UserError(perr, "")
+	}
+	authData, err := cio.ReadPassword()
+	if err != nil {
+		return UserError(err, "read password")
+	}
+	if authData == "" {
+		return UserError(errors.New("auth_data is required"), "")
+	}
+
+	cfg.Profiles[name] = config.Profile{
+		Login:    login,
+		AuthData: authData,
+		AuthType: authType,
+	}
+	if cfg.DefaultProfile == "" {
+		cfg.DefaultProfile = name
+	}
+	if err := cfg.Save(path); err != nil {
+		return UserError(err, "")
+	}
+	if _, perr := fmt.Fprintf(cio.Out, "Wrote profile %q to %s\n", name, path); perr != nil {
+		return UserError(perr, "")
+	}
+	return nil
+}
+
+func newConfigUseProfileCmd(opts *RootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "use-profile <name>",
+		Short: "Switch the persistent default_profile and invalidate the outgoing session",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			logger := buildLogger(opts.Verbose)
+			storePath, err := session.PathFor(opts.ConfigPath)
+			if err != nil {
+				return UserError(err, "session store")
+			}
+			store, err := session.New(storePath)
+			if err != nil {
+				return UserError(err, "session store")
+			}
+			revoke := func(ctx context.Context, login, token string) error {
+				return revokeSession(ctx, login, token, logger)
+			}
+			return runConfigUseProfile(cmd.Context(), opts.ConfigPath, args[0], revoke, store, logger, cmd.OutOrStdout())
+		},
+	}
+}
+
+// runConfigUseProfile flips default_profile to name. Before writing it
+// looks up the outgoing profile's login in sessions.toml and, if a
+// non-expired token is cached, calls revoke to drop the session
+// server-side. The on-disk cache entry is removed unconditionally
+// afterwards because the local cache is the authoritative client-side
+// state — a server-side revoke failure (network error,
+// unknown_session fault) is logged but does not abort the switch.
+func runConfigUseProfile(ctx context.Context, configPath, name string, revoke revokeFunc, store *session.Store, logger *slog.Logger, w io.Writer) error {
+	if name == "" {
+		return UserError(errors.New("profile name must not be empty"), "")
+	}
+	path, err := resolveConfigPath(configPath)
+	if err != nil {
+		return UserError(err, "")
+	}
+	cfg, err := config.Load(path)
+	if err != nil {
+		if errors.Is(err, config.ErrNoConfig) {
+			return UserError(fmt.Errorf("no config file at %s (run `kasapi-cli config init` to create a profile interactively)", path), "")
+		}
+		return UserError(err, "load config")
+	}
+	if _, ok := cfg.Profiles[name]; !ok {
+		return UserError(fmt.Errorf("profile %q not defined in %s", name, path), "")
+	}
+	if name == cfg.DefaultProfile {
+		if _, perr := fmt.Fprintf(w, "Profile %q is already the default in %s\n", name, path); perr != nil {
+			return UserError(perr, "")
+		}
+		return nil
+	}
+
+	if outgoing := cfg.DefaultProfile; outgoing != "" {
+		if prof, ok := cfg.Profiles[outgoing]; ok && prof.Login != "" {
+			entry, lerr := store.Load(ctx, prof.Login)
+			if lerr != nil {
+				logger.Warn("config use-profile: session store load failed",
+					"login", prof.Login, "err", lerr)
+			}
+			if entry != nil && entry.Token != "" {
+				if rerr := revoke(ctx, prof.Login, entry.Token); rerr != nil {
+					logger.Warn("config use-profile: server-side revoke failed (continuing)",
+						"login", prof.Login, "err", rerr)
+				}
+				if derr := store.Delete(ctx, prof.Login); derr != nil {
+					logger.Warn("config use-profile: session store delete failed",
+						"login", prof.Login, "err", derr)
+				}
+			}
+		}
+	}
+
+	cfg.DefaultProfile = name
+	if err := cfg.Save(path); err != nil {
+		return UserError(err, "")
+	}
+	if _, perr := fmt.Fprintf(w, "Switched default_profile to %q in %s\n", name, path); perr != nil {
+		return UserError(perr, "")
+	}
+	return nil
+}
+
+func newConfigListProfilesCmd(opts *RootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "list-profiles",
+		Short: "List configured profiles and their auth_type (auth_data redacted)",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return runConfigListProfiles(opts.ConfigPath, cmd.OutOrStdout())
+		},
+	}
+}
+
+// runConfigListProfiles prints one line per configured profile,
+// alphabetically sorted, prefixed with "* " for the default. auth_data
+// is never written. A missing config file prints a discoverability
+// hint pointing at `config init`, mirroring the first-run pathway
+// used by BuildAPIClient (#138).
+func runConfigListProfiles(configPath string, w io.Writer) error {
+	path, err := resolveConfigPath(configPath)
+	if err != nil {
+		return UserError(err, "")
+	}
+	cfg, err := config.Load(path)
+	if err != nil {
+		if errors.Is(err, config.ErrNoConfig) {
+			_, perr := fmt.Fprintf(w, "no profiles configured (run `kasapi-cli config init` to create one interactively)\n")
+			if perr != nil {
+				return UserError(perr, "")
+			}
+			return nil
+		}
+		return UserError(err, "load config")
+	}
+	if len(cfg.Profiles) == 0 {
+		_, perr := fmt.Fprintf(w, "no profiles configured in %s (run `kasapi-cli config init` to create one interactively)\n", path)
+		if perr != nil {
+			return UserError(perr, "")
+		}
+		return nil
+	}
+	names := make([]string, 0, len(cfg.Profiles))
+	for n := range cfg.Profiles {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	we := &writeErr{w: w}
+	for _, n := range names {
+		mark := "  "
+		if n == cfg.DefaultProfile {
+			mark = "* "
+		}
+		authType := cfg.Profiles[n].AuthType
+		if authType == "" {
+			authType = "session"
+		}
+		we.printf("%s%s (%s)\n", mark, n, authType)
+	}
+	if we.err != nil {
+		return UserError(we.err, "")
+	}
+	return nil
 }
 
 // writeErr is a fmt.Fprintf wrapper that records the first error so a
