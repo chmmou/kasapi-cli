@@ -2,7 +2,9 @@ package cli_test
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/cli"
@@ -65,6 +67,45 @@ func TestBuildAPIClientMissingCreds(t *testing.T) {
 		t.Errorf("err is not *ExitError: %T", err)
 	} else if ee.Code != cli.ExitUserError {
 		t.Errorf("Code = %d, want %d", ee.Code, cli.ExitUserError)
+	}
+}
+
+func TestBuildAPIClientFirstRunHint(t *testing.T) {
+	t.Setenv("KAS_LOGIN", "")
+	t.Setenv("KAS_AUTHDATA", "")
+	t.Setenv("KAS_AUTHTYPE", "")
+
+	opts := &cli.RootOptions{
+		ConfigPath: filepath.Join(t.TempDir(), "missing-config.toml"),
+	}
+	_, err := cli.BuildAPIClient(opts)
+	if err == nil {
+		t.Fatal("expected error for missing credentials")
+	}
+	if !strings.Contains(err.Error(), "config init") {
+		t.Errorf("err = %q, want hint containing %q", err, "config init")
+	}
+}
+
+func TestBuildAPIClientPartialConfigNoHint(t *testing.T) {
+	t.Setenv("KAS_LOGIN", "")
+	t.Setenv("KAS_AUTHDATA", "")
+	t.Setenv("KAS_AUTHTYPE", "")
+
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.toml")
+	contents := "default_profile = \"broken\"\n\n[profiles.broken]\nlogin = \"w0000000\"\n"
+	if err := os.WriteFile(cfgPath, []byte(contents), 0o600); err != nil {
+		t.Fatalf("write partial config: %v", err)
+	}
+
+	opts := &cli.RootOptions{ConfigPath: cfgPath}
+	_, err := cli.BuildAPIClient(opts)
+	if err == nil {
+		t.Fatal("expected error for partial config")
+	}
+	if strings.Contains(err.Error(), "config init") {
+		t.Errorf("err = %q, must not contain hint %q for partial config", err, "config init")
 	}
 }
 

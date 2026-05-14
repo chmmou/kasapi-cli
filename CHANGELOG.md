@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `internal/cli/wire.go`: the first-run error from `BuildAPIClient` now
+  appends `(run \`kasapi-cli config init\` to create a profile
+  interactively)` when no config file exists at all, so a fresh user
+  who runs `kasapi-cli accounts list` without env vars or flags is
+  pointed at the existing bootstrap wizard instead of having to guess
+  at flag combinations. Partial-config cases (file exists but a profile
+  is incomplete) keep the bare validation error because `config init`
+  refuses to overwrite without `--force` in that scenario.
+
 - `internal/session/store.go` + `auth/source.go` + `api/client.go`:
   thread the call's `context.Context` through `session.Store.Load` /
   `Save` / `Delete` and through `api.Heartbeater.Heartbeat`. The lock

@@ -39,9 +39,9 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 
 	logger := buildLogger(opts.Verbose)
 
-	cfg, err := config.Load(opts.ConfigPath)
-	if err != nil && !errors.Is(err, config.ErrNoConfig) {
-		return nil, UserError(err, "load config")
+	cfg, loadErr := config.Load(opts.ConfigPath)
+	if loadErr != nil && !errors.Is(loadErr, config.ErrNoConfig) {
+		return nil, UserError(loadErr, "load config")
 	}
 	creds, err := cfg.Resolve(config.EnvFromOS(), config.Override{
 		Profile:  opts.Profile,
@@ -50,6 +50,12 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 		AuthType: opts.AuthType,
 	})
 	if err != nil {
+		// Genuine first-run (no config file at all): point at the bootstrap
+		// wizard. Partial-config cases keep the bare validation error because
+		// `config init` would refuse without --force in that scenario.
+		if errors.Is(loadErr, config.ErrNoConfig) {
+			err = fmt.Errorf("%w (run `kasapi-cli config init` to create a profile interactively)", err)
+		}
 		return nil, UserError(err, "")
 	}
 	logger.Info("cli: credentials resolved",
