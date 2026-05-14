@@ -6,6 +6,8 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -499,6 +501,32 @@ func TestRunConfigUseProfileInvalidatesCachedSession(t *testing.T) {
 	}
 }
 
+func TestRunConfigUseProfilePrintsInvalidationLine(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := twoProfileConfig(t, dir)
+	storePath := filepath.Join(dir, "sessions.toml")
+	store, _ := session.New(storePath)
+	pre := session.Entry{
+		Token:     "01234567890abcdef0123456789abcdef0123456",
+		ExpiresAt: time.Now().Add(1 * time.Hour),
+	}
+	if err := store.Save(t.Context(), "w0000000", pre); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	spy := &revokeSpy{}
+	out := &bytes.Buffer{}
+
+	if err := cli.RunConfigUseProfile(t.Context(), cfgPath, "staging", spy.fn(), store, newDiscardLogger(), out); err != nil {
+		t.Fatalf("RunConfigUseProfile: %v", err)
+	}
+	if !strings.Contains(out.String(), `Invalidated cached session for "main"`) {
+		t.Errorf("missing invalidation line in output: %q", out.String())
+	}
+	if !strings.Contains(out.String(), "w0000000") {
+		t.Errorf("invalidation line missing login: %q", out.String())
+	}
+}
+
 func TestRunConfigUseProfileTolerateServerError(t *testing.T) {
 	dir := t.TempDir()
 	cfgPath := twoProfileConfig(t, dir)
@@ -542,6 +570,59 @@ func TestRunConfigUseProfileSkipsRevokeWhenNoToken(t *testing.T) {
 	}
 }
 
+// --- revokeSession (integration against testdata fixtures) --------------
+
+func newRevokeServer(t *testing.T, fixturePath string, capture *[]byte) *httptest.Server {
+	t.Helper()
+	//nolint:gosec // G304: fixturePath is a test-controlled constant pointing into testdata/.
+	body, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Fatalf("read fixture %s: %v", fixturePath, err)
+	}
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if capture != nil {
+			b, _ := io.ReadAll(r.Body)
+			*capture = b
+		}
+		w.Header().Set("Content-Type", "text/xml; charset=utf-8")
+		_, _ = w.Write(body)
+	}))
+}
+
+func TestRevokeSessionCallsDeleteSessionAction(t *testing.T) {
+	var captured []byte
+	srv := newRevokeServer(t, "../../testdata/session/delete_session_response_success.xml", &captured)
+	defer srv.Close()
+
+	err := cli.RevokeSession(t.Context(), "w0000000", "01234567890abcdef0123456789abcdef0123456", srv.URL, newDiscardLogger())
+	if err != nil {
+		t.Fatalf("RevokeSession: %v", err)
+	}
+	body := string(captured)
+	if !strings.Contains(body, `"kas_action":"delete_session"`) {
+		t.Errorf("request body missing kas_action=delete_session: %s", body)
+	}
+	if !strings.Contains(body, `"kas_auth_type":"session"`) {
+		t.Errorf("request body missing kas_auth_type=session: %s", body)
+	}
+	if !strings.Contains(body, `"kas_login":"w0000000"`) {
+		t.Errorf("request body missing kas_login: %s", body)
+	}
+}
+
+func TestRevokeSessionPropagatesUnknownSessionFault(t *testing.T) {
+	srv := newRevokeServer(t, "../../testdata/session/delete_session_response_failed_unknown_session.xml", nil)
+	defer srv.Close()
+
+	err := cli.RevokeSession(t.Context(), "w0000000", "expiredtoken", srv.URL, newDiscardLogger())
+	if err == nil {
+		t.Fatal("expected error for unknown_session fault")
+	}
+	if !strings.Contains(err.Error(), "unknown_session") {
+		t.Errorf("err %q does not mention unknown_session", err)
+	}
+}
+
 // --- list-profiles --------------------------------------------------------
 
 func TestRunConfigListProfilesMarksDefault(t *testing.T) {
@@ -555,6 +636,22 @@ func TestRunConfigListProfilesMarksDefault(t *testing.T) {
 	wantPrefix := "* main (session)\n  staging (plain)\n"
 	if got != wantPrefix {
 		t.Errorf("output = %q, want %q", got, wantPrefix)
+	}
+}
+
+func TestRunConfigListProfilesShowsUnsetAuthType(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.toml")
+	contents := "default_profile = \"main\"\n\n[profiles.main]\nlogin = \"w0000000\"\nauth_data = \"secret\"\n"
+	if err := os.WriteFile(cfgPath, []byte(contents), 0o600); err != nil {
+		t.Fatalf("write partial config: %v", err)
+	}
+	out := &bytes.Buffer{}
+	if err := cli.RunConfigListProfiles(cfgPath, out); err != nil {
+		t.Fatalf("RunConfigListProfiles: %v", err)
+	}
+	if !strings.Contains(out.String(), "no auth_type") {
+		t.Errorf("expected 'no auth_type' marker for empty auth_type, got %q", out.String())
 	}
 }
 

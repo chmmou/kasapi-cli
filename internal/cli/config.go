@@ -21,9 +21,13 @@ import (
 	"github.com/chmmou/kasapi-cli/internal/transport"
 )
 
-// NewConfigCmd returns the "kasapi-cli config" subcommand tree: init
-// (interactive bootstrap), show (resolved effective config with
-// auth_data redacted), and path (resolved config-file path).
+// NewConfigCmd returns the "kasapi-cli config" subcommand tree:
+//   - init (interactive bootstrap of the first profile)
+//   - show (resolved effective config with auth_data redacted)
+//   - path (resolved config-file path)
+//   - add-profile (interactive bootstrap of an additional profile)
+//   - use-profile (switch default_profile + server-side revoke)
+//   - list-profiles (alphabetical listing, default marked, auth_data redacted)
 func NewConfigCmd(opts *RootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",
@@ -282,12 +286,16 @@ type revokeFunc func(ctx context.Context, login, token string) error
 // identifies the session via the (login, token) tuple supplied as
 // auth_data / auth_type=session — no extra parameters are required.
 //
+// endpoint is empty in production (uses api.DefaultEndpoint); tests
+// point it at an httptest.Server so the real soap.Decode + api.Call
+// pipeline runs against canned fixtures.
+//
 // Best-effort: transport, decode, or KAS-fault errors are returned so
 // the caller (runConfigUseProfile) can log them, but the caller must
 // not propagate them — the local cache is the authoritative
 // client-side state, and a failed revoke must not block a profile
 // switch.
-func revokeSession(ctx context.Context, login, token string, logger *slog.Logger) error {
+func revokeSession(ctx context.Context, login, token, endpoint string, logger *slog.Logger) error {
 	tr := transport.New()
 	tr.Logger = logger
 	c := api.New(tr, &api.StaticTokenSource{
@@ -296,6 +304,9 @@ func revokeSession(ctx context.Context, login, token string, logger *slog.Logger
 		AuthType: soap.AuthSession,
 	})
 	c.Logger = logger
+	if endpoint != "" {
+		c.Endpoint = endpoint
+	}
 	_, err := c.Call(ctx, "delete_session", nil)
 	return err
 }
@@ -403,7 +414,7 @@ func newConfigUseProfileCmd(opts *RootOptions) *cobra.Command {
 				return UserError(err, "session store")
 			}
 			revoke := func(ctx context.Context, login, token string) error {
-				return revokeSession(ctx, login, token, logger)
+				return revokeSession(ctx, login, token, "", logger)
 			}
 			return runConfigUseProfile(cmd.Context(), opts.ConfigPath, args[0], revoke, store, logger, cmd.OutOrStdout())
 		},
@@ -457,6 +468,9 @@ func runConfigUseProfile(ctx context.Context, configPath, name string, revoke re
 				if derr := store.Delete(ctx, prof.Login); derr != nil {
 					logger.Warn("config use-profile: session store delete failed",
 						"login", prof.Login, "err", derr)
+				}
+				if _, perr := fmt.Fprintf(w, "Invalidated cached session for %q (login %s)\n", outgoing, prof.Login); perr != nil {
+					return UserError(perr, "")
 				}
 			}
 		}
@@ -522,9 +536,14 @@ func runConfigListProfiles(configPath string, w io.Writer) error {
 		if n == cfg.DefaultProfile {
 			mark = "* "
 		}
+		// Empty auth_type is rare (init / add-profile always write one
+		// via promptAuthType), but possible if the TOML was edited by
+		// hand. Show "no auth_type" so the user sees the real state
+		// instead of an optimistic "(session)" default that may not
+		// match what `cfg.Resolve` will accept.
 		authType := cfg.Profiles[n].AuthType
 		if authType == "" {
-			authType = "session"
+			authType = "no auth_type"
 		}
 		we.printf("%s%s (%s)\n", mark, n, authType)
 	}

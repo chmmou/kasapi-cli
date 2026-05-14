@@ -23,3 +23,8 @@ var (
 // RevokeFunc mirrors the unexported revokeFunc dependency injected
 // into runConfigUseProfile so tests can supply a spy.
 type RevokeFunc = revokeFunc
+
+// RevokeSession is the production revoke implementation, exposed so
+// integration tests can drive the full soap.Decode + api.Call pipeline
+// against an httptest.Server serving canned fixtures.
+var RevokeSession = revokeSession
