@@ -68,20 +68,9 @@ func TestBuildAPIClientMissingCreds(t *testing.T) {
 	} else if ee.Code != cli.ExitUserError {
 		t.Errorf("Code = %d, want %d", ee.Code, cli.ExitUserError)
 	}
-}
-
-func TestBuildAPIClientFirstRunHint(t *testing.T) {
-	t.Setenv("KAS_LOGIN", "")
-	t.Setenv("KAS_AUTHDATA", "")
-	t.Setenv("KAS_AUTHTYPE", "")
-
-	opts := &cli.RootOptions{
-		ConfigPath: filepath.Join(t.TempDir(), "missing-config.toml"),
-	}
-	_, err := cli.BuildAPIClient(opts)
-	if err == nil {
-		t.Fatal("expected error for missing credentials")
-	}
+	// Genuine first-run (no config file at all) must surface the
+	// `config init` discoverability hint so a fresh user is pointed at
+	// the bootstrap wizard instead of guessing flag combinations.
 	if !strings.Contains(err.Error(), "config init") {
 		t.Errorf("err = %q, want hint containing %q", err, "config init")
 	}
