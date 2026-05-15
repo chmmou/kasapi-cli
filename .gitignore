@@ -23,3 +23,10 @@ kasapi-cli.local.*
 
 # Local Claude Code settings (project-level skills are committed)
 .claude/settings.local.json
+
+# Local stuff
+*.lock
+# Anchored to the repo root: the local build artifact only. An
+# unanchored "kasapi-cli" would also match the cmd/kasapi-cli/ source
+# directory and silently hide newly added files there.
+/kasapi-cli
