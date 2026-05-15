@@ -153,6 +153,11 @@ func TestRunSessionsDeleteSurfacesTransportError(t *testing.T) {
 	if e, _ := store.Load(t.Context(), "w0000000"); e != nil {
 		t.Errorf("local cache not cleared after transport error: %+v", e)
 	}
+	// The user must learn the local cache was still cleared even though
+	// the command exits non-zero (the failure is not silent).
+	if !strings.Contains(out.String(), "Cleared the local cache") {
+		t.Errorf("output missing local-cache-cleared note on failure path: %q", out.String())
+	}
 }
 
 func TestRunSessionsDeleteNoConfigHint(t *testing.T) {

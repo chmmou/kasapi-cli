@@ -47,6 +47,9 @@ func (cl *Client) Delete(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	if resp == nil {
+		return fmt.Errorf("session: %s: nil response without error from Caller", deleteSessionAction)
+	}
 	if got := resp.Body.ReturnString; got != "TRUE" {
 		return fmt.Errorf("session: %s: unexpected ReturnString %q (want TRUE)", deleteSessionAction, got)
 	}

@@ -45,7 +45,8 @@ func newSessionsDeleteCmd(opts *RootOptions) *cobra.Command {
 			"fresh token just to delete it. Idempotent: a missing or " +
 			"already-invalid session is reported and exits 0. No confirmation " +
 			"prompt — deleting a session merely forces a re-authentication on " +
-			"the next session-mode call.",
+			"the next session-mode call; the global --yes flag has no effect " +
+			"here because there is nothing to confirm.",
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			logger := buildLogger(opts.Verbose)
@@ -122,6 +123,9 @@ func runSessionsDelete(ctx context.Context, opts *RootOptions, revoke revokeFunc
 	default:
 		logger.Warn("sessions delete: server-side revoke failed (local cache cleared)",
 			"login", creds.Login, "err", revokeErr)
+		if _, perr := fmt.Fprintf(w, "Cleared the local cache for login %s; the server-side delete_session call failed:\n", creds.Login); perr != nil {
+			return UserError(perr, "")
+		}
 		return APIError(revokeErr, "delete_session")
 	}
 }

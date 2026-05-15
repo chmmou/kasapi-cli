@@ -34,6 +34,14 @@ func TestClientDeletePropagatesError(t *testing.T) {
 	}
 }
 
+func TestClientDeleteRejectsNilResponse(t *testing.T) {
+	t.Parallel()
+	fc := &testutil.FakeCaller{Resp: nil, Err: nil}
+	if err := session.NewClient(fc).Delete(context.Background()); err == nil {
+		t.Error("Delete err = nil, want error for nil response without error from Caller")
+	}
+}
+
 func TestClientDeleteRejectsNonTrueReturnString(t *testing.T) {
 	t.Parallel()
 	resp := &soap.Response{Body: soap.ResponseBody{ReturnString: "FALSE"}}

@@ -1,14 +1,7 @@
-// Package session persists KasAuth credential tokens between CLI
-// invocations so a successful interactive login (including 2FA) does
-// not have to be repeated on every command for as long as the server
-// keeps the session alive.
-//
-// The store is a single TOML file (sessions.toml) keyed by login,
-// living next to the config file and written with mode 0600. Entries
-// expire client-side via ExpiresAt; the server's session_lifetime is
-// the source of truth, but mirroring it locally lets the CLI skip the
-// KasAuth round trip while a token is still good and refresh it
-// transparently once it is not.
+// This file implements the on-disk session-token cache half of the
+// package. The authoritative package overview lives in doc.go; the
+// blank line below keeps this from being a second package-doc comment.
+
 package session
 
 import (
@@ -44,8 +37,17 @@ type Entry struct {
 	UpdateLifetime  bool      `toml:"update_lifetime"`
 }
 
-// Store reads and writes sessions to a TOML file. The zero value is
-// not usable; obtain one via New.
+// Store persists KasAuth credential tokens between CLI invocations so a
+// successful interactive login (including 2FA) is not repeated on every
+// command for as long as the server keeps the session alive. It is a
+// single TOML file (sessions.toml) keyed by login, living next to the
+// config file and written with mode 0600. Entries expire client-side
+// via ExpiresAt; the server's session_lifetime is the source of truth,
+// but mirroring it locally lets the CLI skip the KasAuth round trip
+// while a token is still good and refresh it transparently once it is
+// not.
+//
+// The zero value is not usable; obtain one via New.
 type Store struct {
 	Path string
 	Now  func() time.Time
