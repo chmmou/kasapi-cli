@@ -11,7 +11,7 @@ import (
 
 func TestDecodeSpace(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_space_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_space_response_success.xml")
 	got, err := usage.DecodeSpace(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeSpace: %v", err)
@@ -38,7 +38,7 @@ func TestDecodeSpace(t *testing.T) {
 
 func TestDecodeSpaceUsage(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_space_usage_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_space_usage_response_success.xml")
 	got, err := usage.DecodeSpaceUsage(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeSpaceUsage: %v", err)
@@ -64,7 +64,7 @@ func TestDecodeSpaceUsage(t *testing.T) {
 
 func TestDecodeTraffic(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_traffic_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_traffic_response_success.xml")
 	got, err := usage.DecodeTraffic(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeTraffic: %v", err)
@@ -104,7 +104,7 @@ func TestDecodeTraffic(t *testing.T) {
 
 func TestClientSpace(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_space_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_space_response_success.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := usage.NewClient(fc).Space(context.Background())
 	if err != nil {
@@ -123,7 +123,7 @@ func TestClientSpace(t *testing.T) {
 
 func TestClientSpaceUsageWithDirectory(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_space_usage_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_space_usage_response_success.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	_, err := usage.NewClient(fc).SpaceUsage(context.Background(), "/htdocs")
 	if err != nil {
@@ -139,7 +139,7 @@ func TestClientSpaceUsageWithDirectory(t *testing.T) {
 
 func TestClientSpaceUsageEmptyDirectoryOmitsParams(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_space_usage_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_space_usage_response_success.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	if _, err := usage.NewClient(fc).SpaceUsage(context.Background(), ""); err != nil {
 		t.Fatalf("SpaceUsage: %v", err)
@@ -151,7 +151,7 @@ func TestClientSpaceUsageEmptyDirectoryOmitsParams(t *testing.T) {
 
 func TestClientTrafficZeroOmitsParams(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_traffic_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_traffic_response_success.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	if _, err := usage.NewClient(fc).Traffic(context.Background(), 0, 0); err != nil {
 		t.Fatalf("Traffic: %v", err)
@@ -163,7 +163,7 @@ func TestClientTrafficZeroOmitsParams(t *testing.T) {
 
 func TestClientTrafficWithYearMonthZeroPads(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_traffic_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_traffic_response_success.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	if _, err := usage.NewClient(fc).Traffic(context.Background(), 2026, 3); err != nil {
 		t.Fatalf("Traffic: %v", err)
@@ -193,7 +193,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestSpaceListTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_space_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_space_response_success.xml")
 	list, _ := usage.DecodeSpace(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 5 {
@@ -206,7 +206,7 @@ func TestSpaceListTabular(t *testing.T) {
 
 func TestSpaceUsageListTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_space_usage_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_space_usage_response_success.xml")
 	list, _ := usage.DecodeSpaceUsage(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 13 {
@@ -222,7 +222,7 @@ func TestSpaceUsageListTabular(t *testing.T) {
 
 func TestTrafficListTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "statistic/get_traffic_response_success.xml")
+	resp := testutil.DecodeFixture(t, "usage/get_traffic_response_success.xml")
 	list, _ := usage.DecodeTraffic(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 2 {

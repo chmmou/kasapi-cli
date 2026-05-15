@@ -12,9 +12,13 @@ import (
 // by callers. The full set of codes is open; new ones surface verbatim
 // in Error.Code.
 const (
-	CodeNoAuth           = "no_auth"
-	CodeAccessForbidden  = "kas_access_forbidden"
-	CodeNoAction         = "no_action"
+	CodeNoAuth          = "no_auth"
+	CodeAccessForbidden = "kas_access_forbidden"
+	CodeNoAction        = "no_action"
+	// CodeUnknownAction mirrors the KAS API's own misspelling ("unkown")
+	// verbatim. Do not "fix" the spelling: the value must equal the
+	// faultstring KAS actually sends, and testdata/response_failed_unkown_action.xml
+	// captures it as-is by design.
 	CodeUnknownAction    = "unkown_action"
 	CodeGotNoLoginData   = "got_no_login_data"
 	CodeUnknownSession   = "unknown_session"

@@ -40,6 +40,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Repo-consistency pass (post-review): `testdata/statistic/` renamed to
+  `testdata/usage/` so the fixture subdirectory matches its module
+  (`internal/usage`, CLI `usage`) per the one-subdir-per-module
+  convention; `TestServerCmdHelpListsInfo` moved out of
+  `account_test.go` into its own `internal/cli/server_test.go`;
+  `internal/cli/gendocs_test.go` added to cover the `gen-docs` helper;
+  `internal/{ssl,chown,symlink}` doc comments now state explicitly that
+  the packages are not-yet-implemented placeholders (issue #13); a
+  comment on `api.CodeUnknownAction` records that `"unkown_action"`
+  mirrors the KAS API's own misspelling verbatim and must not be
+  "corrected". No behaviour change.
+
 - `internal/cli/wire.go`: the first-run error from `BuildAPIClient` now
   appends ``(run `kasapi-cli config init` to create a profile
   interactively)`` when no config file exists at all, so a fresh user
