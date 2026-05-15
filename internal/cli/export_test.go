@@ -28,3 +28,8 @@ type RevokeFunc = revokeFunc
 // integration tests can drive the full soap.Decode + api.Call pipeline
 // against an httptest.Server serving canned fixtures.
 var RevokeSession = revokeSession
+
+// RunSessionsDelete is the test-visible entry point for the
+// `sessions delete` subcommand. Tests inject a RevokeFunc spy and a
+// temp session.Store, mirroring the `config use-profile` pattern.
+var RunSessionsDelete = runSessionsDelete

@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `kasapi-cli sessions delete` invalidates the resolved profile's
+  cached session token both server-side (KAS API `delete_session`) and
+  in the local `sessions.toml` cache. It acts on the *currently
+  cached* token only and never bootstraps a fresh one just to delete
+  it. The command is idempotent: a missing or already-invalid
+  (`unknown_session`) session is reported and exits 0; any other
+  transport/KAS error is surfaced with a non-zero exit after the local
+  cache has been cleared (the local cache is the authoritative
+  client-side state). No confirmation prompt — deleting a session
+  merely forces a re-authentication on the next session-mode call.
+  `add_session` is *not* a separate endpoint: it is the KasAuth
+  credential-token flow already covered by `internal/auth`, so it gets
+  no subcommand. The shared `delete_session` use case now lives in
+  `internal/session` (`session.Client`); `config use-profile`'s
+  revoke path was refactored to delegate to it. Closes #60.
+
 - `kasapi-cli config add-profile <name>` / `use-profile <name>` /
   `list-profiles` for managing multiple profiles in `config.toml`.
   `add-profile` reuses the `config init` prompt flow with `--force` to

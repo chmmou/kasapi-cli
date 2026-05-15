@@ -11,7 +11,7 @@ The list is kept in sync with the code on `main`. To claim an unchecked item, pl
 - [x] `KasAuth` credential-token flow (plain + session, optional 2FA via `--otp`)
 - [x] Persistent session-token cache (`sessions.toml`) survives across CLI invocations
 - [x] Session lifetime extension (`update_lifetime`)
-- [ ] Standalone `add_session` / `delete_session` subcommands
+- [x] Standalone `delete_session` subcommand (`kasapi-cli sessions delete`); `add_session` is the KasAuth credential-token flow already covered above (`internal/auth`), not a separate endpoint
 
 ## Configuration
 

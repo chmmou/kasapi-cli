@@ -43,6 +43,7 @@ kasapi-cli [flags]
 * [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts, forwards, filters, and mailing lists
 * [kasapi-cli sambausers](kasapi-cli_sambausers.md)	 - Inspect Samba/CIFS users visible to the login (get_sambausers)
 * [kasapi-cli server](kasapi-cli_server.md)	 - Inspect the host server kasapi-cli is talking to
+* [kasapi-cli sessions](kasapi-cli_sessions.md)	 - Manage KAS session tokens (delete_session)
 * [kasapi-cli softwareinstalls](kasapi-cli_softwareinstalls.md)	 - Inspect installable software templates (get_softwareinstall)
 * [kasapi-cli subdomains](kasapi-cli_subdomains.md)	 - Inspect subdomains owned by the authenticated account
 * [kasapi-cli tlds](kasapi-cli_tlds.md)	 - Inspect the catalog of registrable top-level domains

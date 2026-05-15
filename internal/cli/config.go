@@ -282,19 +282,22 @@ func profileNames(cfg *config.Config) string {
 type revokeFunc func(ctx context.Context, login, token string) error
 
 // revokeSession server-side invalidates one cached session token by
-// calling kas_action=delete_session with that token. The KAS API
-// identifies the session via the (login, token) tuple supplied as
-// auth_data / auth_type=session — no extra parameters are required.
+// driving the session.Client delete_session use case with that token.
+// The KAS API identifies the session via the (login, token) tuple
+// supplied as auth_data / auth_type=session — no extra parameters are
+// required. This function owns only the outer-layer wiring (transport +
+// StaticTokenSource); the action string and success contract live in
+// internal/session so config use-profile and `sessions delete` share
+// one source of truth.
 //
 // endpoint is empty in production (uses api.DefaultEndpoint); tests
 // point it at an httptest.Server so the real soap.Decode + api.Call
 // pipeline runs against canned fixtures.
 //
-// Best-effort: transport, decode, or KAS-fault errors are returned so
-// the caller (runConfigUseProfile) can log them, but the caller must
-// not propagate them — the local cache is the authoritative
-// client-side state, and a failed revoke must not block a profile
-// switch.
+// Errors (transport, decode, or KAS fault) are returned so callers can
+// log or classify them; whether they are propagated is the caller's
+// decision (config use-profile swallows them best-effort, `sessions
+// delete` surfaces non-unknown_session faults).
 func revokeSession(ctx context.Context, login, token, endpoint string, logger *slog.Logger) error {
 	tr := transport.New()
 	tr.Logger = logger
@@ -307,8 +310,7 @@ func revokeSession(ctx context.Context, login, token, endpoint string, logger *s
 	if endpoint != "" {
 		c.Endpoint = endpoint
 	}
-	_, err := c.Call(ctx, "delete_session", nil)
-	return err
+	return session.NewClient(c).Delete(ctx)
 }
 
 func newConfigAddProfileCmd(opts *RootOptions) *cobra.Command {

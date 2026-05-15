@@ -30,6 +30,7 @@ func main() {
 		cli.NewSoftwareInstallsCmd(opts),
 		cli.NewDDNSUsersCmd(opts),
 		cli.NewUsageCmd(opts),
+		cli.NewSessionsCmd(opts),
 		cli.NewConfigCmd(opts),
 		cli.NewGenDocsCmd(),
 	)

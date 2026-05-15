@@ -39,24 +39,9 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 
 	logger := buildLogger(opts.Verbose)
 
-	cfg, loadErr := config.Load(opts.ConfigPath)
-	if loadErr != nil && !errors.Is(loadErr, config.ErrNoConfig) {
-		return nil, UserError(loadErr, "load config")
-	}
-	creds, err := cfg.Resolve(config.EnvFromOS(), config.Override{
-		Profile:  opts.Profile,
-		Login:    opts.Login,
-		AuthData: opts.AuthData,
-		AuthType: opts.AuthType,
-	})
+	creds, err := resolveCreds(opts)
 	if err != nil {
-		// Genuine first-run (no config file at all): point at the bootstrap
-		// wizard. Partial-config cases keep the bare validation error because
-		// `config init` would refuse without --force in that scenario.
-		if errors.Is(loadErr, config.ErrNoConfig) {
-			err = fmt.Errorf("%w (run `kasapi-cli config init` to create a profile interactively)", err)
-		}
-		return nil, UserError(err, "")
+		return nil, err
 	}
 	logger.Info("cli: credentials resolved",
 		"login", creds.Login, "auth_type", creds.AuthType, "auth_data", "<redacted>")
@@ -75,6 +60,38 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 	c := api.New(tr, ts)
 	c.Logger = logger
 	return c, nil
+}
+
+// resolveCreds runs the config + env + flag credential resolution that
+// BuildAPIClient performs, including the genuine-first-run `config init`
+// hint when no config file exists at all (#138). It is the read-only
+// half BuildAPIClient builds a token source on top of; commands that
+// must act on the *resolved* profile without bootstrapping a fresh
+// session token (e.g. `sessions delete`) call it directly.
+func resolveCreds(opts *RootOptions) (config.Credentials, error) {
+	if opts == nil {
+		return config.Credentials{}, UserError(errors.New("nil RootOptions"), "cli")
+	}
+	cfg, loadErr := config.Load(opts.ConfigPath)
+	if loadErr != nil && !errors.Is(loadErr, config.ErrNoConfig) {
+		return config.Credentials{}, UserError(loadErr, "load config")
+	}
+	creds, err := cfg.Resolve(config.EnvFromOS(), config.Override{
+		Profile:  opts.Profile,
+		Login:    opts.Login,
+		AuthData: opts.AuthData,
+		AuthType: opts.AuthType,
+	})
+	if err != nil {
+		// Genuine first-run (no config file at all): point at the bootstrap
+		// wizard. Partial-config cases keep the bare validation error because
+		// `config init` would refuse without --force in that scenario.
+		if errors.Is(loadErr, config.ErrNoConfig) {
+			err = fmt.Errorf("%w (run `kasapi-cli config init` to create a profile interactively)", err)
+		}
+		return config.Credentials{}, UserError(err, "")
+	}
+	return creds, nil
 }
 
 // buildLogger returns a stderr text-handler logger when verbose is set,
