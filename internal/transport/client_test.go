@@ -328,6 +328,51 @@ func TestRecordDelayZeroClears(t *testing.T) {
 	}
 }
 
+func TestRecordDelayKeepsLongerExistingDelay(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, "<ok/>")
+	}))
+	defer srv.Close()
+
+	fc := newFakeClock()
+	c := newClient(srv, fc)
+	// A long gate followed by a shorter one (the fakeClock does not
+	// advance between RecordDelay calls): the shorter delay must not
+	// shorten the still-pending longer gate.
+	c.RecordDelay(time.Second)
+	c.RecordDelay(100 * time.Millisecond)
+
+	if _, err := c.Do(context.Background(), srv.URL, nil); err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+	naps := fc.Naps()
+	if len(naps) != 1 || naps[0] != time.Second {
+		t.Errorf("naps = %v, want [1s] (longer gate preserved, not reduced to 100ms)", naps)
+	}
+}
+
+func TestRecordDelayExtendsWhenNewDelayIsLonger(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, "<ok/>")
+	}))
+	defer srv.Close()
+
+	fc := newFakeClock()
+	c := newClient(srv, fc)
+	// A short gate followed by a longer one: the gate must extend to the
+	// later deadline.
+	c.RecordDelay(100 * time.Millisecond)
+	c.RecordDelay(time.Second)
+
+	if _, err := c.Do(context.Background(), srv.URL, nil); err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+	naps := fc.Naps()
+	if len(naps) != 1 || naps[0] != time.Second {
+		t.Errorf("naps = %v, want [1s] (gate extended to the longer delay)", naps)
+	}
+}
+
 func TestDoRespectsContextDeadlineDuringRequest(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		<-r.Context().Done()

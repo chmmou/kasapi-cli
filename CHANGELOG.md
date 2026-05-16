@@ -154,6 +154,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Monotonic flood-delay gate (review follow-up):
+  `transport.Client.RecordDelay` now extends the gate to `now+d` only
+  when that is later than an already-pending deadline, instead of
+  unconditionally overwriting it. Previously a shorter `KasFloodDelay`
+  arriving while a longer gate was still active reset the gate to the
+  shorter window, which could let the client resume early and trip the
+  server's flood protection. An explicit zero/negative delay still
+  clears the gate unconditionally (unchanged contract).
+
 - Read-path safety and transport cancellation context (review
   follow-up): the generic `kasread.ListGet.Get` accessor now returns an
   explicit `"<label>: %q matched N entries (expected unique)"` error

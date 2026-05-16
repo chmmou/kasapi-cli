@@ -70,6 +70,12 @@ func New() *Client {
 // RecordDelay schedules a window during which subsequent calls to Do
 // will block. d is the KasFloodDelay reported by the server in the
 // most recent response. Negative or zero values clear the gate.
+//
+// For a positive d the gate is monotonic: it extends to now+d only
+// when that is later than an already-pending deadline, so a shorter
+// delay arriving while a longer one is still active cannot shorten the
+// active gate (which would risk tripping the server's flood
+// protection). An explicit zero/negative d still clears unconditionally.
 func (c *Client) RecordDelay(d time.Duration) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -77,7 +83,9 @@ func (c *Client) RecordDelay(d time.Duration) {
 		c.nextEarliest = time.Time{}
 		return
 	}
-	c.nextEarliest = c.now().Add(d)
+	if cand := c.now().Add(d); cand.After(c.nextEarliest) {
+		c.nextEarliest = cand
+	}
 }
 
 // Do posts body to endpoint, blocking first until any pending flood
