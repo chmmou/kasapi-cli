@@ -72,9 +72,39 @@ Secret request parameters (`auth_data`, `*password`, `*token`,
 `*secret`, …) are replaced with `<redacted>` in **both** sinks and never
 written. Read commands produce no audit record.
 
-## Previewing instead of confirming
+## `--dry-run`: preview without dispatching
 
-A `--dry-run` flag that prints the exact KAS action and parameter map
-without dispatching anything is planned separately
-([#132](https://github.com/chmmou/kasapi-cli/issues/132)); it will
-short-circuit this prompt because nothing destructive happens.
+`--dry-run` runs every step of a destructive command **except** the
+SOAP call ([#132](https://github.com/chmmou/kasapi-cli/issues/132)).
+Credentials and the request are resolved exactly as for a real call,
+the KAS action and its parameter map are printed, and the command exits
+**0** without contacting KAS.
+
+- It **short-circuits the confirmation prompt** — nothing destructive
+  happens, so there is nothing to confirm. `--dry-run` together with
+  `--yes` still only previews (exit 0, no prompt, no dispatch).
+- The preview honours `--output` (`table` default, `json`, `yaml`) so
+  it is grep-/jq-/yq-friendly.
+- Secret parameters are redacted with the **same** rule as the audit
+  log (`<redacted>`).
+- An audit record is still emitted, with `outcome=dry-run`, so the
+  trace exists and is distinguishable from a real call.
+
+```console
+$ kasapi-cli mail accounts delete m0000001 --dry-run
+FIELD              VALUE
+action             delete_mailaccount
+target             m0000001
+param.mail_login   m0000001
+
+$ kasapi-cli mail accounts delete m0000001 --dry-run -o json
+{
+  "action": "delete_mailaccount",
+  "target": "m0000001",
+  "params": { "mail_login": "m0000001" }
+}
+```
+
+(The example command is illustrative — the per-resource write
+subcommands land with the #13 write endpoints; the flag and its
+machinery are already in place.)

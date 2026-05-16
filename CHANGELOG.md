@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `--dry-run` for destructive commands (#132, v0.2.0 write-phase
+  prerequisite): the new global `--dry-run` flag previews the KAS
+  request a destructive command would send (action + redacted
+  parameter map, via `--output` table/json/yaml) and exits 0 without
+  dispatching. It short-circuits the #109 confirmation prompt — even
+  combined with `--yes` it only previews — and still emits a #131
+  audit record with `outcome=dry-run` so the trace exists. The shared
+  `cli.ResolveDestructive` seam composes the dry-run preview, the
+  confirmation gate and the audit log so every future write command
+  consults one entry point. Documented in
+  `docs/usage/destructive-writes.md`. Per-command wiring lands with the
+  first write endpoint (#13).
+
 - Structured write-action audit log (#131, v0.2.0 write-phase
   prerequisite): `cli.AuditRecord` + `cli.WriteAudit` emit one
   `logfmt`-style line per dispatched write action to stderr — always

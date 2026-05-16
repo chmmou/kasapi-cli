@@ -27,6 +27,12 @@ type AuditRecord struct {
 	Fields  map[string]string `json:"fields,omitempty"`
 }
 
+// AuditOutcomeDryRun is the AuditRecord.Outcome value written for a
+// --dry-run invocation (#132): the request shape was previewed but no
+// SOAP call was dispatched, so it must be distinguishable in the log
+// from a real success or failure.
+const AuditOutcomeDryRun = "dry-run"
+
 // OutcomeFor maps a write call's error to the audit outcome string:
 // "success" on nil, "failure:<kas_code>" for a typed KAS fault, and a
 // bare "failure" for any other (transport/decode) error.

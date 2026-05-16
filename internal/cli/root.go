@@ -34,6 +34,7 @@ type RootOptions struct {
 	NoColor bool
 	Verbose bool
 	Yes     bool
+	DryRun  bool
 }
 
 // NewRootCmd builds the kasapi-cli root command and registers all
@@ -95,6 +96,9 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 	pf.StringVar(&opts.AuditLog, "audit-log", "",
 		"append a JSON-Lines audit record for each write action to this file "+
 			"(also KAS_AUDIT_LOG); a logfmt line always goes to stderr regardless")
+	pf.BoolVar(&opts.DryRun, "dry-run", false,
+		"preview a destructive command's KAS request (action + redacted parameters) "+
+			"and exit 0 without dispatching or prompting; honours --output")
 
 	// --yes is wired: it is honoured by the destructive-write
 	// confirmation gate (issue #109, cli.GateDestructive). --no-color
