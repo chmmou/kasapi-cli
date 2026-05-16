@@ -76,9 +76,10 @@ func newSessionsDeleteCmd(opts *RootOptions) *cobra.Command {
 // Unlike the implicit best-effort revoke in `config use-profile`, this
 // explicit command surfaces real failures so scripts notice: any
 // transport/KAS error other than an already-invalid token
-// (unknown_session, which is idempotent success) returns a non-zero
+// (unknown_session, which is idempotent success) returns an API-error
 // exit, and a local cache-removal failure is reported truthfully and
-// also returns a non-zero exit rather than being silently swallowed.
+// returns a user-error exit (the local cache is a client-side concern,
+// like a missing config file) rather than being silently swallowed.
 func runSessionsDelete(ctx context.Context, opts *RootOptions, revoke revokeFunc, store *session.Store, logger *slog.Logger, w io.Writer) error {
 	creds, err := resolveCreds(opts)
 	if err != nil {
@@ -122,7 +123,7 @@ func runSessionsDelete(ctx context.Context, opts *RootOptions, revoke revokeFunc
 			return UserError(perr, "")
 		}
 		if derr != nil {
-			return APIError(derr, "session store delete")
+			return UserError(derr, "session store delete")
 		}
 		return nil
 	case api.IsCode(revokeErr, api.CodeUnknownSession):
@@ -132,7 +133,7 @@ func runSessionsDelete(ctx context.Context, opts *RootOptions, revoke revokeFunc
 			return UserError(perr, "")
 		}
 		if derr != nil {
-			return APIError(derr, "session store delete")
+			return UserError(derr, "session store delete")
 		}
 		return nil
 	default:

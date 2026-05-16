@@ -269,8 +269,11 @@ func TestRunSessionsDeleteReportsLocalCacheDeleteFailure(t *testing.T) {
 	if err == nil {
 		t.Fatal("RunSessionsDelete err = nil, want a non-zero exit when local cache delete fails")
 	}
-	if got := cli.CodeFor(err); got != cli.ExitAPIError {
-		t.Errorf("CodeFor = %d, want ExitAPIError (%d); err=%v", got, cli.ExitAPIError, err)
+	// A local sessions.toml removal failure is a client-side problem, not
+	// a KAS/network fault — it maps to the user-error exit (1), the same
+	// classification gen-docs filesystem failures use.
+	if got := cli.CodeFor(err); got != cli.ExitUserError {
+		t.Errorf("CodeFor = %d, want ExitUserError (%d); err=%v", got, cli.ExitUserError, err)
 	}
 	if !strings.Contains(out.String(), "could NOT be cleared") {
 		t.Errorf("output must report the local cache was NOT cleared: %q", out.String())

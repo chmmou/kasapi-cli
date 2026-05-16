@@ -169,6 +169,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Exit-code classification for `sessions delete` (re-review
+  follow-up): a failure to remove the local `sessions.toml` entry now
+  exits with the user-error code (1) instead of the API-error code
+  (2). A local cache-removal failure is a client-side problem, not a
+  KAS fault or network failure, so it now matches the same
+  classification the `gen-docs` filesystem failures already use. The
+  truthful "could NOT be cleared" message and the non-zero exit are
+  unchanged; only the code differs.
+
 - Monotonic flood-delay gate (review follow-up):
   `transport.Client.RecordDelay` now extends the gate to `now+d` only
   when that is later than an already-pending deadline, instead of
