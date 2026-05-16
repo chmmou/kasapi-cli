@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Exported sentinel `session.ErrUnexpectedReturnString` (review
+  follow-up): `session.Client.Delete` now wraps it with `%w` when
+  `delete_session` returns without a SOAP fault but `ReturnString` is
+  not `"TRUE"`, so callers can `errors.Is` the contract violation apart
+  from a transport or KAS-fault error instead of string-matching the
+  message.
+
 - `kasapi-cli sessions delete` invalidates the resolved profile's
   cached session token both server-side (KAS API `delete_session`) and
   in the local `sessions.toml` cache. It acts on the *currently

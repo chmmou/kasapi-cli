@@ -46,7 +46,8 @@ func TestClientDeleteRejectsNonTrueReturnString(t *testing.T) {
 	t.Parallel()
 	resp := &soap.Response{Body: soap.ResponseBody{ReturnString: "FALSE"}}
 	fc := &testutil.FakeCaller{Resp: resp}
-	if err := session.NewClient(fc).Delete(context.Background()); err == nil {
-		t.Error("Delete err = nil, want contract-violation error for ReturnString != TRUE")
+	err := session.NewClient(fc).Delete(context.Background())
+	if !errors.Is(err, session.ErrUnexpectedReturnString) {
+		t.Errorf("Delete err = %v, want wrapped session.ErrUnexpectedReturnString", err)
 	}
 }

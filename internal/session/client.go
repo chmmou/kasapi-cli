@@ -2,10 +2,18 @@ package session
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/chmmou/kasapi-cli/internal/kasread"
 )
+
+// ErrUnexpectedReturnString is returned by Delete when delete_session
+// responds without a SOAP fault but ReturnString is not "TRUE" (API
+// drift / contract violation). Callers may errors.Is against it to
+// distinguish a protocol-shape regression from a transport or fault
+// error; the wrapped message carries the observed value.
+var ErrUnexpectedReturnString = errors.New("session: delete_session: unexpected ReturnString (want TRUE)")
 
 // Caller is the subset of *api.Client this package's KAS-side use case
 // depends on. Reusing the shared kasread.Caller keeps tests free of
@@ -40,8 +48,8 @@ func NewClient(c Caller) *Client { return &Client{c: c} }
 // surfaced verbatim by the Caller and returned so the caller can
 // classify it via the api error helpers. On a non-fault response the
 // server echoes ReturnString="TRUE"; any other value is treated as a
-// contract violation so a future API drift fails the mapping test
-// instead of silently passing.
+// contract violation (wrapping ErrUnexpectedReturnString) so a future
+// API drift fails the mapping test instead of silently passing.
 func (cl *Client) Delete(ctx context.Context) error {
 	resp, err := cl.c.Call(ctx, deleteSessionAction, nil)
 	if err != nil {
@@ -51,7 +59,7 @@ func (cl *Client) Delete(ctx context.Context) error {
 		return fmt.Errorf("session: %s: nil response without error from Caller", deleteSessionAction)
 	}
 	if got := resp.Body.ReturnString; got != "TRUE" {
-		return fmt.Errorf("session: %s: unexpected ReturnString %q (want TRUE)", deleteSessionAction, got)
+		return fmt.Errorf("%w: got %q", ErrUnexpectedReturnString, got)
 	}
 	return nil
 }
