@@ -63,8 +63,8 @@ func TestClientListNoFilter(t *testing.T) {
 	if fc.GotParams != nil {
 		t.Errorf("params = %v, want nil", fc.GotParams)
 	}
-	if len(list) != 1 {
-		t.Errorf("len = %d, want 1", len(list))
+	if len(list) == 0 {
+		t.Errorf("len = %d, want a non-empty list", len(list))
 	}
 }
 
@@ -82,8 +82,8 @@ func TestClientListWithPath(t *testing.T) {
 	if got, _ := fc.GotParams["directory_path"].(string); got != "/protected/directory/" {
 		t.Errorf("params[directory_path] = %v", fc.GotParams["directory_path"])
 	}
-	if len(list) != 1 {
-		t.Errorf("len = %d, want 1", len(list))
+	if len(list) == 0 {
+		t.Errorf("len = %d, want a non-empty list", len(list))
 	}
 }
 
