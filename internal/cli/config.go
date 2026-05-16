@@ -463,15 +463,31 @@ func runConfigUseProfile(ctx context.Context, configPath, name string, revoke re
 					"login", prof.Login, "err", lerr)
 			}
 			if entry != nil && entry.Token != "" {
-				if rerr := revoke(ctx, prof.Login, entry.Token); rerr != nil {
+				rerr := revoke(ctx, prof.Login, entry.Token)
+				if rerr != nil {
 					logger.Warn("config use-profile: server-side revoke failed (continuing)",
 						"login", prof.Login, "err", rerr)
 				}
-				if derr := store.Delete(ctx, prof.Login); derr != nil {
+				derr := store.Delete(ctx, prof.Login)
+				if derr != nil {
 					logger.Warn("config use-profile: session store delete failed",
 						"login", prof.Login, "err", derr)
 				}
-				if _, perr := fmt.Fprintf(w, "Invalidated cached session for %q (login %s)\n", outgoing, prof.Login); perr != nil {
+				// Best-effort: a revoke/cache failure never aborts the
+				// profile switch (see the function doc), but the message
+				// must not imply a success that did not happen.
+				var msg string
+				switch {
+				case rerr == nil && derr == nil:
+					msg = fmt.Sprintf("Invalidated cached session for %q (login %s)\n", outgoing, prof.Login)
+				case rerr != nil && derr == nil:
+					msg = fmt.Sprintf("Cleared the local session cache for %q (login %s); server-side delete_session failed (see --verbose) — continuing\n", outgoing, prof.Login)
+				case rerr == nil && derr != nil:
+					msg = fmt.Sprintf("Revoked the server-side session for %q (login %s); the local cache could NOT be cleared (see --verbose) — continuing\n", outgoing, prof.Login)
+				default:
+					msg = fmt.Sprintf("Could not fully invalidate the cached session for %q (login %s): both server-side delete_session and local cache removal failed (see --verbose) — continuing\n", outgoing, prof.Login)
+				}
+				if _, perr := fmt.Fprint(w, msg); perr != nil {
 					return UserError(perr, "")
 				}
 			}

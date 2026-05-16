@@ -154,6 +154,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Truthful CLI output and exit-code classification (review follow-up):
+  `kasapi-cli sessions delete` and `config use-profile` no longer claim
+  the local session cache was cleared (or that the server-side session
+  was invalidated) when the underlying `store.Delete` / `delete_session`
+  call actually failed — the message now reflects what really happened,
+  and `sessions delete` returns a non-zero exit when the local cache
+  removal fails instead of swallowing it. `gen-docs` local filesystem
+  failures (`mkdir` / write) now map to the user-error exit code (1)
+  via `UserError` instead of falling through as the API-fault code (2).
+  No behaviour change to the success paths.
+
 - `internal/session/store.go`: serialise `Load` / `Save` / `Delete`
   through an advisory file lock (`github.com/gofrs/flock`) at
   `<sessions.toml>.lock`. Previously two `kasapi-cli` processes running

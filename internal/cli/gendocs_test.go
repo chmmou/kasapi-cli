@@ -54,3 +54,29 @@ func TestGenDocsRequiresOutDirArg(t *testing.T) {
 		t.Fatal("Execute returned nil, want error for missing <out-dir> argument")
 	}
 }
+
+// TestGenDocsMkdirFailureIsUserError verifies a local filesystem failure
+// maps to the user-error exit code (1), not the API-fault code (2): a
+// regular file as the parent of <out-dir> makes os.MkdirAll fail with
+// ENOTDIR, which the command must classify via UserError.
+func TestGenDocsMkdirFailureIsUserError(t *testing.T) {
+	t.Parallel()
+	root, _ := cli.NewRootCmd()
+	root.AddCommand(cli.NewGenDocsCmd())
+
+	f := filepath.Join(t.TempDir(), "not-a-dir")
+	if err := os.WriteFile(f, []byte("x"), 0o600); err != nil {
+		t.Fatalf("seed file: %v", err)
+	}
+	var buf bytes.Buffer
+	root.SetOut(&buf)
+	root.SetErr(&buf)
+	root.SetArgs([]string{"gen-docs", filepath.Join(f, "sub")})
+	err := root.Execute()
+	if err == nil {
+		t.Fatal("Execute returned nil, want a filesystem error")
+	}
+	if got := cli.CodeFor(err); got != cli.ExitUserError {
+		t.Errorf("CodeFor = %d, want ExitUserError (%d); err=%v", got, cli.ExitUserError, err)
+	}
+}

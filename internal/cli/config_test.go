@@ -555,6 +555,35 @@ func TestRunConfigUseProfileTolerateServerError(t *testing.T) {
 	}
 }
 
+// TestRunConfigUseProfilePrintsTruthfulLineOnRevokeFailure asserts the
+// user message no longer implies a server-side invalidation that did
+// not happen: the switch still proceeds (best-effort), but the line must
+// disclose the revoke failure instead of "Invalidated cached session".
+func TestRunConfigUseProfilePrintsTruthfulLineOnRevokeFailure(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := twoProfileConfig(t, dir)
+	store, _ := session.New(filepath.Join(dir, "sessions.toml"))
+	if err := store.Save(t.Context(), "w0000000", session.Entry{
+		Token:     "01234567890abcdef0123456789abcdef0123456",
+		ExpiresAt: time.Now().Add(time.Hour),
+	}); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	spy := &revokeSpy{wantErr: errors.New("kas_session_invalid")}
+	out := &bytes.Buffer{}
+
+	if err := cli.RunConfigUseProfile(t.Context(), cfgPath, "staging", spy.fn(), store, newDiscardLogger(), out); err != nil {
+		t.Fatalf("switch must not fail on revoke error: %v", err)
+	}
+	got := out.String()
+	if strings.Contains(got, "Invalidated cached session") {
+		t.Errorf("output falsely claims full invalidation despite revoke failure: %q", got)
+	}
+	if !strings.Contains(got, "server-side delete_session failed") {
+		t.Errorf("output must disclose the server-side revoke failure: %q", got)
+	}
+}
+
 func TestRunConfigUseProfileSkipsRevokeWhenNoToken(t *testing.T) {
 	dir := t.TempDir()
 	cfgPath := twoProfileConfig(t, dir)

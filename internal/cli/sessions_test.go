@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -235,5 +236,46 @@ func TestSessionsDeleteToleratesUnknownSessionFault(t *testing.T) {
 	}
 	if !strings.Contains(out.String(), "already invalid") {
 		t.Errorf("output missing idempotent note: %q", out.String())
+	}
+}
+
+// TestRunSessionsDeleteReportsLocalCacheDeleteFailure exercises the
+// derr != nil branch: revoke succeeds but the local cache removal fails,
+// so the command must not claim the cache was cleared and must return a
+// non-zero exit instead of swallowing the failure.
+func TestRunSessionsDeleteReportsLocalCacheDeleteFailure(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("cannot exercise an EACCES store-delete failure as root")
+	}
+	clearKASEnv(t)
+	dir := t.TempDir()
+	cfgPath := twoProfileConfig(t, dir)
+	store := storeWithSession(t, dir, "w0000000", fixtureToken)
+	spy := &revokeSpy{} // revoke succeeds
+	out := &bytes.Buffer{}
+
+	// 0500 keeps the dir readable (config.Load + store.Load only read and
+	// open the pre-existing lock file) but blocks store.Delete's
+	// os.Remove(sessions.toml) with EACCES — a deterministic derr.
+	//nolint:gosec // G302: 0500 is a directory mode (deny write to force EACCES on os.Remove), not a file mode.
+	if err := os.Chmod(dir, 0o500); err != nil {
+		t.Fatalf("chmod dir read-only: %v", err)
+	}
+	//nolint:gosec // G302: 0700 restores the temp dir so t.TempDir cleanup can remove it.
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+
+	opts := &cli.RootOptions{ConfigPath: cfgPath}
+	err := cli.RunSessionsDelete(t.Context(), opts, spy.fn(), store, newDiscardLogger(), out)
+	if err == nil {
+		t.Fatal("RunSessionsDelete err = nil, want a non-zero exit when local cache delete fails")
+	}
+	if got := cli.CodeFor(err); got != cli.ExitAPIError {
+		t.Errorf("CodeFor = %d, want ExitAPIError (%d); err=%v", got, cli.ExitAPIError, err)
+	}
+	if !strings.Contains(out.String(), "could NOT be cleared") {
+		t.Errorf("output must report the local cache was NOT cleared: %q", out.String())
+	}
+	if strings.Contains(out.String(), "Cleared the local cache.") {
+		t.Errorf("output falsely claims the cache was cleared: %q", out.String())
 	}
 }

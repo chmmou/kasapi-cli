@@ -70,14 +70,15 @@ func newSessionsDeleteCmd(opts *RootOptions) *cobra.Command {
 // the profile's *currently cached* session token and, if present,
 // invalidates it server-side via revoke (delete_session) and removes
 // the on-disk cache entry. The local cache is the authoritative
-// client-side state, so it is cleared whenever a token was found —
-// even if the server-side revoke fails.
+// client-side state, so its removal is attempted whenever a token was
+// found, even if the server-side revoke fails.
 //
 // Unlike the implicit best-effort revoke in `config use-profile`, this
-// explicit command surfaces a real server-side failure: an
-// already-invalid token (unknown_session) is idempotent success, but
-// any other transport/KAS error is returned with a non-zero exit after
-// the local cache has been cleared, so scripts notice.
+// explicit command surfaces real failures so scripts notice: any
+// transport/KAS error other than an already-invalid token
+// (unknown_session, which is idempotent success) returns a non-zero
+// exit, and a local cache-removal failure is reported truthfully and
+// also returns a non-zero exit rather than being silently swallowed.
 func runSessionsDelete(ctx context.Context, opts *RootOptions, revoke revokeFunc, store *session.Store, logger *slog.Logger, w io.Writer) error {
 	creds, err := resolveCreds(opts)
 	if err != nil {
@@ -102,28 +103,42 @@ func runSessionsDelete(ctx context.Context, opts *RootOptions, revoke revokeFunc
 	}
 
 	revokeErr := revoke(ctx, creds.Login, entry.Token)
-	if derr := store.Delete(ctx, creds.Login); derr != nil {
+	derr := store.Delete(ctx, creds.Login)
+	if derr != nil {
 		logger.Warn("sessions delete: session store delete failed",
 			"login", creds.Login, "err", derr)
 	}
 
+	// The local cache message must reflect whether store.Delete actually
+	// succeeded — never claim it was cleared when it was not.
+	cacheNote := "Cleared the local cache."
+	if derr != nil {
+		cacheNote = "The local cache could NOT be cleared (see --verbose)."
+	}
+
 	switch {
 	case revokeErr == nil:
-		if _, perr := fmt.Fprintf(w, "Deleted server-side session for login %s and cleared the local cache\n", creds.Login); perr != nil {
+		if _, perr := fmt.Fprintf(w, "Deleted server-side session for login %s. %s\n", creds.Login, cacheNote); perr != nil {
 			return UserError(perr, "")
+		}
+		if derr != nil {
+			return APIError(derr, "session store delete")
 		}
 		return nil
 	case api.IsCode(revokeErr, api.CodeUnknownSession):
-		logger.Info("sessions delete: token already invalid server-side; cleared local cache",
+		logger.Info("sessions delete: token already invalid server-side",
 			"login", creds.Login)
-		if _, perr := fmt.Fprintf(w, "Session for login %s was already invalid server-side; cleared the local cache\n", creds.Login); perr != nil {
+		if _, perr := fmt.Fprintf(w, "Session for login %s was already invalid server-side. %s\n", creds.Login, cacheNote); perr != nil {
 			return UserError(perr, "")
+		}
+		if derr != nil {
+			return APIError(derr, "session store delete")
 		}
 		return nil
 	default:
-		logger.Warn("sessions delete: server-side revoke failed (local cache cleared)",
+		logger.Warn("sessions delete: server-side revoke failed",
 			"login", creds.Login, "err", revokeErr)
-		if _, perr := fmt.Fprintf(w, "Cleared the local cache for login %s; the server-side delete_session call failed:\n", creds.Login); perr != nil {
+		if _, perr := fmt.Fprintf(w, "Server-side delete_session for login %s failed. %s\n", creds.Login, cacheNote); perr != nil {
 			return UserError(perr, "")
 		}
 		return APIError(revokeErr, "delete_session")

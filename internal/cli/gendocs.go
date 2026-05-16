@@ -32,12 +32,12 @@ func NewGenDocsCmd() *cobra.Command {
 			out := args[0]
 			//nolint:gosec // G301: output dir holds public CLI reference docs (docs/cli/), 0o755 is the intentional umask-friendly default.
 			if err := os.MkdirAll(out, 0o755); err != nil {
-				return fmt.Errorf("gen-docs: mkdir %s: %w", out, err)
+				return UserError(fmt.Errorf("gen-docs: mkdir %s: %w", out, err), "")
 			}
 			root := cmd.Root()
 			root.DisableAutoGenTag = true
 			if err := doc.GenMarkdownTree(root, out); err != nil {
-				return fmt.Errorf("gen-docs: write %s: %w", out, err)
+				return UserError(fmt.Errorf("gen-docs: write %s: %w", out, err), "")
 			}
 			return nil
 		},
