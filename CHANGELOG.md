@@ -44,7 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   added `soap.Value.AsIntStrict` / `MapIntStrict` / `MapInt64Strict`,
   the error-returning siblings of the lenient `AsInt` / `MapInt` /
   `MapInt64` accessors — a missing key, empty/`xsi:nil`, or non-numeric
-  value yields an error instead of being silently coerced to `0`.
+  value yields an error instead of being silently coerced to `0`;
+  `MapIntStrict` additionally rejects a value that would overflow the
+  platform `int` (32-bit targets) rather than truncating it silently.
   Adopted in the account resource-quota decoder (`decodeQuota`): a
   present quota Map whose mandatory `max`/`reserved`/`created`/`used`/
   `free` integers are malformed now fails `DecodeAccountResources`

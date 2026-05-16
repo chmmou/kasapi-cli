@@ -3,6 +3,7 @@ package soap
 import (
 	"encoding/xml"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -410,11 +411,16 @@ func (v Value) MapInt64Strict(key string) (int64, error) {
 }
 
 // MapIntStrict is the int form of MapInt64Strict for fields that fit a
-// 32-bit int on all targets.
+// platform int. A value outside [MinInt, MaxInt] (possible on 32-bit
+// targets) is rejected rather than silently truncated — consistent
+// with the strict contract.
 func (v Value) MapIntStrict(key string) (int, error) {
 	n, err := v.MapInt64Strict(key)
 	if err != nil {
 		return 0, err
+	}
+	if n < math.MinInt || n > math.MaxInt {
+		return 0, fmt.Errorf("soap: key %q: value %d overflows platform int", key, n)
 	}
 	return int(n), nil
 }
