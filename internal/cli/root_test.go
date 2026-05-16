@@ -8,7 +8,7 @@ import (
 	"github.com/chmmou/kasapi-cli/internal/cli"
 )
 
-func TestRootHelpListsAllPersistentFlags(t *testing.T) {
+func TestRootHelpListsVisiblePersistentFlags(t *testing.T) {
 	t.Parallel()
 	root, _ := cli.NewRootCmd()
 	var out bytes.Buffer
@@ -21,10 +21,18 @@ func TestRootHelpListsAllPersistentFlags(t *testing.T) {
 	got := out.String()
 	for _, flag := range []string{
 		"--config", "--profile", "--login", "--auth-data", "--auth-type",
-		"--output", "--no-color", "--verbose", "--yes",
+		"--output", "--verbose",
 	} {
 		if !strings.Contains(got, flag) {
 			t.Errorf("help is missing flag %s; got:\n%s", flag, got)
+		}
+	}
+	// --no-color and --yes are reserved but unwired (issue #109): they
+	// stay parseable but must not be advertised in --help until they do
+	// something. TestRootBindsFlagsToOptions still proves they parse.
+	for _, hidden := range []string{"--no-color", "--yes"} {
+		if strings.Contains(got, hidden) {
+			t.Errorf("help advertises unwired flag %s; want it hidden until implemented; got:\n%s", hidden, got)
 		}
 	}
 }

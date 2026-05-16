@@ -47,6 +47,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The global `--no-color` and `--yes` flags are now hidden from
+  `--help` and the generated CLI docs (review follow-up). They were
+  bound but read nowhere — no colourised output is emitted yet and the
+  destructive-write confirmation gate is tracked in #109 — so
+  advertising them implied behaviour that does not exist. They remain
+  parseable (no breaking removal); the owning features will un-hide
+  them when they are wired.
+
 - Strict period decoding in `get_traffic` (re-review follow-up):
   `usage.DecodeTraffic` now decodes the mandatory `year` and `month`
   fields with `soap.Value.MapIntStrict`, so a missing or non-numeric
