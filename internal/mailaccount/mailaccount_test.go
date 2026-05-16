@@ -93,8 +93,11 @@ func TestClientGet(t *testing.T) {
 	if got, _ := fc.GotParams["mail_login"].(string); got != "m0000001" {
 		t.Errorf("params[mail_login] = %v, want m0000001", fc.GotParams["mail_login"])
 	}
-	if a.Login == "" {
-		t.Errorf("Login empty")
+	// The returned row must echo the requested login. The singular
+	// fixture's request echo and response row are aligned, so this can
+	// assert equality rather than just non-emptiness.
+	if a.Login != "m0000001" {
+		t.Errorf("Login = %q, want m0000001 (the requested login)", a.Login)
 	}
 }
 
