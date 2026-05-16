@@ -6,7 +6,7 @@ Invalidate the active profile's cached session token (delete_session)
 
 Invalidate the resolved profile's cached session token, both server-side (kas_action=delete_session) and in the local sessions.toml cache.
 
-Acts on the *currently cached* token only; it never bootstraps a fresh token just to delete it. Idempotent: a missing or already-invalid session is reported and exits 0. No confirmation prompt — deleting a session merely forces a re-authentication on the next session-mode call; the global --yes flag has no effect here because there is nothing to confirm.
+Acts on the *currently cached* token only; it never bootstraps a fresh token just to delete it. Idempotent: a missing or already-invalid session is reported and exits 0. No confirmation prompt — deleting a session merely forces a re-authentication on the next session-mode call.
 
 ```
 kasapi-cli sessions delete [flags]
