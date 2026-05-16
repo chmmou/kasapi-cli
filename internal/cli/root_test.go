@@ -21,7 +21,7 @@ func TestRootHelpListsVisiblePersistentFlags(t *testing.T) {
 	got := out.String()
 	for _, flag := range []string{
 		"--config", "--profile", "--login", "--auth-data", "--auth-type",
-		"--output", "--verbose", "--yes",
+		"--output", "--verbose", "--yes", "--audit-log",
 	} {
 		if !strings.Contains(got, flag) {
 			t.Errorf("help is missing flag %s; got:\n%s", flag, got)

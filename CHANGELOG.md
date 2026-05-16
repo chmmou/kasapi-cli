@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Structured write-action audit log (#131, v0.2.0 write-phase
+  prerequisite): `cli.AuditRecord` + `cli.WriteAudit` emit one
+  `logfmt`-style line per dispatched write action to stderr — always
+  on, independent of `--verbose` — with RFC 3339 timestamp, resolved
+  login, KAS action, target, `outcome` (`success` /
+  `failure:<kas_code>` / `failure`), and correlating fields. The new
+  global `--audit-log <path>` flag (and `KAS_AUDIT_LOG`; the flag wins)
+  additionally appends each record as JSON Lines to a `0600` file.
+  Secret parameters (`auth_data`, `*password`, `*token`, `*secret`, …)
+  are redacted in both sinks via `cli.RedactParams`. Documented in
+  `docs/usage/destructive-writes.md`. Per-command emission lands with
+  the first write endpoint (#13); read commands are unaffected.
+
 - Destructive-write confirmation gate (#109, v0.2.0 write-phase
   prerequisite): the global `--yes` / `-y` flag is now wired and
   advertised again. New `cli.GateDestructive` enforces an explicit

@@ -29,6 +29,8 @@ type RootOptions struct {
 	OutputRaw string
 	Output    Format
 
+	AuditLog string
+
 	NoColor bool
 	Verbose bool
 	Yes     bool
@@ -90,6 +92,9 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 	pf.BoolVar(&opts.NoColor, "no-color", false, "disable coloured output")
 	pf.BoolVarP(&opts.Verbose, "verbose", "v", false, "enable verbose logging on stderr")
 	pf.BoolVarP(&opts.Yes, "yes", "y", false, "skip confirmation prompts on destructive operations")
+	pf.StringVar(&opts.AuditLog, "audit-log", "",
+		"append a JSON-Lines audit record for each write action to this file "+
+			"(also KAS_AUDIT_LOG); a logfmt line always goes to stderr regardless")
 
 	// --yes is wired: it is honoured by the destructive-write
 	// confirmation gate (issue #109, cli.GateDestructive). --no-color

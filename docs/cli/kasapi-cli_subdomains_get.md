@@ -15,6 +15,7 @@ kasapi-cli subdomains get <subdomain-name> [flags]
 ### Options inherited from parent commands
 
 ```
+      --audit-log string                 append a JSON-Lines audit record for each write action to this file (also KAS_AUDIT_LOG); a logfmt line always goes to stderr regardless
       --auth-data string                 KAS auth data (overrides config and KAS_AUTHDATA)
       --auth-type string                 KAS auth strategy: 'plain' = send password on each KasApi call (no KasAuth, no 2FA support); 'session' = bootstrap via KasAuth and reuse the credential token. Overrides config and KAS_AUTHTYPE.
       --config string                    path to the kasapi-cli config file (overrides the default location)
