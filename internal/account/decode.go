@@ -41,7 +41,10 @@ func DecodeAccountResources(returnInfo soap.Value) (AccountResources, error) {
 	}
 	var out AccountResources
 	for _, kv := range returnInfo.Map {
-		q := decodeQuota(kv.Value)
+		q, err := decodeQuota(kv.Value)
+		if err != nil {
+			return AccountResources{}, fmt.Errorf("account: resource %q: %w", kv.Key, err)
+		}
 		switch kv.Key {
 		case "max_subdomain":
 			out.MaxSubdomain = q
@@ -198,18 +201,44 @@ func mapOfStringSlices(m soap.Value) map[string][]string {
 	return out
 }
 
-func decodeQuota(v soap.Value) ResourceQuota {
+// decodeQuota maps a single resource-quota Map. A non-Map slot is "no
+// quota" and yields the zero value without error (lenient, unchanged).
+// When the quota Map is present its five accounting integers are
+// mandatory: a missing or malformed value is a corrupt response and is
+// surfaced as an error rather than silently decoded as 0, which would
+// misreport the account's limits/usage.
+func decodeQuota(v soap.Value) (ResourceQuota, error) {
 	if v.Kind != soap.KindMap {
-		return ResourceQuota{}
+		return ResourceQuota{}, nil
+	}
+	max, err := v.MapIntStrict("max")
+	if err != nil {
+		return ResourceQuota{}, fmt.Errorf("quota max: %w", err)
+	}
+	reserved, err := v.MapIntStrict("reserved")
+	if err != nil {
+		return ResourceQuota{}, fmt.Errorf("quota reserved: %w", err)
+	}
+	created, err := v.MapIntStrict("created")
+	if err != nil {
+		return ResourceQuota{}, fmt.Errorf("quota created: %w", err)
+	}
+	used, err := v.MapIntStrict("used")
+	if err != nil {
+		return ResourceQuota{}, fmt.Errorf("quota used: %w", err)
+	}
+	free, err := v.MapIntStrict("free")
+	if err != nil {
+		return ResourceQuota{}, fmt.Errorf("quota free: %w", err)
 	}
 	return ResourceQuota{
-		Max:      v.MapInt("max"),
+		Max:      max,
 		Exceeded: getBool(v, "exceeded"),
-		Reserved: v.MapInt("reserved"),
-		Created:  v.MapInt("created"),
-		Used:     v.MapInt("used"),
-		Free:     v.MapInt("free"),
-	}
+		Reserved: reserved,
+		Created:  created,
+		Used:     used,
+		Free:     free,
+	}, nil
 }
 
 func getBool(m soap.Value, key string) bool {

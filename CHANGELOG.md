@@ -40,6 +40,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Strict numeric decoding for required KAS fields (review follow-up):
+  added `soap.Value.AsIntStrict` / `MapIntStrict` / `MapInt64Strict`,
+  the error-returning siblings of the lenient `AsInt` / `MapInt` /
+  `MapInt64` accessors — a missing key, empty/`xsi:nil`, or non-numeric
+  value yields an error instead of being silently coerced to `0`.
+  Adopted in the account resource-quota decoder (`decodeQuota`): a
+  present quota Map whose mandatory `max`/`reserved`/`created`/`used`/
+  `free` integers are malformed now fails `DecodeAccountResources`
+  rather than misreporting a `0` limit. The lenient accessors are
+  unchanged and remain the right choice for genuinely optional fields;
+  broader per-field adoption is deferred until each field's
+  presence is fixture-verified.
+
 - Repo-consistency pass (post-review): `testdata/statistic/` renamed to
   `testdata/usage/` so the fixture subdirectory matches its module
   (`internal/usage`, CLI `usage`) per the one-subdir-per-module

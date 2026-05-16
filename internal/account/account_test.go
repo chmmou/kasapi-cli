@@ -3,9 +3,11 @@ package account_test
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/account"
+	"github.com/chmmou/kasapi-cli/internal/soap"
 	"github.com/chmmou/kasapi-cli/internal/testutil"
 )
 
@@ -104,6 +106,30 @@ func TestDecodeAccountResources(t *testing.T) {
 	}
 	if got.MaxMailingList.Max != -1 {
 		t.Errorf("MaxMailingList.Max = %d, want -1", got.MaxMailingList.Max)
+	}
+}
+
+// TestDecodeAccountResourcesRejectsMalformedQuota proves the strict
+// quota path: a present quota Map whose mandatory `max` is non-numeric
+// is a corrupt response and must fail the decode instead of silently
+// reporting a 0 limit.
+func TestDecodeAccountResourcesRejectsMalformedQuota(t *testing.T) {
+	t.Parallel()
+	bad := soap.Value{Kind: soap.KindMap, Map: []soap.KV{
+		{Key: "max_subdomain", Value: soap.Value{Kind: soap.KindMap, Map: []soap.KV{
+			{Key: "max", Value: soap.Value{Kind: soap.KindString, String: "not-a-number"}},
+			{Key: "reserved", Value: soap.Value{Kind: soap.KindInt, Int: 0}},
+			{Key: "created", Value: soap.Value{Kind: soap.KindInt, Int: 0}},
+			{Key: "used", Value: soap.Value{Kind: soap.KindInt, Int: 0}},
+			{Key: "free", Value: soap.Value{Kind: soap.KindInt, Int: 0}},
+		}}},
+	}}
+	_, err := account.DecodeAccountResources(bad)
+	if err == nil {
+		t.Fatal("DecodeAccountResources err = nil, want a strict-quota error for malformed max")
+	}
+	if !strings.Contains(err.Error(), "quota max") {
+		t.Errorf("err = %q, want it to mention 'quota max'", err)
 	}
 }
 

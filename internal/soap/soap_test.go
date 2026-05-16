@@ -282,6 +282,46 @@ func TestValueMapAccessors(t *testing.T) {
 	}
 }
 
+func TestValueStrictIntAccessors(t *testing.T) {
+	m := soap.Value{Kind: soap.KindMap, Map: []soap.KV{
+		{Key: "count", Value: soap.Value{Kind: soap.KindInt, Int: 42}},
+		{Key: "ratio", Value: soap.Value{Kind: soap.KindFloat, Float: 1.9}},
+		{Key: "stringy_int", Value: soap.Value{Kind: soap.KindString, String: " 7 "}},
+		{Key: "blank", Value: soap.Value{Kind: soap.KindString, String: ""}},
+		{Key: "garbage", Value: soap.Value{Kind: soap.KindString, String: "abc"}},
+		{Key: "nil_field", Value: soap.Value{Kind: soap.KindNil}},
+	}}
+
+	// Success cases: typed int, truncated float, parseable string.
+	for _, tc := range []struct {
+		key  string
+		want int
+	}{{"count", 42}, {"ratio", 1}, {"stringy_int", 7}} {
+		got, err := m.MapIntStrict(tc.key)
+		if err != nil {
+			t.Errorf("MapIntStrict(%q) unexpected err: %v", tc.key, err)
+		}
+		if got != tc.want {
+			t.Errorf("MapIntStrict(%q) = %d, want %d", tc.key, got, tc.want)
+		}
+	}
+
+	// Failure cases: every one must error (not silently coerce to 0).
+	for _, key := range []string{"blank", "garbage", "nil_field", "missing"} {
+		if _, err := m.MapInt64Strict(key); err == nil {
+			t.Errorf("MapInt64Strict(%q) err = nil, want a strict error", key)
+		}
+	}
+
+	// Non-numeric kind via AsIntStrict directly.
+	if _, err := (soap.Value{Kind: soap.KindMap}).AsIntStrict(); err == nil {
+		t.Error("AsIntStrict on a Map kind err = nil, want error")
+	}
+	if n, err := (soap.Value{Kind: soap.KindInt, Int: -1}).AsIntStrict(); err != nil || n != -1 {
+		t.Errorf("AsIntStrict(int -1) = (%d, %v), want (-1, nil)", n, err)
+	}
+}
+
 // TestEncodeRequestRequiresFields verifies that EncodeRequest rejects
 // malformed input rather than silently producing an unauthenticated call.
 func TestEncodeRequestRequiresFields(t *testing.T) {

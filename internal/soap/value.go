@@ -367,6 +367,58 @@ func (v Value) MapInt64(key string) int64 {
 	return inner.AsInt()
 }
 
+// AsIntStrict is the error-returning form of AsInt for required
+// numeric fields: a malformed, empty, xsi:nil, or non-numeric value
+// yields an error instead of being silently coerced to 0. Int and
+// Float kinds succeed (Float truncates toward zero, as AsInt); a
+// String must parse as a base-10 int64.
+func (v Value) AsIntStrict() (int64, error) {
+	switch v.Kind {
+	case KindInt:
+		return v.Int, nil
+	case KindFloat:
+		return int64(v.Float), nil
+	case KindString:
+		s := strings.TrimSpace(v.String)
+		if s == "" {
+			return 0, fmt.Errorf("soap: empty string is not an integer")
+		}
+		n, err := strconv.ParseInt(s, 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("soap: %q is not an integer: %w", s, err)
+		}
+		return n, nil
+	}
+	return 0, fmt.Errorf("soap: value kind %d is not an integer", v.Kind)
+}
+
+// MapInt64Strict looks up key in a Map Value and returns the entry via
+// AsIntStrict. A missing key or a value that is not a valid integer
+// yields an error, so callers can enforce required KAS fields instead
+// of silently decoding a malformed response as 0. Use the lenient
+// MapInt64 for optional fields.
+func (v Value) MapInt64Strict(key string) (int64, error) {
+	inner, ok := v.Get(key)
+	if !ok {
+		return 0, fmt.Errorf("soap: missing required key %q", key)
+	}
+	n, err := inner.AsIntStrict()
+	if err != nil {
+		return 0, fmt.Errorf("soap: key %q: %w", key, err)
+	}
+	return n, nil
+}
+
+// MapIntStrict is the int form of MapInt64Strict for fields that fit a
+// 32-bit int on all targets.
+func (v Value) MapIntStrict(key string) (int, error) {
+	n, err := v.MapInt64Strict(key)
+	if err != nil {
+		return 0, err
+	}
+	return int(n), nil
+}
+
 // MapFloat looks up key in a Map Value and returns the entry coerced
 // to float64 via AsFloat. Missing keys yield 0.
 func (v Value) MapFloat(key string) float64 {
