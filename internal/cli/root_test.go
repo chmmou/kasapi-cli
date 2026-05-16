@@ -21,19 +21,18 @@ func TestRootHelpListsVisiblePersistentFlags(t *testing.T) {
 	got := out.String()
 	for _, flag := range []string{
 		"--config", "--profile", "--login", "--auth-data", "--auth-type",
-		"--output", "--verbose",
+		"--output", "--verbose", "--yes",
 	} {
 		if !strings.Contains(got, flag) {
 			t.Errorf("help is missing flag %s; got:\n%s", flag, got)
 		}
 	}
-	// --no-color and --yes are reserved but unwired (issue #109): they
-	// stay parseable but must not be advertised in --help until they do
-	// something. TestRootBindsFlagsToOptions still proves they parse.
-	for _, hidden := range []string{"--no-color", "--yes"} {
-		if strings.Contains(got, hidden) {
-			t.Errorf("help advertises unwired flag %s; want it hidden until implemented; got:\n%s", hidden, got)
-		}
+	// --yes is now wired (issue #109, destructive-write gate) so it is
+	// advertised again. --no-color stays reserved/unwired and must not
+	// be advertised in --help yet. TestRootBindsFlagsToOptions still
+	// proves --no-color parses.
+	if strings.Contains(got, "--no-color") {
+		t.Errorf("help advertises unwired flag --no-color; want it hidden until implemented; got:\n%s", got)
 	}
 }
 

@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"errors"
 	"strings"
 	"testing"
 
@@ -38,5 +39,48 @@ func TestConfirm(t *testing.T) {
 		if !strings.Contains(out.String(), "delete? [y/N]:") {
 			t.Errorf("Confirm(%q) prompt missing: %q", tt.input, out.String())
 		}
+	}
+}
+
+func TestGateDestructive(t *testing.T) {
+	t.Parallel()
+	action := cli.ConfirmAction{Verb: "delete", Resource: "mail account", ID: "m0000001"}
+
+	tests := []struct {
+		name       string
+		input      string
+		isTTY      bool
+		yes        bool
+		wantErr    error // nil = proceed
+		wantPrompt bool  // whether the [y/N] summary must appear on out
+	}{
+		{name: "accepted", input: "y\n", isTTY: true, yes: false, wantErr: nil, wantPrompt: true},
+		{name: "declined", input: "n\n", isTTY: true, yes: false, wantErr: cli.ErrConfirmationDeclined, wantPrompt: true},
+		{name: "empty declines", input: "\n", isTTY: true, yes: false, wantErr: cli.ErrConfirmationDeclined, wantPrompt: true},
+		{name: "yes bypasses prompt", input: "", isTTY: false, yes: true, wantErr: nil, wantPrompt: false},
+		{name: "non-tty without yes", input: "", isTTY: false, yes: false, wantErr: cli.ErrConfirmationRequired, wantPrompt: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var out bytes.Buffer
+			err := cli.GateDestructive(strings.NewReader(tt.input), &out, tt.isTTY, tt.yes, action)
+			if tt.wantErr == nil {
+				if err != nil {
+					t.Errorf("GateDestructive() = %v, want nil (proceed)", err)
+				}
+			} else {
+				if !errors.Is(err, tt.wantErr) {
+					t.Errorf("GateDestructive() = %v, want wrapped %v", err, tt.wantErr)
+				}
+				if got := cli.CodeFor(err); got != cli.ExitUserError {
+					t.Errorf("CodeFor = %d, want ExitUserError (%d)", got, cli.ExitUserError)
+				}
+			}
+			hasPrompt := strings.Contains(out.String(), `About to delete mail account "m0000001". This cannot be undone.`)
+			if hasPrompt != tt.wantPrompt {
+				t.Errorf("prompt shown = %v, want %v; out=%q", hasPrompt, tt.wantPrompt, out.String())
+			}
+		})
 	}
 }

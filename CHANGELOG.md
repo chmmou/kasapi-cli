@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Destructive-write confirmation gate (#109, v0.2.0 write-phase
+  prerequisite): the global `--yes` / `-y` flag is now wired and
+  advertised again. New `cli.GateDestructive` enforces an explicit
+  `[y/N]` prompt before any destructive SOAP call — declining or a
+  non-interactive stdin without `--yes` aborts with exit code 1
+  (exported sentinels `cli.ErrConfirmationDeclined` /
+  `cli.ErrConfirmationRequired`, `errors.Is`-able). `--yes` bypasses
+  the prompt for automation. TTY detection is now shared by `config
+  init`/`add-profile` and the gate. The safety contract is documented
+  in `docs/usage/destructive-writes.md`. Per-command wiring lands with
+  the first write endpoint (#13); read commands are unaffected.
+
 - Exported sentinel `session.ErrUnexpectedReturnString` (review
   follow-up): `session.Client.Delete` now wraps it with `%w` when
   `delete_session` returns without a SOAP fault but `ReturnString` is

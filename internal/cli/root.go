@@ -91,14 +91,13 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 	pf.BoolVarP(&opts.Verbose, "verbose", "v", false, "enable verbose logging on stderr")
 	pf.BoolVarP(&opts.Yes, "yes", "y", false, "skip confirmation prompts on destructive operations")
 
-	// --no-color and --yes are reserved but not yet wired: no colourised
-	// output is emitted today, and the destructive-write confirmation
-	// gate is tracked in issue #109. Keep them parseable (so a future
-	// release can honour them without a breaking flag re-introduction)
-	// but hidden, so --help and the generated docs do not advertise
-	// flags that currently do nothing.
+	// --yes is wired: it is honoured by the destructive-write
+	// confirmation gate (issue #109, cli.GateDestructive). --no-color
+	// stays reserved but hidden: no colourised output is emitted yet, so
+	// advertising it would imply behaviour that does not exist. It stays
+	// parseable so a future release can honour it without a breaking
+	// flag re-introduction.
 	_ = pf.MarkHidden("no-color")
-	_ = pf.MarkHidden("yes")
 
 	return cmd, opts
 }

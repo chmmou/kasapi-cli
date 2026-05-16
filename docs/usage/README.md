@@ -17,6 +17,10 @@ For installation, configuration (TOML profiles, env vars, flag precedence), and 
 - [usage](usage.md) — webspace and traffic counters
 - [hosting](hosting.md) — FTP / Samba users, cronjobs, directory protection, software installs, DDNS users
 
+## Safety
+
+- [destructive-writes](destructive-writes.md) — the confirmation contract for irreversible write commands (`[y/N]` prompt, `--yes`/`-y` bypass, non-interactive behaviour, exit codes).
+
 ## Conventions used in the examples
 
 - `-o json` / `-o yaml` / `-o table` selects the output format. Default is `table`.
