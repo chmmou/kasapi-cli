@@ -1,9 +1,12 @@
 package auth_test
 
 import (
+	"bytes"
 	"context"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync/atomic"
@@ -175,6 +178,51 @@ func TestSessionTokenSourceLoadsFromStore(t *testing.T) {
 	}
 	if login != "w0" || data != "cached-tok" || typ != soap.AuthSession {
 		t.Errorf("Credentials = (%q,%q,%q), want (w0, cached-tok, session)", login, data, typ)
+	}
+}
+
+// TestSessionTokenSourceWarnsOnStoreLoadFailure covers the err != nil
+// branch of the persisted-entry lookup: a corrupt sessions.toml must not
+// be swallowed silently. The source still re-bootstraps via KasAuth
+// (the in-memory cache is authoritative), but it must emit a Warn so a
+// stale/unreadable cache is diagnosable in the field — mirroring the
+// Save / Delete / Heartbeat persistence paths.
+func TestSessionTokenSourceWarnsOnStoreLoadFailure(t *testing.T) {
+	body := loadFixture(t, "session/add_session_response_success.xml")
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	store := newStore(t, now)
+	// A non-TOML payload makes store.Load return a parse error
+	// deterministically (no permission/root dependence).
+	if err := os.WriteFile(store.Path, []byte("this is = not valid = toml"), 0o600); err != nil {
+		t.Fatalf("seed corrupt store: %v", err)
+	}
+
+	logBuf := &bytes.Buffer{}
+	src := auth.NewSessionTokenSource(newAuthClient(srv, "w0", "secret", soap.AuthPlain, auth.Options{}))
+	src.Store = store
+	src.Lifetime = time.Hour
+	src.Now = func() time.Time { return now }
+	src.Logger = slog.New(slog.NewTextHandler(logBuf, &slog.HandlerOptions{Level: slog.LevelWarn}))
+
+	_, data, _, err := src.Credentials(context.Background())
+	if err != nil {
+		t.Fatalf("Credentials: %v", err)
+	}
+	if data == "" {
+		t.Error("expected a fresh KasAuth token after the corrupt-store fallback")
+	}
+	if calls.Load() != 1 {
+		t.Errorf("KasAuth calls = %d, want 1 (fallback after load failure)", calls.Load())
+	}
+	if !strings.Contains(logBuf.String(), "session store load failed") {
+		t.Errorf("expected a Warn about the failed store load, got log: %q", logBuf.String())
 	}
 }
 

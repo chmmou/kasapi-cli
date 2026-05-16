@@ -40,8 +40,8 @@ type SessionTokenSource struct {
 	UpdateLifetime bool
 	Now            func() time.Time
 
-	// Logger receives Warn events when persisting or deleting the session
-	// cache on disk fails. The in-memory cache still works in that case
+	// Logger receives Warn events when loading, persisting, or deleting
+	// the session cache on disk fails. The in-memory cache still works
 	// and the next invocation simply re-bootstraps via KasAuth, but
 	// surfacing disk-full / permission errors helps debug field issues.
 	// Nil is treated as a discard logger.
@@ -92,7 +92,16 @@ func (s *SessionTokenSource) Credentials(ctx context.Context) (string, string, s
 	}
 	if !s.loaded && s.Store != nil {
 		s.loaded = true
-		if e, err := s.Store.Load(ctx, s.Client.Login); err == nil && e != nil {
+		e, err := s.Store.Load(ctx, s.Client.Login)
+		switch {
+		case err != nil:
+			// A corrupt or unreadable sessions.toml must not be silent:
+			// the in-memory cache still works and we re-bootstrap via
+			// KasAuth below, but surfacing the load failure mirrors the
+			// Save / Delete / Heartbeat paths and helps debug field
+			// issues instead of masking a stale-cache root cause.
+			s.logger().Warn("auth: session store load failed; bootstrapping a fresh token via KasAuth", "err", err)
+		case e != nil:
 			s.token = e.Token
 			s.expiresAt = e.ExpiresAt
 			if s.cachedValid() {
