@@ -100,7 +100,7 @@ func (c *Client) Do(ctx context.Context, endpoint string, body []byte) ([]byte, 
 			c.logger().Info("transport: retry after transient failure",
 				"attempt", attempt, "max", c.MaxRetries, "backoff_ms", backoff.Milliseconds())
 			if err := c.Sleep(ctx, backoff); err != nil {
-				return nil, err
+				return nil, fmt.Errorf("transport: retry backoff interrupted: %w", err)
 			}
 			backoff *= 2
 		}
@@ -128,7 +128,10 @@ func (c *Client) waitGate(ctx context.Context) error {
 		return nil
 	}
 	c.logger().Info("transport: waiting for KasFloodDelay gate", "wait_ms", wait.Milliseconds())
-	return c.Sleep(ctx, wait)
+	if err := c.Sleep(ctx, wait); err != nil {
+		return fmt.Errorf("transport: flood-gate wait interrupted: %w", err)
+	}
+	return nil
 }
 
 func (c *Client) logger() *slog.Logger {

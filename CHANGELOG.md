@@ -154,6 +154,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Read-path safety and transport cancellation context (review
+  follow-up): the generic `kasread.ListGet.Get` accessor now returns an
+  explicit `"<label>: %q matched N entries (expected unique)"` error
+  when a singular-variant lookup comes back with more than one entry,
+  instead of silently returning the first — enforcing the documented
+  "single matching entry" contract for every module's `Get`. Transport
+  flood-gate and retry-backoff sleeps that are interrupted by context
+  cancellation now wrap the error with the phase
+  (`flood-gate wait interrupted` / `retry backoff interrupted`) while
+  preserving `errors.Is(err, context.Canceled)`. The `internal/ddns`
+  field-availability comment was corrected to match the captured
+  fixtures (both the list and singular variants return
+  `dyndns_target_ipv4` / `ipv6`).
+
 - Truthful CLI output and exit-code classification (review follow-up):
   `kasapi-cli sessions delete` and `config use-profile` no longer claim
   the local session cache was cleared (or that the server-side session

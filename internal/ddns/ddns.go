@@ -24,11 +24,12 @@ type Caller = kasread.Caller
 // the response keys use the "dyndns_*" prefix (with `y`). The
 // struct mirrors the wire keys verbatim.
 //
-// The list endpoint returns only the legacy `dyndns_target_ip`;
-// the singular variant additionally returns `dyndns_target_ipv4`
-// and `dyndns_target_ipv6` for explicit dual-stack inspection.
-// Those plus `in_progress` may be absent on either variant, so all
-// three are flagged with omitempty.
+// Per the captured fixtures both variants return the legacy
+// `dyndns_target_ip` alongside the explicit `dyndns_target_ipv4` and
+// `dyndns_target_ipv6` dual-stack fields (see
+// testdata/ddns/get_ddnsuser*_response_success.xml). The ipv4/ipv6
+// pair plus `in_progress` may still be absent on older accounts, so
+// all three are flagged with omitempty.
 type DDNSUser struct {
 	Login    string `json:"dyndns_login" yaml:"dyndns_login"`
 	Password string `json:"dyndns_password,omitempty" yaml:"dyndns_password,omitempty"`

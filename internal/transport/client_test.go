@@ -252,6 +252,32 @@ func TestDoContextCancelDuringBackoff(t *testing.T) {
 	if !errors.Is(err, context.Canceled) {
 		t.Fatalf("err = %v, want context.Canceled", err)
 	}
+	if !strings.Contains(err.Error(), "retry backoff interrupted") {
+		t.Errorf("err = %q, want it to carry the retry-backoff phase context", err)
+	}
+}
+
+func TestDoContextCancelDuringGateWait(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, "<ok/>")
+	}))
+	defer srv.Close()
+
+	c := transport.New()
+	c.HTTPClient = srv.Client()
+	c.Now = time.Now
+	c.Sleep = func(_ context.Context, _ time.Duration) error {
+		return context.Canceled
+	}
+	c.RecordDelay(500 * time.Millisecond)
+
+	_, err := c.Do(context.Background(), srv.URL, []byte(sampleEnvelope))
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("err = %v, want errors.Is context.Canceled", err)
+	}
+	if !strings.Contains(err.Error(), "flood-gate wait interrupted") {
+		t.Errorf("err = %q, want it to carry the flood-gate-wait phase context", err)
+	}
 }
 
 func TestRecordDelayGatesNextCall(t *testing.T) {

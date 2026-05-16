@@ -57,10 +57,12 @@ func (lg ListGet[L, E]) List(ctx context.Context) (L, error) {
 	return list, nil
 }
 
-// Get calls Action with {FilterKey: value} and returns the first
-// matching entry, or a "<Label>: %q not found" error if the response
-// carried an empty list. An empty value yields "<Label>: <ArgName>
-// is required" without performing the call.
+// Get calls Action with {FilterKey: value} and returns the single
+// matching entry. An empty response yields a "<Label>: %q not found"
+// error; an ambiguous response with more than one entry yields a
+// "<Label>: %q matched N entries (expected unique)" error rather than
+// silently returning the first. An empty value yields "<Label>:
+// <ArgName> is required" without performing the call.
 func (lg ListGet[L, E]) Get(ctx context.Context, value string) (E, error) {
 	var zero E
 	if value == "" {
@@ -76,6 +78,9 @@ func (lg ListGet[L, E]) Get(ctx context.Context, value string) (E, error) {
 	}
 	if len(list) == 0 {
 		return zero, fmt.Errorf("%s: %q not found", lg.Label, value)
+	}
+	if len(list) > 1 {
+		return zero, fmt.Errorf("%s: %q matched %d entries (expected unique)", lg.Label, value, len(list))
 	}
 	return list[0], nil
 }

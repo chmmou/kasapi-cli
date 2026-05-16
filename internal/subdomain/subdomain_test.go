@@ -57,7 +57,20 @@ func TestClientList(t *testing.T) {
 func TestClientGet(t *testing.T) {
 	t.Parallel()
 	resp := testutil.DecodeFixture(t, "subdomain/get_subdomains_response_success.xml")
-	fc := &testutil.FakeCaller{Resp: resp}
+	if resp.Body.ReturnInfo.Kind != soap.KindArray || len(resp.Body.ReturnInfo.Array) == 0 {
+		t.Fatal("fixture is not a non-empty array")
+	}
+	// The captured fixture is the multi-entry list view. The singular
+	// get_subdomains variant (subdomain_name filter) returns the same Map
+	// shape but a single-element array; Get now requires exactly one
+	// match, so feed it the realistic singular cardinality by reusing the
+	// first real entry from the fixture.
+	single := *resp
+	single.Body.ReturnInfo = soap.Value{
+		Kind:  soap.KindArray,
+		Array: resp.Body.ReturnInfo.Array[:1],
+	}
+	fc := &testutil.FakeCaller{Resp: &single}
 	s, err := subdomain.NewClient(fc).Get(context.Background(), "sub1.example.com")
 	if err != nil {
 		t.Fatalf("Get: %v", err)
@@ -68,7 +81,6 @@ func TestClientGet(t *testing.T) {
 	if name, _ := fc.GotParams["subdomain_name"].(string); name != "sub1.example.com" {
 		t.Errorf("params[subdomain_name] = %v, want sub1.example.com", fc.GotParams["subdomain_name"])
 	}
-	// The fixture is the list-view payload; Get unwraps the first entry.
 	if s.Name != "sub1.example.com" {
 		t.Errorf("Name = %q", s.Name)
 	}

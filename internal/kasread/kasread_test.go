@@ -136,3 +136,14 @@ func TestGetPropagatesTransportError(t *testing.T) {
 		t.Errorf("err = %v, want errors.Is == %v", err, want)
 	}
 }
+
+func TestGetRejectsMultipleMatches(t *testing.T) {
+	fc := &testutil.FakeCaller{Resp: arrayResp("dup", "dup")}
+	_, err := newLG(fc).Get(context.Background(), "dup")
+	if err == nil {
+		t.Fatal("expected an ambiguity error for >1 matches, got nil")
+	}
+	if !strings.Contains(err.Error(), "matched 2 entries") {
+		t.Errorf("err = %q, want it to mention 'matched 2 entries'", err)
+	}
+}
