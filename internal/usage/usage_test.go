@@ -5,9 +5,23 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/chmmou/kasapi-cli/internal/soap"
 	"github.com/chmmou/kasapi-cli/internal/testutil"
 	"github.com/chmmou/kasapi-cli/internal/usage"
 )
+
+// trafficRow builds a get_traffic ReturnInfo map with a single entry
+// whose year/month carry the given raw string values, so the strict
+// decode of the mandatory period fields can be exercised in isolation.
+func trafficRow(year, month string) soap.Value {
+	return soap.Value{Kind: soap.KindMap, Map: []soap.KV{
+		{Key: "0", Value: soap.Value{Kind: soap.KindMap, Map: []soap.KV{
+			{Key: "account_login", Value: soap.Value{Kind: soap.KindString, String: "w0000001"}},
+			{Key: "year", Value: soap.Value{Kind: soap.KindString, String: year}},
+			{Key: "month", Value: soap.Value{Kind: soap.KindString, String: month}},
+		}}},
+	}}
+}
 
 func TestDecodeSpace(t *testing.T) {
 	t.Parallel()
@@ -99,6 +113,23 @@ func TestDecodeTraffic(t *testing.T) {
 	}
 	if day.IsSummary() {
 		t.Errorf("day.IsSummary() = true, want false")
+	}
+}
+
+func TestDecodeTrafficRejectsMalformedYear(t *testing.T) {
+	t.Parallel()
+	if _, err := usage.DecodeTraffic(trafficRow("abc", "05")); err == nil {
+		t.Fatal("DecodeTraffic err = nil for non-numeric year, want a decode error")
+	}
+	if _, err := usage.DecodeTraffic(trafficRow("2026", "")); err == nil {
+		t.Fatal("DecodeTraffic err = nil for empty month, want a decode error")
+	}
+	got, err := usage.DecodeTraffic(trafficRow("2026", "05"))
+	if err != nil {
+		t.Fatalf("DecodeTraffic on valid period: %v", err)
+	}
+	if len(got) != 1 || got[0].Year != 2026 || got[0].Month != 5 {
+		t.Errorf("got = %+v, want one row with year 2026 month 5", got)
 	}
 }
 

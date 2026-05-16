@@ -40,6 +40,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Strict period decoding in `get_traffic` (re-review follow-up):
+  `usage.DecodeTraffic` now decodes the mandatory `year` and `month`
+  fields with `soap.Value.MapIntStrict`, so a missing or non-numeric
+  value yields a decode error instead of a silent `0` that would
+  mislabel the reporting period. Scope is deliberately limited to
+  those two always-present fields: `day` stays lenient (the monthly
+  summary row legitimately omits it) and the `http_`/`ftp_` traffic
+  and hit counters stay lenient (KAS returns `xsi:nil` for a bucket
+  with no data, so a strict reading would turn a real no-traffic
+  response into a hard error). This continues the strict-numeric
+  rollout deferred in the first review follow-up.
+
 - Strict numeric decoding for required KAS fields (review follow-up):
   added `soap.Value.AsIntStrict` / `MapIntStrict` / `MapInt64Strict`,
   the error-returning siblings of the lenient `AsInt` / `MapInt` /

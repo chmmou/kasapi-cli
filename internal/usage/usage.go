@@ -202,10 +202,27 @@ func DecodeTraffic(returnInfo soap.Value) (TrafficList, error) {
 		if kv.Value.Kind != soap.KindMap {
 			return nil, fmt.Errorf("usage: ReturnInfo entry %q is not a Map", kv.Key)
 		}
+		// year and month identify the period every traffic row (the
+		// summary and each daily entry) belongs to and are present in
+		// every captured row: a missing or malformed value is a corrupt
+		// response, not a zero, so they are decoded strictly. day stays
+		// lenient on purpose — the monthly summary row (key "0")
+		// legitimately omits it. http_/ftp_traffic and *_hits also stay
+		// lenient: KAS returns xsi:nil for a bucket with no data (the
+		// fixture's ftp_* are nil), so a strict reading would turn a
+		// real no-traffic response into a hard error.
+		year, err := kv.Value.MapIntStrict("year")
+		if err != nil {
+			return nil, fmt.Errorf("usage: traffic entry %q: year: %w", kv.Key, err)
+		}
+		month, err := kv.Value.MapIntStrict("month")
+		if err != nil {
+			return nil, fmt.Errorf("usage: traffic entry %q: month: %w", kv.Key, err)
+		}
 		out = append(out, Traffic{
 			AccountLogin: kv.Value.MapString("account_login"),
-			Year:         kv.Value.MapInt("year"),
-			Month:        kv.Value.MapInt("month"),
+			Year:         year,
+			Month:        month,
 			Day:          kv.Value.MapInt("day"),
 			HTTPTraffic:  kv.Value.MapInt64("http_traffic"),
 			FTPTraffic:   kv.Value.MapInt64("ftp_traffic"),
