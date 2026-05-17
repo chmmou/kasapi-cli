@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns2="http://xml.apache.org/xml-soap" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
     <SOAP-ENV:Body>
         <ns1:KasApiResponse>
             <return xsi:type="ns2:Map">
@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777746000</value>
+                            <value xsi:type="xsd:int">1779052639</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -19,7 +19,7 @@
                             <value xsi:type="ns2:Map">
                                 <item>
                                     <key xsi:type="xsd:string">mailinglist_name</key>
-                                    <value xsi:type="xsd:string">announce@example.com</value>
+                                    <value xsi:type="xsd:string">announce-example-com</value>
                                 </item>
                             </value>
                         </item>
@@ -42,15 +42,31 @@
                                 <item xsi:type="ns2:Map">
                                     <item>
                                         <key xsi:type="xsd:string">mailinglist_name</key>
-                                        <value xsi:type="xsd:string">announce@example.com</value>
+                                        <value xsi:type="xsd:string">announce-example-com</value>
                                     </item>
                                     <item>
-                                        <key xsi:type="xsd:string">mailinglist_admin</key>
-                                        <value xsi:type="xsd:string">admin@example.com</value>
+                                        <key xsi:type="xsd:string">mailinglist_domain</key>
+                                        <value xsi:type="xsd:string">example.org</value>
                                     </item>
                                     <item>
-                                        <key xsi:type="xsd:string">mailinglist_url</key>
-                                        <value xsi:type="xsd:string">https://lists.example.com/mailman/listinfo/announce</value>
+                                        <key xsi:type="xsd:string">mailinglist_password</key>
+                                        <value xsi:type="xsd:string">REDACTED</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">mailinglist_is_active</key>
+                                        <value xsi:type="xsd:string">Y</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">mailinglist_subscriber</key>
+                                        <value xsi:type="xsd:string"></value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">mailinglist_config</key>
+                                        <value xsi:type="xsd:string"># Mailinglist configuration</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">mailinglist_restrict_post</key>
+                                        <value xsi:type="xsd:string"></value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">in_progress</key>

@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777746000</value>
+                            <value xsi:type="xsd:int">1779052398</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -37,15 +37,19 @@
                                 <item xsi:type="ns2:Map">
                                     <item>
                                         <key xsi:type="xsd:string">mailinglist_name</key>
-                                        <value xsi:type="xsd:string">announce@example.com</value>
+                                        <value xsi:type="xsd:string">list-example-org</value>
                                     </item>
                                     <item>
-                                        <key xsi:type="xsd:string">mailinglist_admin</key>
-                                        <value xsi:type="xsd:string">admin@example.com</value>
+                                        <key xsi:type="xsd:string">mailinglist_domain</key>
+                                        <value xsi:type="xsd:string">example.org</value>
                                     </item>
                                     <item>
-                                        <key xsi:type="xsd:string">mailinglist_url</key>
-                                        <value xsi:type="xsd:string">https://lists.example.com/mailman/listinfo/announce</value>
+                                        <key xsi:type="xsd:string">mailinglist_password</key>
+                                        <value xsi:type="xsd:string">REDACTED</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">mailinglist_is_active</key>
+                                        <value xsi:type="xsd:string">Y</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">in_progress</key>
@@ -55,19 +59,23 @@
                                 <item xsi:type="ns2:Map">
                                     <item>
                                         <key xsi:type="xsd:string">mailinglist_name</key>
-                                        <value xsi:type="xsd:string">discuss@example.com</value>
+                                        <value xsi:type="xsd:string">list1-example-org</value>
                                     </item>
                                     <item>
-                                        <key xsi:type="xsd:string">mailinglist_admin</key>
-                                        <value xsi:type="xsd:string">admin@example.com</value>
+                                        <key xsi:type="xsd:string">mailinglist_domain</key>
+                                        <value xsi:type="xsd:string">example.org</value>
                                     </item>
                                     <item>
-                                        <key xsi:type="xsd:string">mailinglist_url</key>
-                                        <value xsi:type="xsd:string">https://lists.example.com/mailman/listinfo/discuss</value>
+                                        <key xsi:type="xsd:string">mailinglist_password</key>
+                                        <value xsi:type="xsd:string">REDACTED</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">mailinglist_is_active</key>
+                                        <value xsi:type="xsd:string">Y</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">in_progress</key>
-                                        <value xsi:type="xsd:string">FALSE</value>
+                                        <value xsi:type="xsd:string">TRUE</value>
                                     </item>
                                 </item>
                             </value>

@@ -246,6 +246,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `get_mailinglists` response mapping corrected to the real KAS
+  schema. The `mailinglist.MailingList` model previously carried
+  `mailinglist_admin` / `mailinglist_url`, which the API does not
+  return; it now maps `mailinglist_name`, `mailinglist_domain`,
+  `mailinglist_password` (surfaced via `--output=json|yaml` only,
+  never in table output — mailaccount precedent), `mailinglist_is_active`
+  and `in_progress`, plus the singular-view-only `mailinglist_subscriber`
+  / `mailinglist_config` / `mailinglist_restrict_post`. Table columns
+  for the list view are now `NAME DOMAIN ACTIVE IN_PROGRESS`. Read-only
+  mapping change; no CLI surface change.
+
 - Exit-code classification for `sessions delete` (re-review
   follow-up): a failure to remove the local `sessions.toml` entry now
   exits with the user-error code (1) instead of the API-error code
