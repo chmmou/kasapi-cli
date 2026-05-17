@@ -31,6 +31,6 @@ Inspect mail accounts, forwards, filters, and mailing lists
 * [kasapi-cli](kasapi-cli.md)	 - Command-line client for the All-Inkl KAS API
 * [kasapi-cli mail accounts](kasapi-cli_mail_accounts.md)	 - Inspect mail accounts (get_mailaccounts)
 * [kasapi-cli mail filters](kasapi-cli_mail_filters.md)	 - Inspect mail standard filters (get_mailstandardfilter)
-* [kasapi-cli mail forwards](kasapi-cli_mail_forwards.md)	 - Inspect mail forwards (get_mailforwards)
+* [kasapi-cli mail forwards](kasapi-cli_mail_forwards.md)	 - Inspect and manage mail forwards (get/add/update/delete_mailforward)
 * [kasapi-cli mail lists](kasapi-cli_mail_lists.md)	 - Inspect mailing lists (get_mailinglists)
 

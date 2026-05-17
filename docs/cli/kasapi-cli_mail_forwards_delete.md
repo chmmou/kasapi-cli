@@ -1,11 +1,15 @@
-## kasapi-cli mail forwards
+## kasapi-cli mail forwards delete
 
-Inspect and manage mail forwards (get/add/update/delete_mailforward)
+Delete a mail forward (delete_mailforward)
+
+```
+kasapi-cli mail forwards delete <address> [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for forwards
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands
@@ -28,10 +32,5 @@ Inspect and manage mail forwards (get/add/update/delete_mailforward)
 
 ### SEE ALSO
 
-* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts, forwards, filters, and mailing lists
-* [kasapi-cli mail forwards add](kasapi-cli_mail_forwards_add.md)	 - Create a mail forward (add_mailforward)
-* [kasapi-cli mail forwards delete](kasapi-cli_mail_forwards_delete.md)	 - Delete a mail forward (delete_mailforward)
-* [kasapi-cli mail forwards get](kasapi-cli_mail_forwards_get.md)	 - Show details for a single mail forward (get_mailforwards with mail_forward)
-* [kasapi-cli mail forwards list](kasapi-cli_mail_forwards_list.md)	 - List all mail forwards (get_mailforwards)
-* [kasapi-cli mail forwards update](kasapi-cli_mail_forwards_update.md)	 - Replace the targets of a mail forward (update_mailforward)
+* [kasapi-cli mail forwards](kasapi-cli_mail_forwards.md)	 - Inspect and manage mail forwards (get/add/update/delete_mailforward)
 

@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -120,13 +122,112 @@ func newMailAccountsGetCmd(opts *RootOptions) *cobra.Command {
 func newMailForwardsCmd(opts *RootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "forwards",
-		Short: "Inspect mail forwards (get_mailforwards)",
+		Short: "Inspect and manage mail forwards (get/add/update/delete_mailforward)",
 	}
 	cmd.AddCommand(
 		newMailForwardsListCmd(opts),
 		newMailForwardsGetCmd(opts),
+		newMailForwardsAddCmd(opts),
+		newMailForwardsUpdateCmd(opts),
+		newMailForwardsDeleteCmd(opts),
 	)
 	return cmd
+}
+
+// splitMailAddress splits "local@domain" on the last '@' into the
+// local_part / domain_part add_mailforward expects. get/update/delete
+// take the full address verbatim; only add needs it decomposed.
+func splitMailAddress(addr string) (local, domain string, err error) {
+	at := strings.LastIndex(addr, "@")
+	if at <= 0 || at == len(addr)-1 {
+		return "", "", fmt.Errorf("invalid mail forward address %q: want local@domain", addr)
+	}
+	return addr[:at], addr[at+1:], nil
+}
+
+func newMailForwardsAddCmd(opts *RootOptions) *cobra.Command {
+	var targets []string
+	cmd := &cobra.Command{
+		Use:   "add <address> --target <addr> [--target <addr>...]",
+		Short: "Create a mail forward (add_mailforward)",
+		Args:  cobra.ExactArgs(1),
+		RunE: runWriteE(opts, func(args []string) (writeSpec, error) {
+			local, domain, err := splitMailAddress(args[0])
+			if err != nil {
+				return writeSpec{}, err
+			}
+			if len(targets) == 0 {
+				return writeSpec{}, fmt.Errorf("at least one --target is required")
+			}
+			return writeSpec{
+				action:      "add_mailforward",
+				destructive: false,
+				confirm:     ConfirmAction{Verb: "create", Resource: "mail forward", ID: args[0]},
+				params:      mailforward.AddParams(local, domain, targets),
+				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
+					addr, derr := mailforward.NewClient(c).Add(ctx, local, domain, targets)
+					if derr != nil {
+						return "", derr
+					}
+					return "created mail forward " + addr, nil
+				},
+			}, nil
+		}),
+	}
+	cmd.Flags().StringArrayVar(&targets, "target", nil, "forward target address (repeatable; replaces the full target list)")
+	return cmd
+}
+
+func newMailForwardsUpdateCmd(opts *RootOptions) *cobra.Command {
+	var targets []string
+	cmd := &cobra.Command{
+		Use:   "update <address> --target <addr> [--target <addr>...]",
+		Short: "Replace the targets of a mail forward (update_mailforward)",
+		Args:  cobra.ExactArgs(1),
+		RunE: runWriteE(opts, func(args []string) (writeSpec, error) {
+			if len(targets) == 0 {
+				return writeSpec{}, fmt.Errorf("at least one --target is required")
+			}
+			address := args[0]
+			return writeSpec{
+				action:      "update_mailforward",
+				destructive: true,
+				confirm:     ConfirmAction{Verb: "replace the targets of", Resource: "mail forward", ID: address},
+				params:      mailforward.UpdateParams(address, targets),
+				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
+					if derr := mailforward.NewClient(c).Update(ctx, address, targets); derr != nil {
+						return "", derr
+					}
+					return "updated mail forward " + address, nil
+				},
+			}, nil
+		}),
+	}
+	cmd.Flags().StringArrayVar(&targets, "target", nil, "forward target address (repeatable; replaces the full target list)")
+	return cmd
+}
+
+func newMailForwardsDeleteCmd(opts *RootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "delete <address>",
+		Short: "Delete a mail forward (delete_mailforward)",
+		Args:  cobra.ExactArgs(1),
+		RunE: runWriteE(opts, func(args []string) (writeSpec, error) {
+			address := args[0]
+			return writeSpec{
+				action:      "delete_mailforward",
+				destructive: true,
+				confirm:     ConfirmAction{Verb: "delete", Resource: "mail forward", ID: address},
+				params:      mailforward.DeleteParams(address),
+				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
+					if derr := mailforward.NewClient(c).Delete(ctx, address); derr != nil {
+						return "", derr
+					}
+					return "deleted mail forward " + address, nil
+				},
+			}, nil
+		}),
+	}
 }
 
 func newMailForwardsListCmd(opts *RootOptions) *cobra.Command {

@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Mail-forward write endpoints (#115, first #13 write slice):
+  `kasapi-cli mail forwards add <addr> --target … `,
+  `… update <addr> --target …` and `… delete <addr>` wire
+  `add_mailforward` / `update_mailforward` / `delete_mailforward`.
+  `delete` and `update` are gated by the #109 confirmation prompt
+  (`update_mailforward` replaces the full target list and is
+  irreversible); `add` is reversible and not prompted. All three
+  honour `--dry-run` (#132) and emit a #131 audit record. This is the
+  first command to exercise the gate/audit/dry-run seam end to end,
+  via the shared `cli.runWriteE` runner and the new non-gated
+  `cli.ResolveWrite` counterpart of `cli.ResolveDestructive`.
+
 - `--dry-run` for destructive commands (#132, v0.2.0 write-phase
   prerequisite): the new global `--dry-run` flag previews the KAS
   request a destructive command would send (action + redacted
@@ -19,8 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `cli.ResolveDestructive` seam composes the dry-run preview, the
   confirmation gate and the audit log so every future write command
   consults one entry point. Documented in
-  `docs/usage/destructive-writes.md`. Per-command wiring lands with the
-  first write endpoint (#13).
+  `docs/usage/destructive-writes.md`. Wired by the mail-forward write
+  slice (#115).
 
 - Structured write-action audit log (#131, v0.2.0 write-phase
   prerequisite): `cli.AuditRecord` + `cli.WriteAudit` emit one
@@ -32,8 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   additionally appends each record as JSON Lines to a `0600` file.
   Secret parameters (`auth_data`, `*password`, `*token`, `*secret`, …)
   are redacted in both sinks via `cli.RedactParams`. Documented in
-  `docs/usage/destructive-writes.md`. Per-command emission lands with
-  the first write endpoint (#13); read commands are unaffected.
+  `docs/usage/destructive-writes.md`. Wired by the mail-forward write
+  slice (#115); read commands are unaffected.
 
 - Destructive-write confirmation gate (#109, v0.2.0 write-phase
   prerequisite): the global `--yes` / `-y` flag is now wired and
@@ -44,8 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `cli.ErrConfirmationRequired`, `errors.Is`-able). `--yes` bypasses
   the prompt for automation. TTY detection is now shared by `config
   init`/`add-profile` and the gate. The safety contract is documented
-  in `docs/usage/destructive-writes.md`. Per-command wiring lands with
-  the first write endpoint (#13); read commands are unaffected.
+  in `docs/usage/destructive-writes.md`. Wired by the mail-forward
+  write slice (#115); read commands are unaffected.
 
 - Exported sentinel `session.ErrUnexpectedReturnString` (review
   follow-up): `session.Client.Delete` now wraps it with `%w` when

@@ -8,7 +8,15 @@ an explicit confirmation before the SOAP call is dispatched.
 This page documents the behavioural contract (issue
 [#109](https://github.com/chmmou/kasapi-cli/issues/109), part of the
 v0.2.0 write phase, [#13](https://github.com/chmmou/kasapi-cli/issues/13)).
-The read commands shipping today are non-destructive and are not gated.
+The read commands are non-destructive and are not gated.
+
+The first write endpoints —
+[`mail forwards`](https://github.com/chmmou/kasapi-cli/issues/115)
+`add` / `update` / `delete` — wire this contract. `delete` and
+`update` are gated by the confirmation prompt (an `update_mailforward`
+replaces the whole target list and is therefore irreversible); `add`
+creates and is reversible, so it is **not** prompted. All three honour
+`--dry-run` and emit an audit record.
 
 ## The contract
 
@@ -91,20 +99,23 @@ the KAS action and its parameter map are printed, and the command exits
   trace exists and is distinguishable from a real call.
 
 ```console
-$ kasapi-cli mail accounts delete m0000001 --dry-run
-FIELD              VALUE
-action             delete_mailaccount
-target             m0000001
-param.mail_login   m0000001
+$ kasapi-cli mail forwards delete info@example.de --dry-run
+FIELD               VALUE
+action              delete_mailforward
+target              info@example.de
+param.mail_forward  info@example.de
 
-$ kasapi-cli mail accounts delete m0000001 --dry-run -o json
+$ kasapi-cli mail forwards add info@example.de --target a@b.de --dry-run -o json
 {
-  "action": "delete_mailaccount",
-  "target": "m0000001",
-  "params": { "mail_login": "m0000001" }
+  "action": "add_mailforward",
+  "target": "info@example.de",
+  "params": {
+    "domain_part": "example.de",
+    "local_part": "info",
+    "target_0": "a@b.de"
+  }
 }
 ```
 
-(The example command is illustrative — the per-resource write
-subcommands land with the #13 write endpoints; the flag and its
-machinery are already in place.)
+`add` is not prompted but `--dry-run` and the audit record still apply
+to it, exactly as for the gated `update` / `delete`.

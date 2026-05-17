@@ -32,5 +32,5 @@ kasapi-cli mail forwards get <mail-forward> [flags]
 
 ### SEE ALSO
 
-* [kasapi-cli mail forwards](kasapi-cli_mail_forwards.md)	 - Inspect mail forwards (get_mailforwards)
+* [kasapi-cli mail forwards](kasapi-cli_mail_forwards.md)	 - Inspect and manage mail forwards (get/add/update/delete_mailforward)
 

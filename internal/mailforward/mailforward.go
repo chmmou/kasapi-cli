@@ -33,22 +33,29 @@ type MailForward struct {
 // cli.Tabular.
 type MailForwardList []MailForward
 
-// Client groups the read endpoints scoped to mail forwards:
-// get_mailforwards (list and singular).
+// Client groups the read endpoints scoped to mail forwards
+// (get_mailforwards, list and singular) and the write endpoints
+// add_mailforward / update_mailforward / delete_mailforward (see
+// write.go). The raw Caller is kept alongside the read helper so the
+// write methods can dispatch their own KAS actions.
 type Client struct {
 	lg kasread.ListGet[MailForwardList, MailForward]
+	c  Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
 func NewClient(c Caller) *Client {
-	return &Client{lg: kasread.ListGet[MailForwardList, MailForward]{
-		Caller:    c,
-		Action:    "get_mailforwards",
-		Label:     "mailforward",
-		ArgName:   "address",
-		FilterKey: "mail_forward",
-		Decoder:   DecodeMailForwards,
-	}}
+	return &Client{
+		lg: kasread.ListGet[MailForwardList, MailForward]{
+			Caller:    c,
+			Action:    "get_mailforwards",
+			Label:     "mailforward",
+			ArgName:   "address",
+			FilterKey: "mail_forward",
+			Decoder:   DecodeMailForwards,
+		},
+		c: c,
+	}
 }
 
 // List calls get_mailforwards without parameters and decodes the

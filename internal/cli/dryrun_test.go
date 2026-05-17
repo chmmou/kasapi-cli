@@ -97,6 +97,54 @@ func TestResolveDestructiveDryRunShortCircuits(t *testing.T) {
 	}
 }
 
+func TestResolveWrite(t *testing.T) {
+	t.Parallel()
+	confirm := cli.ConfirmAction{Verb: "create", Resource: "mail forward", ID: "info@example.de"}
+	params := map[string]any{"local_part": "info", "domain_part": "example.de", "target_0": "a@b.de"}
+
+	t.Run("dry-run short-circuits with audit, no prompt", func(t *testing.T) {
+		t.Parallel()
+		opts := &cli.RootOptions{DryRun: true, Output: cli.FormatJSON}
+		var out, stderr, auditFile bytes.Buffer
+		proceed, err := cli.ResolveWrite(
+			opts, strings.NewReader("y\n"), &out, &stderr, &auditFile,
+			false, "w0000001", "add_mailforward", confirm, params)
+		if proceed || err != nil {
+			t.Fatalf("proceed=%v err=%v, want false/nil", proceed, err)
+		}
+		if strings.Contains(out.String(), "[y/N]") {
+			t.Errorf("dry-run prompted; out=%q", out.String())
+		}
+		if !strings.Contains(stderr.String(), "outcome=dry-run") {
+			t.Errorf("audit stderr missing dry-run marker: %q", stderr.String())
+		}
+		var rec cli.AuditRecord
+		if jerr := json.Unmarshal(bytes.TrimSpace(auditFile.Bytes()), &rec); jerr != nil {
+			t.Fatalf("audit file line not JSON: %v\n%s", jerr, auditFile.String())
+		}
+		if rec.Outcome != cli.AuditOutcomeDryRun || rec.Action != "add_mailforward" {
+			t.Errorf("audit rec = %+v", rec)
+		}
+	})
+
+	// The defining difference from ResolveDestructive: a non-destructive
+	// write never prompts, so it proceeds even on a non-TTY without --yes.
+	t.Run("proceeds without a prompt (non-tty, no --yes)", func(t *testing.T) {
+		t.Parallel()
+		opts := &cli.RootOptions{DryRun: false}
+		var out, stderr bytes.Buffer
+		proceed, err := cli.ResolveWrite(
+			opts, strings.NewReader(""), &out, &stderr, nil,
+			false, "w0000001", "add_mailforward", confirm, params)
+		if !proceed || err != nil {
+			t.Fatalf("proceed=%v err=%v, want true/nil", proceed, err)
+		}
+		if strings.Contains(out.String(), "[y/N]") {
+			t.Errorf("non-destructive write must not prompt; out=%q", out.String())
+		}
+	})
+}
+
 func TestResolveDestructiveDelegatesToGate(t *testing.T) {
 	t.Parallel()
 	confirm := cli.ConfirmAction{Verb: "delete", Resource: "mail account", ID: "m0000001"}
