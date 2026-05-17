@@ -1,15 +1,19 @@
-## kasapi-cli mail lists list
+## kasapi-cli mail lists update
 
-List all mailing lists (get_mailinglists)
+Replace mutable fields of a mailing list (update_mailinglist)
 
 ```
-kasapi-cli mail lists list [flags]
+kasapi-cli mail lists update <name> [--subscriber <addr>...] [--restrict-post <addr>...] [--config-file <path>] [--active] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+      --active                      activate the list; pass --active=false to deactivate it
+      --config-file string          path to the complete list configuration file (replaces the config wholesale)
+  -h, --help                        help for update
+      --restrict-post stringArray   restrict-post address (repeatable; replaces the full restrict-post list)
+      --subscriber stringArray      list subscriber address (repeatable; replaces the full subscriber list)
 ```
 
 ### Options inherited from parent commands

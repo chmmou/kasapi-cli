@@ -1,15 +1,15 @@
-## kasapi-cli mail lists list
+## kasapi-cli mail lists delete
 
-List all mailing lists (get_mailinglists)
+Delete a mailing list (delete_mailinglist)
 
 ```
-kasapi-cli mail lists list [flags]
+kasapi-cli mail lists delete <name> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands

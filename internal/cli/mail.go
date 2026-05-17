@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -34,13 +35,133 @@ func NewMailCmd(opts *RootOptions) *cobra.Command {
 func newMailListsCmd(opts *RootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "lists",
-		Short: "Inspect mailing lists (get_mailinglists)",
+		Short: "Inspect and manage mailing lists (get/add/update/delete_mailinglist)",
 	}
 	cmd.AddCommand(
 		newMailListsListCmd(opts),
 		newMailListsGetCmd(opts),
+		newMailListsAddCmd(opts),
+		newMailListsUpdateCmd(opts),
+		newMailListsDeleteCmd(opts),
 	)
 	return cmd
+}
+
+func newMailListsAddCmd(opts *RootOptions) *cobra.Command {
+	var domain, password string
+	cmd := &cobra.Command{
+		Use:   "add <name> --domain <domain> --password <pw>",
+		Short: "Create a mailing list (add_mailinglist)",
+		Args:  cobra.ExactArgs(1),
+		RunE: runWriteE(opts, func(args []string) (writeSpec, error) {
+			name := args[0]
+			if domain == "" {
+				return writeSpec{}, fmt.Errorf("--domain is required")
+			}
+			if password == "" {
+				return writeSpec{}, fmt.Errorf("--password is required")
+			}
+			return writeSpec{
+				action:      "add_mailinglist",
+				destructive: false,
+				confirm:     ConfirmAction{Verb: "create", Resource: "mailing list", ID: name},
+				params:      mailinglist.AddParams(name, domain, password),
+				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
+					id, derr := mailinglist.NewClient(c).Add(ctx, name, domain, password)
+					if derr != nil {
+						return "", derr
+					}
+					return "created mailing list " + id, nil
+				},
+			}, nil
+		}),
+	}
+	cmd.Flags().StringVar(&domain, "domain", "", "the list's domain (required)")
+	cmd.Flags().StringVar(&password, "password", "", "the list password (required)")
+	return cmd
+}
+
+func newMailListsUpdateCmd(opts *RootOptions) *cobra.Command {
+	var subscriber, restrictPost []string
+	var configFile string
+	var active bool
+	cmd := &cobra.Command{
+		Use:   "update <name> [--subscriber <addr>...] [--restrict-post <addr>...] [--config-file <path>] [--active]",
+		Short: "Replace mutable fields of a mailing list (update_mailinglist)",
+		Args:  cobra.ExactArgs(1),
+	}
+	cmd.RunE = runWriteE(opts, func(args []string) (writeSpec, error) {
+		name := args[0]
+		// Only the explicitly-set flags are sent: each field is a
+		// wholesale replacement and an empty value is a meaningful
+		// "clear", so presence is keyed on Flags().Changed, not on
+		// the value being non-empty.
+		fields := map[string]string{}
+		if cmd.Flags().Changed("subscriber") {
+			fields[mailinglist.FieldSubscriber] = strings.Join(subscriber, "\n")
+		}
+		if cmd.Flags().Changed("restrict-post") {
+			fields[mailinglist.FieldRestrictPost] = strings.Join(restrictPost, "\n")
+		}
+		if cmd.Flags().Changed("config-file") {
+			//nolint:gosec // G304: configFile is the explicit --config-file CLI argument; reading the user-named file is the documented intent.
+			b, rerr := os.ReadFile(configFile)
+			if rerr != nil {
+				return writeSpec{}, fmt.Errorf("read --config-file: %w", rerr)
+			}
+			fields[mailinglist.FieldConfig] = string(b)
+		}
+		if cmd.Flags().Changed("active") {
+			if active {
+				fields[mailinglist.FieldIsActive] = "Y"
+			} else {
+				fields[mailinglist.FieldIsActive] = "N"
+			}
+		}
+		if len(fields) == 0 {
+			return writeSpec{}, fmt.Errorf("at least one of --subscriber/--restrict-post/--config-file/--active is required")
+		}
+		return writeSpec{
+			action:      "update_mailinglist",
+			destructive: true,
+			confirm:     ConfirmAction{Verb: "replace the settings of", Resource: "mailing list", ID: name},
+			params:      mailinglist.UpdateParams(name, fields),
+			dispatch: func(c *api.Client, ctx context.Context) (string, error) {
+				if derr := mailinglist.NewClient(c).Update(ctx, name, fields); derr != nil {
+					return "", derr
+				}
+				return "updated mailing list " + name, nil
+			},
+		}, nil
+	})
+	cmd.Flags().StringArrayVar(&subscriber, "subscriber", nil, "list subscriber address (repeatable; replaces the full subscriber list)")
+	cmd.Flags().StringArrayVar(&restrictPost, "restrict-post", nil, "restrict-post address (repeatable; replaces the full restrict-post list)")
+	cmd.Flags().StringVar(&configFile, "config-file", "", "path to the complete list configuration file (replaces the config wholesale)")
+	cmd.Flags().BoolVar(&active, "active", false, "activate the list; pass --active=false to deactivate it")
+	return cmd
+}
+
+func newMailListsDeleteCmd(opts *RootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "delete <name>",
+		Short: "Delete a mailing list (delete_mailinglist)",
+		Args:  cobra.ExactArgs(1),
+		RunE: runWriteE(opts, func(args []string) (writeSpec, error) {
+			name := args[0]
+			return writeSpec{
+				action:      "delete_mailinglist",
+				destructive: true,
+				confirm:     ConfirmAction{Verb: "delete", Resource: "mailing list", ID: name},
+				params:      mailinglist.DeleteParams(name),
+				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
+					if derr := mailinglist.NewClient(c).Delete(ctx, name); derr != nil {
+						return "", derr
+					}
+					return "deleted mailing list " + name, nil
+				},
+			}, nil
+		}),
+	}
 }
 
 func newMailListsListCmd(opts *RootOptions) *cobra.Command {

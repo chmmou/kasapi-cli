@@ -5,9 +5,8 @@
             <Params>
             {
                 "KasRequestParams": {
-                    "local_part": "announce",
-                    "domain_part": "example.com",
-                    "mailinglist_admin": "admin@example.com",
+                    "mailinglist_name": "announce",
+                    "mailinglist_domain": "example.com",
                     "mailinglist_password": "REDACTED"
                 },
                 "kas_action": "add_mailinglist",

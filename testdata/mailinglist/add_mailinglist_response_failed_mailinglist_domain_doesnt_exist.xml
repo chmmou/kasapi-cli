@@ -3,7 +3,7 @@
     <SOAP-ENV:Body>
         <SOAP-ENV:Fault>
             <faultcode>SOAP-ENV:Server</faultcode>
-            <faultstring>mailinglist_domain_not_found_in_kas</faultstring>
+            <faultstring>mailinglist_domain_doesnt_exist</faultstring>
             <faultactor>KasApi</faultactor>
             <detail></detail>
         </SOAP-ENV:Fault>

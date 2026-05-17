@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Mailing-list write endpoints (#117, #13 write slice):
+  `kasapi-cli mail lists add <name> --domain <d> --password <pw>`,
+  `… update <name> [--subscriber …] [--restrict-post …]
+  [--config-file <path>] [--active]` and `… delete <name>` wire
+  `add_mailinglist` / `update_mailinglist` / `delete_mailinglist`.
+  `update` and `delete` are gated by the #109 confirmation prompt
+  (`update_mailinglist` replaces the subscriber / restrict-post /
+  config fields wholesale); `add` is reversible and not prompted. All
+  three honour `--dry-run` (#132) and emit a #131 audit record; the
+  list password is redacted in both. `update` sends only the
+  explicitly-set flags (keyed on cobra `Changed`), so an empty value
+  is a deliberate "clear". The `get_mailinglists` read mapping was
+  corrected to the real KAS schema beforehand (see Fixed).
+
 - Mail-forward write endpoints (#115, first #13 write slice):
   `kasapi-cli mail forwards add <addr> --target … `,
   `… update <addr> --target …` and `… delete <addr>` wire

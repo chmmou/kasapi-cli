@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777746240</value>
+                            <value xsi:type="xsd:int">1779055841</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -19,11 +19,26 @@
                             <value xsi:type="ns2:Map">
                                 <item>
                                     <key xsi:type="xsd:string">mailinglist_name</key>
-                                    <value xsi:type="xsd:string">announce@example.com</value>
+                                    <value xsi:type="xsd:string">announce-example-com</value>
                                 </item>
                                 <item>
-                                    <key xsi:type="xsd:string">mailinglist_admin</key>
-                                    <value xsi:type="xsd:string">newadmin@example.com</value>
+                                    <key xsi:type="xsd:string">subscriber</key>
+                                    <value xsi:type="xsd:string">test@example.org
+test1@example.org</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">restrict_post</key>
+                                    <value xsi:type="xsd:string">test2@example.org
+test3@example.org</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">config</key>
+                                    <value xsi:type="xsd:string">The complete configuration file
+as plain text</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">is_active</key>
+                                    <value xsi:type="xsd:string">N</value>
                                 </item>
                             </value>
                         </item>
@@ -42,7 +57,7 @@
                         </item>
                         <item>
                             <key xsi:type="xsd:string">ReturnInfo</key>
-                            <value xsi:type="xsd:string"></value>
+                            <value xsi:type="xsd:string">announce-example-com</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">Msg</key>
@@ -54,7 +69,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The mailinglist has been edited.</value>
+                                        <value xsi:type="xsd:string">The mailing list announce-example-com is going to be updated.</value>
                                     </item>
                                 </item>
                             </value>

@@ -3,7 +3,7 @@
     <SOAP-ENV:Body>
         <SOAP-ENV:Fault>
             <faultcode>SOAP-ENV:Server</faultcode>
-            <faultstring>mailinglist_already_exists</faultstring>
+            <faultstring>cannot_write_tmp_restrict_post</faultstring>
             <faultactor>KasApi</faultactor>
             <detail></detail>
         </SOAP-ENV:Fault>

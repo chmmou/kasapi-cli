@@ -40,22 +40,29 @@ type MailingList struct {
 // cli.Tabular.
 type MailingListList []MailingList
 
-// Client groups the read endpoints scoped to mailing lists:
-// get_mailinglists (list and singular).
+// Client groups the read endpoints scoped to mailing lists
+// (get_mailinglists, list and singular) and the write endpoints
+// add_mailinglist / update_mailinglist / delete_mailinglist (see
+// write.go). The raw Caller is kept alongside the read helper so the
+// write methods can dispatch their own KAS actions.
 type Client struct {
 	lg kasread.ListGet[MailingListList, MailingList]
+	c  Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
 func NewClient(c Caller) *Client {
-	return &Client{lg: kasread.ListGet[MailingListList, MailingList]{
-		Caller:    c,
-		Action:    "get_mailinglists",
-		Label:     "mailinglist",
-		ArgName:   "name",
-		FilterKey: "mailinglist_name",
-		Decoder:   DecodeMailingLists,
-	}}
+	return &Client{
+		lg: kasread.ListGet[MailingListList, MailingList]{
+			Caller:    c,
+			Action:    "get_mailinglists",
+			Label:     "mailinglist",
+			ArgName:   "name",
+			FilterKey: "mailinglist_name",
+			Decoder:   DecodeMailingLists,
+		},
+		c: c,
+	}
 }
 
 // List calls get_mailinglists without parameters and decodes the

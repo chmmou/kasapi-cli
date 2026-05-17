@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777746360</value>
+                            <value xsi:type="xsd:int">1779054075</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -19,7 +19,7 @@
                             <value xsi:type="ns2:Map">
                                 <item>
                                     <key xsi:type="xsd:string">mailinglist_name</key>
-                                    <value xsi:type="xsd:string">announce@example.com</value>
+                                    <value xsi:type="xsd:string">announce-example-com</value>
                                 </item>
                             </value>
                         </item>
@@ -38,7 +38,7 @@
                         </item>
                         <item>
                             <key xsi:type="xsd:string">ReturnInfo</key>
-                            <value xsi:type="xsd:string"></value>
+                            <value xsi:type="xsd:string">announce-example-com</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">Msg</key>
@@ -50,7 +50,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The mailinglist is going to be deleted.</value>
+                                        <value xsi:type="xsd:string">The mailinglist announce-example-com is going to be deleted.</value>
                                     </item>
                                 </item>
                             </value>

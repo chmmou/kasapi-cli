@@ -18,6 +18,13 @@ replaces the whole target list and is therefore irreversible); `add`
 creates and is reversible, so it is **not** prompted. All three honour
 `--dry-run` and emit an audit record.
 
+[`mail lists`](https://github.com/chmmou/kasapi-cli/issues/117) `add` /
+`update` / `delete` wire the same contract with the same policy:
+`update` (it replaces the subscriber / restrict-post / config fields
+wholesale) and `delete` are gated; `add` is reversible and not
+prompted. The list password passed to `add` is redacted in the
+`--dry-run` preview and the audit record.
+
 ## The contract
 
 Before a destructive call leaves the machine, the command prints a

@@ -1,6 +1,6 @@
 ## kasapi-cli mail lists
 
-Inspect mailing lists (get_mailinglists)
+Inspect and manage mailing lists (get/add/update/delete_mailinglist)
 
 ### Options
 
@@ -29,6 +29,9 @@ Inspect mailing lists (get_mailinglists)
 ### SEE ALSO
 
 * [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts, forwards, filters, and mailing lists
+* [kasapi-cli mail lists add](kasapi-cli_mail_lists_add.md)	 - Create a mailing list (add_mailinglist)
+* [kasapi-cli mail lists delete](kasapi-cli_mail_lists_delete.md)	 - Delete a mailing list (delete_mailinglist)
 * [kasapi-cli mail lists get](kasapi-cli_mail_lists_get.md)	 - Show details for a single mailing list (get_mailinglists with mailinglist_name)
 * [kasapi-cli mail lists list](kasapi-cli_mail_lists_list.md)	 - List all mailing lists (get_mailinglists)
+* [kasapi-cli mail lists update](kasapi-cli_mail_lists_update.md)	 - Replace mutable fields of a mailing list (update_mailinglist)
 

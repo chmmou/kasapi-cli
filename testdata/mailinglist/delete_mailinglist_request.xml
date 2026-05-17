@@ -5,7 +5,7 @@
             <Params>
             {
                 "KasRequestParams": {
-                    "mailinglist_name": "announce@example.com"
+                    "mailinglist_name": "announce-example-com"
                 },
                 "kas_action": "delete_mailinglist",
                 "kas_auth_data": "REDACTED",

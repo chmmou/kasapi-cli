@@ -1,15 +1,17 @@
-## kasapi-cli mail lists list
+## kasapi-cli mail lists add
 
-List all mailing lists (get_mailinglists)
+Create a mailing list (add_mailinglist)
 
 ```
-kasapi-cli mail lists list [flags]
+kasapi-cli mail lists add <name> --domain <domain> --password <pw> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+      --domain string     the list's domain (required)
+  -h, --help              help for add
+      --password string   the list password (required)
 ```
 
 ### Options inherited from parent commands

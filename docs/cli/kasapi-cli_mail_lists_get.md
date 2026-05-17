@@ -32,5 +32,5 @@ kasapi-cli mail lists get <mailinglist-name> [flags]
 
 ### SEE ALSO
 
-* [kasapi-cli mail lists](kasapi-cli_mail_lists.md)	 - Inspect mailing lists (get_mailinglists)
+* [kasapi-cli mail lists](kasapi-cli_mail_lists.md)	 - Inspect and manage mailing lists (get/add/update/delete_mailinglist)
 
