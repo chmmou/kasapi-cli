@@ -28,6 +28,6 @@ Inspect mail standard filters (get_mailstandardfilter)
 
 ### SEE ALSO
 
-* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts, forwards, filters, and mailing lists
+* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts and filters; inspect and manage forwards and mailing lists
 * [kasapi-cli mail filters list](kasapi-cli_mail_filters_list.md)	 - List the available standard mail filters (get_mailstandardfilter)
 

@@ -41,7 +41,7 @@ kasapi-cli [flags]
 * [kasapi-cli dns](kasapi-cli_dns.md)	 - Inspect DNS records for a zone
 * [kasapi-cli domains](kasapi-cli_domains.md)	 - Inspect domains owned by the authenticated account
 * [kasapi-cli ftpusers](kasapi-cli_ftpusers.md)	 - Inspect FTP users visible to the login (get_ftpusers)
-* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts, forwards, filters, and mailing lists
+* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts and filters; inspect and manage forwards and mailing lists
 * [kasapi-cli sambausers](kasapi-cli_sambausers.md)	 - Inspect Samba/CIFS users visible to the login (get_sambausers)
 * [kasapi-cli server](kasapi-cli_server.md)	 - Inspect the host server kasapi-cli is talking to
 * [kasapi-cli sessions](kasapi-cli_sessions.md)	 - Manage KAS session tokens (delete_session)

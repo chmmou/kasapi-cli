@@ -1,6 +1,6 @@
 ## kasapi-cli mail
 
-Inspect mail accounts, forwards, filters, and mailing lists
+Inspect mail accounts and filters; inspect and manage forwards and mailing lists
 
 ### Options
 

@@ -260,6 +260,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `kasapi-cli mail` help no longer under-describes its subtree: the
+  parent `Short` said only "Inspect …" while `forwards` and `lists`
+  now also add/update/delete. It now reads "Inspect mail accounts and
+  filters; inspect and manage forwards and mailing lists" (regenerated
+  in `docs/cli/`). Stale `NewMailCmd` comment and the
+  `update_mailinglist` field-constant doc comment corrected; the
+  destructive-writes doc now matches the gated `update` prompt wording.
+  Added a `mail lists update --dry-run` regression test pinning the
+  cobra-`Changed` field assembly (`--active`→Y/N, omitted-not-sent,
+  repeated `--subscriber` newline-join). #117 re-review follow-up.
+
 - Audit logfmt records no longer split across physical lines. A write
   field value containing a newline or carriage return (now reachable
   via `mail lists update --subscriber …` / `--config-file`) is escaped

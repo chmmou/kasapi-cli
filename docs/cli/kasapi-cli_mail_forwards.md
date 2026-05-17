@@ -28,7 +28,7 @@ Inspect and manage mail forwards (get/add/update/delete_mailforward)
 
 ### SEE ALSO
 
-* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts, forwards, filters, and mailing lists
+* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts and filters; inspect and manage forwards and mailing lists
 * [kasapi-cli mail forwards add](kasapi-cli_mail_forwards_add.md)	 - Create a mail forward (add_mailforward)
 * [kasapi-cli mail forwards delete](kasapi-cli_mail_forwards_delete.md)	 - Delete a mail forward (delete_mailforward)
 * [kasapi-cli mail forwards get](kasapi-cli_mail_forwards_get.md)	 - Show details for a single mail forward (get_mailforwards with mail_forward)

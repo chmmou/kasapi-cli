@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
@@ -219,6 +220,78 @@ func TestMailListsDestructiveRefuseNonTTY(t *testing.T) {
 			}
 			if !errors.Is(err, cli.ErrConfirmationRequired) {
 				t.Errorf("err = %v, want ErrConfirmationRequired", err)
+			}
+		})
+	}
+}
+
+// The mail lists update field assembly is the most intricate part of
+// the slice: only flags the user explicitly set are sent (keyed on
+// cobra Changed), --active maps to is_active Y/N, and --subscriber /
+// --restrict-post repeats join with a newline. --dry-run renders the
+// exact KAS params it would dispatch as JSON, so this asserts the
+// assembly end to end without a network call.
+func TestMailListsUpdateDryRunFieldAssembly(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name   string
+		args   []string
+		want   map[string]string
+		absent []string
+	}{
+		{
+			"active true",
+			[]string{"mail", "lists", "update", "L", "--active"},
+			map[string]string{"mailinglist_name": "L", "is_active": "Y"},
+			[]string{"subscriber", "restrict_post", "config"},
+		},
+		{
+			"active false",
+			[]string{"mail", "lists", "update", "L", "--active=false"},
+			map[string]string{"mailinglist_name": "L", "is_active": "N"},
+			nil,
+		},
+		{
+			"subscriber repeats join with newline",
+			[]string{"mail", "lists", "update", "L", "--subscriber", "a@x.de", "--subscriber", "b@x.de"},
+			map[string]string{"mailinglist_name": "L", "subscriber": "a@x.de\nb@x.de"},
+			[]string{"is_active"},
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			root, opts := cli.NewRootCmd()
+			root.AddCommand(cli.NewMailCmd(opts))
+			var out, errb bytes.Buffer
+			root.SetOut(&out)
+			root.SetErr(&errb)
+			args := append(append([]string{}, c.args...),
+				"--dry-run", "-o", "json",
+				"--login", "w0", "--auth-data", "x", "--auth-type", "plain")
+			root.SetArgs(args)
+			if err := root.Execute(); err != nil {
+				t.Fatalf("Execute %v: %v", args, err)
+			}
+			var got struct {
+				Action string            `json:"action"`
+				Params map[string]string `json:"params"`
+			}
+			if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+				t.Fatalf("unmarshal preview: %v\nstdout:%s", err, out.String())
+			}
+			if got.Action != "update_mailinglist" {
+				t.Errorf("action = %q, want update_mailinglist", got.Action)
+			}
+			for k, v := range c.want {
+				if got.Params[k] != v {
+					t.Errorf("params[%q] = %q, want %q (full: %v)", k, got.Params[k], v, got.Params)
+				}
+			}
+			for _, k := range c.absent {
+				if _, ok := got.Params[k]; ok {
+					t.Errorf("params[%q] present, want absent (full: %v)", k, got.Params)
+				}
 			}
 		})
 	}

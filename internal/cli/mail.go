@@ -15,13 +15,14 @@ import (
 	"github.com/chmmou/kasapi-cli/internal/mailinglist"
 )
 
-// NewMailCmd returns the "kasapi-cli mail" subcommand tree, grouping
-// the mail-related read endpoints (mail accounts; later forwards,
-// filters, mailing lists).
+// NewMailCmd returns the "kasapi-cli mail" subcommand tree: accounts
+// and standard filters are read-only (get_mailaccounts /
+// get_mailstandardfilter), while forwards and mailing lists are read
+// plus the add/update/delete write endpoints.
 func NewMailCmd(opts *RootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "mail",
-		Short: "Inspect mail accounts, forwards, filters, and mailing lists",
+		Short: "Inspect mail accounts and filters; inspect and manage forwards and mailing lists",
 	}
 	cmd.AddCommand(
 		newMailAccountsCmd(opts),

@@ -20,10 +20,12 @@ creates and is reversible, so it is **not** prompted. All three honour
 
 [`mail lists`](https://github.com/chmmou/kasapi-cli/issues/117) `add` /
 `update` / `delete` wire the same contract with the same policy:
-`update` (it replaces the subscriber / restrict-post / config fields
-wholesale) and `delete` are gated; `add` is reversible and not
-prompted. The list password passed to `add` is redacted in the
-`--dry-run` preview and the audit record.
+`update` and `delete` are gated; `add` is reversible and not prompted.
+`update` is gated because the fields it sets — subscriber,
+restrict-post and config — are each replaced wholesale (the
+confirmation prompt phrases this as replacing the list's *settings*).
+The list password passed to `add` is redacted in the `--dry-run`
+preview and the audit record.
 
 ## The contract
 

@@ -23,13 +23,14 @@ const (
 	deleteAction = "delete_mailinglist"
 )
 
-// UpdateFields enumerates the KAS request keys update_mailinglist
-// accepts besides the mailinglist_name identifier. Each is an optional
-// wholesale replacement: subscriber / restrictPost are RFC2822 address
-// lists (newline-separated), config is the complete list configuration
-// as plain text, and isActive toggles the list (Y|N). Only the keys the
-// caller explicitly sets are sent, so an empty string is a meaningful
-// "clear" rather than "leave unchanged".
+// The Field-prefixed constants are the KAS request keys
+// update_mailinglist accepts besides the mailinglist_name identifier.
+// FieldSubscriber / FieldRestrictPost are RFC2822 address lists
+// (newline-separated), FieldConfig is the complete list configuration
+// as plain text, and FieldIsActive toggles the list (Y|N). Each is an
+// optional wholesale replacement; only the keys the caller explicitly
+// sets are sent, so an empty string is a meaningful "clear" rather than
+// "leave unchanged".
 const (
 	FieldSubscriber   = "subscriber"
 	FieldRestrictPost = "restrict_post"

@@ -28,7 +28,7 @@ Inspect mail accounts (get_mailaccounts)
 
 ### SEE ALSO
 
-* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts, forwards, filters, and mailing lists
+* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts and filters; inspect and manage forwards and mailing lists
 * [kasapi-cli mail accounts get](kasapi-cli_mail_accounts_get.md)	 - Show details for a single mail account (get_mailaccounts with mail_login)
 * [kasapi-cli mail accounts list](kasapi-cli_mail_accounts_list.md)	 - List all mail accounts (get_mailaccounts)
 
