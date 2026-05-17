@@ -129,15 +129,19 @@ func (r AuditRecord) logfmt() string {
 	return b.String()
 }
 
-// quoteIfNeeded wraps v in double quotes (escaping \ and ") when it is
-// empty or contains whitespace, a quote, or '=' so the logfmt line
-// stays unambiguous to split on.
+// quoteIfNeeded wraps v in double quotes when it is empty or contains
+// whitespace, a quote, or '=' so the logfmt line stays unambiguous to
+// split on. Backslash and quote are escaped; a newline or carriage
+// return is escaped to the two-character \n / \r so a single field
+// value can never split the record across physical lines (multi-line
+// values reach here via e.g. update_mailinglist --subscriber /
+// --config-file).
 func quoteIfNeeded(v string) string {
 	if v == "" {
 		return `""`
 	}
-	if strings.ContainsAny(v, " \t\"=") {
-		return `"` + strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(v) + `"`
+	if strings.ContainsAny(v, " \t\r\n\"=") {
+		return `"` + strings.NewReplacer(`\`, `\\`, `"`, `\"`, "\n", `\n`, "\r", `\r`).Replace(v) + `"`
 	}
 	return v
 }

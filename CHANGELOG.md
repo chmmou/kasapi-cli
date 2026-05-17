@@ -260,6 +260,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Audit logfmt records no longer split across physical lines. A write
+  field value containing a newline or carriage return (now reachable
+  via `mail lists update --subscriber …` / `--config-file`) is escaped
+  to the two-character `\n` / `\r` inside a quoted value in the stderr
+  `logfmt` line, so a logfmt consumer can parse each record atomically.
+  The JSON-Lines `--audit-log` sink was already correct. (#117
+  re-review follow-up.)
+
 - `get_mailinglists` response mapping corrected to the real KAS
   schema. The `mailinglist.MailingList` model previously carried
   `mailinglist_admin` / `mailinglist_url`, which the API does not

@@ -105,6 +105,34 @@ func TestAuditRecordLogfmt(t *testing.T) {
 	}
 }
 
+// A field value containing a newline (e.g. update_mailinglist
+// --subscriber a@x --subscriber b@x, or --config-file content) must not
+// split the stderr audit record across physical lines: the embedded
+// newline is escaped to the two-character \n inside a quoted value, so
+// the record stays a single logfmt line.
+func TestAuditRecordLogfmtEscapesNewlines(t *testing.T) {
+	t.Parallel()
+	var stderr bytes.Buffer
+	rec := cli.AuditRecord{
+		Time:    time.Date(2026, 5, 18, 12, 0, 0, 0, time.UTC),
+		Login:   "w0000001",
+		Action:  "update_mailinglist",
+		Target:  "announce-example-com",
+		Outcome: "success",
+		Fields:  cli.RedactParams(map[string]any{"subscriber": "a@x.de\nb@x.de"}),
+	}
+	if err := cli.WriteAudit(&stderr, nil, rec); err != nil {
+		t.Fatalf("WriteAudit: %v", err)
+	}
+	line := stderr.String()
+	if got := strings.Count(line, "\n"); got != 1 {
+		t.Errorf("record spans %d newlines, want exactly 1 (the terminator):\n%q", got, line)
+	}
+	if !strings.Contains(line, `subscriber="a@x.de\nb@x.de"`) {
+		t.Errorf("newline not escaped to \\n in:\n%q", line)
+	}
+}
+
 func TestWriteAuditFileJSONL(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
