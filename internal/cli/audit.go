@@ -73,7 +73,11 @@ func redactParam(key string) bool {
 	if _, ok := auditSecretParams[k]; ok {
 		return true
 	}
-	for _, frag := range []string{"password", "passwd", "secret", "token", "auth_data"} {
+	// "passwort" is the German spelling the KAS API uses for several
+	// keys (ftp_passwort, db_passwort, …); it must be caught alongside
+	// the English "password" so a future write slice sending one is
+	// redaction-safe by default.
+	for _, frag := range []string{"password", "passwort", "passwd", "secret", "token", "auth_data"} {
 		if strings.Contains(k, frag) {
 			return true
 		}

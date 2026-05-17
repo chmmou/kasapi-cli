@@ -22,11 +22,13 @@ func TestRedactParams(t *testing.T) {
 		"new_password":  "p4ss",
 		"api_token":     "abc123",   // substring rule
 		"db_secret":     "shh",      // substring rule
+		"ftp_passwort":  "geheim",   // German spelling, substring rule
+		"db_passwort":   "geheim2",  // German spelling, substring rule
 		"record_id":     42,         // non-string, kept
 		"comment":       "hi there", // kept verbatim
 	}
 	got := cli.RedactParams(in)
-	for _, secret := range []string{"mail_password", "auth_data", "new_password", "api_token", "db_secret"} {
+	for _, secret := range []string{"mail_password", "auth_data", "new_password", "api_token", "db_secret", "ftp_passwort", "db_passwort"} {
 		if got[secret] != "<redacted>" {
 			t.Errorf("RedactParams[%q] = %q, want <redacted>", secret, got[secret])
 		}
@@ -42,7 +44,8 @@ func TestRedactParams(t *testing.T) {
 	}
 	// No secret value may survive anywhere in the rendered map.
 	for k, v := range got {
-		if strings.Contains(v, "hunter2") || strings.Contains(v, "topsecret") || strings.Contains(v, "abc123") {
+		if strings.Contains(v, "hunter2") || strings.Contains(v, "topsecret") || strings.Contains(v, "abc123") ||
+			strings.Contains(v, "geheim") {
 			t.Errorf("secret leaked via %q = %q", k, v)
 		}
 	}

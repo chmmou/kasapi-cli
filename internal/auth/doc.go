@@ -14,5 +14,11 @@
 // caching the token and refreshing it the next time api.Client observes
 // an auth failure and calls Invalidate.
 //
+// Layer: auth is an outer-layer adapter (like soap, transport, api and
+// cli), not a domain/use-case package. It performs the KasAuth HTTP
+// exchange and therefore legitimately depends on internal/transport;
+// the "domain packages must not import transport" rule in
+// docs/go/ARCHITECTURE.md does not apply here.
+//
 // See issue #5.
 package auth

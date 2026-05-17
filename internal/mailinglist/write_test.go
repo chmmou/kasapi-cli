@@ -3,9 +3,6 @@ package mailinglist_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/mailinglist"
@@ -150,54 +147,19 @@ func TestParamBuilders(t *testing.T) {
 }
 
 // TestFaultFixturesDecodeToDocumentedCodes binds the captured
-// *_response_failed_*.xml fixtures to the KAS contract: each must
-// decode to a *soap.FaultError carrying a non-empty fault code, and a
-// representative documented sample must carry the exact code. The
+// *_response_failed_*.xml fixtures to the KAS contract via the shared
+// testutil.AssertFaultFixtures anchor. The
 // add_mailinglist_..._mailinglist_mailinglist_domain_doesnt_exist
-// fixture is the reason this is an explicit map rather than a
-// filename-suffix derivation: its filename duplicates the mailinglist_
-// prefix while the fault code does not.
+// sample is pinned because its filename duplicates the mailinglist_
+// prefix while the fault code does not — a code drift the curated map
+// would catch.
 func TestFaultFixturesDecodeToDocumentedCodes(t *testing.T) {
 	t.Parallel()
-	dir := filepath.Join(testutil.RepoRoot(t), "testdata", "mailinglist")
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		t.Fatalf("read fixture dir: %v", err)
-	}
-	want := map[string]string{
+	testutil.AssertFaultFixtures(t, "mailinglist", map[string]string{
 		"add_mailinglist_response_failed_missing_parameter.xml":                           "missing_parameter",
 		"add_mailinglist_response_failed_mailinglist_mailinglist_domain_doesnt_exist.xml": "mailinglist_domain_doesnt_exist",
 		"update_mailinglist_response_failed_nothing_to_do.xml":                            "nothing_to_do",
 		"update_mailinglist_response_failed_subscriber_email_syntax_incorrect.xml":        "subscriber_email_syntax_incorrect",
 		"delete_mailinglist_response_failed_mailinglist_not_found.xml":                    "mailinglist_not_found",
-	}
-	seen := 0
-	for _, e := range entries {
-		name := e.Name()
-		if !strings.Contains(name, "_response_failed_") {
-			continue
-		}
-		seen++
-		//nolint:gosec // G304: fixture path is rooted at the repo testdata/ dir.
-		f, oerr := os.Open(filepath.Join(dir, name))
-		if oerr != nil {
-			t.Fatalf("open %s: %v", name, oerr)
-		}
-		_, derr := soap.Decode(f)
-		_ = f.Close()
-		var fe *soap.FaultError
-		if !errors.As(derr, &fe) {
-			t.Errorf("%s: decode err = %v, want *soap.FaultError", name, derr)
-			continue
-		}
-		if fe.Fault.String == "" {
-			t.Errorf("%s: empty fault code", name)
-		}
-		if code, ok := want[name]; ok && fe.Fault.String != code {
-			t.Errorf("%s: fault = %q, want %q", name, fe.Fault.String, code)
-		}
-	}
-	if seen == 0 {
-		t.Fatal("no fault fixtures found under testdata/mailinglist/")
-	}
+	})
 }

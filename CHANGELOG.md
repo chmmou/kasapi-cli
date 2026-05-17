@@ -260,6 +260,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Audit redaction now also catches the German "passwort" spelling.
+  `redactParam` matched only the English `password`/`passwd` substrings,
+  so real KAS keys such as `ftp_passwort` / `db_passwort` would have
+  reached an audit / `--dry-run` record unredacted once a write slice
+  sends them. No current write endpoint does, so this is a latent fix;
+  `"passwort"` is now in the substring rule and covered by a test.
+  (Full-project review follow-up.)
+
+- Fault-fixture contract coverage extended to every module. The shared
+  `testutil.AssertFaultFixtures` anchor asserts every captured
+  `testdata/<module>/*_response_failed_*.xml` decodes to a
+  `*soap.FaultError` with a non-empty code (plus curated per-module
+  documented-code samples); the two write slices were refactored onto
+  it so there is one pattern. Previously only `mailforward` /
+  `mailinglist` had this; the read modules' ~370 fault fixtures were
+  unreferenced. `internal/auth/doc.go` now states its adapter layer so
+  its legitimate `internal/transport` dependency is not misread as a
+  layering violation. (Full-project review follow-up.)
+
 - `kasapi-cli mail` help no longer under-describes its subtree: the
   parent `Short` said only "Inspect …" while `forwards` and `lists`
   now also add/update/delete. It now reads "Inspect mail accounts and

@@ -9,9 +9,11 @@ package testutil
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/soap"
@@ -56,6 +58,60 @@ func DecodeFixture(t *testing.T, relPath string) *soap.Response {
 		t.Fatalf("decode %s: %v", relPath, err)
 	}
 	return resp
+}
+
+// AssertFaultFixtures binds a module's captured fault fixtures to the
+// KAS contract: every testdata/<module>/*_response_failed_*.xml must
+// decode to a *soap.FaultError with a non-empty Fault.String, and each
+// entry in want (fixture filename -> expected fault code) must match
+// exactly. It is the fixture<->contract anchor every module reuses so a
+// captured fault fixture cannot silently drift from its documented KAS
+// code. module is the testdata/ subdirectory (e.g. "ftpuser"); the
+// empty string scans the shared top-level response_failed_*.xml set.
+// want may be nil to assert only the universal invariant; pin a few
+// representative documented codes there to also catch a code drift.
+func AssertFaultFixtures(t *testing.T, module string, want map[string]string) {
+	t.Helper()
+	dir := filepath.Join(RepoRoot(t), "testdata", module)
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("read fixture dir %s: %v", dir, err)
+	}
+	seen := 0
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		name := e.Name()
+		moduleFault := module != "" && strings.Contains(name, "_response_failed_")
+		sharedFault := module == "" && strings.HasPrefix(name, "response_failed_") &&
+			strings.HasSuffix(name, ".xml")
+		if !moduleFault && !sharedFault {
+			continue
+		}
+		seen++
+		//nolint:gosec // G304: fixture path is rooted at the repo testdata/ dir.
+		f, oerr := os.Open(filepath.Join(dir, name))
+		if oerr != nil {
+			t.Fatalf("open %s: %v", name, oerr)
+		}
+		_, derr := soap.Decode(f)
+		_ = f.Close()
+		var fe *soap.FaultError
+		if !errors.As(derr, &fe) {
+			t.Errorf("%s: decode err = %v, want *soap.FaultError", name, derr)
+			continue
+		}
+		if fe.Fault.String == "" {
+			t.Errorf("%s: empty fault code", name)
+		}
+		if code, ok := want[name]; ok && fe.Fault.String != code {
+			t.Errorf("%s: fault = %q, want %q", name, fe.Fault.String, code)
+		}
+	}
+	if seen == 0 {
+		t.Fatalf("no fault fixtures found for module %q", module)
+	}
 }
 
 // FakeCaller is a minimal stub for the Caller interface implemented by

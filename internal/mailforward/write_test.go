@@ -3,9 +3,6 @@ package mailforward_test
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/mailforward"
@@ -138,51 +135,17 @@ func TestParamBuilders(t *testing.T) {
 }
 
 // TestFaultFixturesDecodeToDocumentedCodes binds the captured
-// *_response_failed_*.xml fixtures to the KAS contract: each must
-// decode to a *soap.FaultError carrying a non-empty fault code, and a
-// representative documented sample must carry the exact code. This is
-// the fixture↔contract anchor for the write slice (faults reach the
-// domain layer as Caller errors in production).
+// *_response_failed_*.xml fixtures to the KAS contract via the shared
+// testutil.AssertFaultFixtures anchor: each must decode to a
+// *soap.FaultError with a non-empty fault code, and the curated samples
+// must carry the exact documented code (faults reach the domain layer
+// as Caller errors in production).
 func TestFaultFixturesDecodeToDocumentedCodes(t *testing.T) {
 	t.Parallel()
-	dir := filepath.Join(testutil.RepoRoot(t), "testdata", "mailforward")
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		t.Fatalf("read fixture dir: %v", err)
-	}
-	want := map[string]string{
+	testutil.AssertFaultFixtures(t, "mailforward", map[string]string{
 		"add_mailforward_response_failed_missing_parameter.xml":                "missing_parameter",
 		"add_mailforward_response_failed_mail_forward_exists_as_forward.xml":   "mail_forward_exists_as_forward",
 		"update_mailforward_response_failed_nothing_to_do.xml":                 "nothing_to_do",
 		"delete_mailforward_response_failed_mail_forward_not_found_in_kas.xml": "mail_forward_not_found_in_kas",
-	}
-	seen := 0
-	for _, e := range entries {
-		name := e.Name()
-		if !strings.Contains(name, "_response_failed_") {
-			continue
-		}
-		seen++
-		//nolint:gosec // G304: fixture path is rooted at the repo testdata/ dir.
-		f, oerr := os.Open(filepath.Join(dir, name))
-		if oerr != nil {
-			t.Fatalf("open %s: %v", name, oerr)
-		}
-		_, derr := soap.Decode(f)
-		_ = f.Close()
-		var fe *soap.FaultError
-		if !errors.As(derr, &fe) {
-			t.Errorf("%s: decode err = %v, want *soap.FaultError", name, derr)
-			continue
-		}
-		if fe.Fault.String == "" {
-			t.Errorf("%s: empty fault code", name)
-		}
-		if code, ok := want[name]; ok && fe.Fault.String != code {
-			t.Errorf("%s: fault = %q, want %q", name, fe.Fault.String, code)
-		}
-	}
-	if seen == 0 {
-		t.Fatal("no fault fixtures found under testdata/mailforward/")
-	}
+	})
 }
