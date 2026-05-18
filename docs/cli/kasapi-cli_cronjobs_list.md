@@ -32,5 +32,5 @@ kasapi-cli cronjobs list [flags]
 
 ### SEE ALSO
 
-* [kasapi-cli cronjobs](kasapi-cli_cronjobs.md)	 - Inspect cronjobs visible to the login (get_cronjobs)
+* [kasapi-cli cronjobs](kasapi-cli_cronjobs.md)	 - Inspect and manage cronjobs (get/add/update/delete_cronjob)
 

@@ -1,15 +1,15 @@
-## kasapi-cli cronjobs get
+## kasapi-cli cronjobs delete
 
-Show details for a single cronjob (get_cronjobs with cronjob_id)
+Delete a cronjob (delete_cronjob)
 
 ```
-kasapi-cli cronjobs get <cronjob-id> [flags]
+kasapi-cli cronjobs delete <cronjob-id> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands

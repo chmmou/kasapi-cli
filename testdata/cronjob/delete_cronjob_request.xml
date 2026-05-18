@@ -5,7 +5,7 @@
             <Params>
             {
                 "KasRequestParams": {
-                    "cronjob_id": "325208"
+                    "cronjob_id": "324700"
                 },
                 "kas_action": "delete_cronjob",
                 "kas_auth_data": "REDACTED",

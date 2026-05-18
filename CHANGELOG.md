@@ -22,6 +22,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Cronjob write endpoints (#118, #13 write slice):
+  `kasapi-cli cronjobs add --url <u> --comment <c> [schedule/mail
+  flags]`, `… update <cronjob-id> [flags]` and `… delete <cronjob-id>`
+  wire `add_cronjob` / `update_cronjob` / `delete_cronjob`. `update`
+  and `delete` are gated by the #109 confirmation prompt
+  (`update_cronjob` replaces every supplied field wholesale); `add` is
+  reversible and not prompted. All three honour `--dry-run` (#132) and
+  emit a #131 audit record; `--http-password` is redacted in both.
+  `update` sends only the explicitly-set flags (keyed on cobra
+  `Changed`), so an empty value is a deliberate "clear". The KAS wire
+  key for the notification address is `mail_adress` (single 'd', the
+  same quirk the read mapping documents). The `add`/`update`/`delete`
+  cronjob fixtures were corrected to the real KAS response shapes
+  beforehand.
+
 - Mailing-list write endpoints (#117, #13 write slice):
   `kasapi-cli mail lists add <name> --domain <d> --password <pw>`,
   `… update <name> [--subscriber …] [--restrict-post …]

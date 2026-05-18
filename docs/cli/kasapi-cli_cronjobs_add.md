@@ -1,15 +1,29 @@
-## kasapi-cli cronjobs get
+## kasapi-cli cronjobs add
 
-Show details for a single cronjob (get_cronjobs with cronjob_id)
+Create a cronjob (add_cronjob)
 
 ```
-kasapi-cli cronjobs get <cronjob-id> [flags]
+kasapi-cli cronjobs add --url <url> --comment <text> [schedule/mail flags] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+      --active                  whether the cronjob is active; pass --active=false to disable (default true)
+      --comment string          cronjob comment / label (required for add)
+      --day-of-month string     schedule day-of-month field (default "*")
+      --day-of-week string      schedule day-of-week field (0-7, Sun=0|7) (default "*")
+  -h, --help                    help for add
+      --hour string             schedule hour field (default "*")
+      --http-password string    HTTP basic-auth password for the call
+      --http-user string        HTTP basic-auth user for the call
+      --mail-address string     notification mail address (mail_adress)
+      --mail-condition string   when to send the notification mail
+      --mail-subject string     notification mail subject (default|comment) (default "default")
+      --minute string           schedule minute field (default "*")
+      --month string            schedule month field (default "*")
+      --protocol string         request protocol (http|https) (default "https")
+      --url string              URL to call (http_url; required for add)
 ```
 
 ### Options inherited from parent commands

@@ -80,22 +80,29 @@ func (c Cronjob) Target() string {
 // cli.Tabular.
 type CronjobList []Cronjob
 
-// Client groups the read endpoints scoped to cronjobs:
-// get_cronjobs (list and singular).
+// Client groups the read endpoint scoped to cronjobs (get_cronjobs,
+// list and singular) and the write endpoints add_cronjob /
+// update_cronjob / delete_cronjob (see write.go). The raw Caller is
+// kept alongside the read helper so the write methods can dispatch
+// their own KAS actions through the shared kaswrite seam.
 type Client struct {
 	lg kasread.ListGet[CronjobList, Cronjob]
+	c  Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
 func NewClient(c Caller) *Client {
-	return &Client{lg: kasread.ListGet[CronjobList, Cronjob]{
-		Caller:    c,
-		Action:    "get_cronjobs",
-		Label:     "cronjob",
-		ArgName:   "id",
-		FilterKey: "cronjob_id",
-		Decoder:   DecodeCronjobs,
-	}}
+	return &Client{
+		lg: kasread.ListGet[CronjobList, Cronjob]{
+			Caller:    c,
+			Action:    "get_cronjobs",
+			Label:     "cronjob",
+			ArgName:   "id",
+			FilterKey: "cronjob_id",
+			Decoder:   DecodeCronjobs,
+		},
+		c: c,
+	}
 }
 
 // List calls get_cronjobs without parameters and decodes the response

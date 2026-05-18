@@ -27,6 +27,15 @@ confirmation prompt phrases this as replacing the list's *settings*).
 The list password passed to `add` is redacted in the `--dry-run`
 preview and the audit record.
 
+[`cronjobs`](https://github.com/chmmou/kasapi-cli/issues/118) `add` /
+`update` / `delete` wire the same contract with the same policy:
+`update` and `delete` are gated; `add` is reversible and not prompted.
+`update` is gated because every field it sets is replaced wholesale
+(the confirmation prompt phrases this as replacing the cronjob's
+*settings*) and `update` sends only the explicitly-changed flags. Any
+`--http-password` passed to `add`/`update` is redacted in the
+`--dry-run` preview and the audit record.
+
 ## The contract
 
 Before a destructive call leaves the machine, the command prints a

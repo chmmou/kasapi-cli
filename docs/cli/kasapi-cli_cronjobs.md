@@ -1,6 +1,6 @@
 ## kasapi-cli cronjobs
 
-Inspect cronjobs visible to the login (get_cronjobs)
+Inspect and manage cronjobs (get/add/update/delete_cronjob)
 
 ### Options
 
@@ -29,6 +29,9 @@ Inspect cronjobs visible to the login (get_cronjobs)
 ### SEE ALSO
 
 * [kasapi-cli](kasapi-cli.md)	 - Command-line client for the All-Inkl KAS API
+* [kasapi-cli cronjobs add](kasapi-cli_cronjobs_add.md)	 - Create a cronjob (add_cronjob)
+* [kasapi-cli cronjobs delete](kasapi-cli_cronjobs_delete.md)	 - Delete a cronjob (delete_cronjob)
 * [kasapi-cli cronjobs get](kasapi-cli_cronjobs_get.md)	 - Show details for a single cronjob (get_cronjobs with cronjob_id)
 * [kasapi-cli cronjobs list](kasapi-cli_cronjobs_list.md)	 - List all cronjobs (get_cronjobs, no filter)
+* [kasapi-cli cronjobs update](kasapi-cli_cronjobs_update.md)	 - Replace mutable fields of a cronjob (update_cronjob)
 

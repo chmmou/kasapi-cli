@@ -34,7 +34,7 @@ kasapi-cli [flags]
 * [kasapi-cli accounts](kasapi-cli_accounts.md)	 - Inspect KAS accounts owned by the authenticated login
 * [kasapi-cli completion](kasapi-cli_completion.md)	 - Generate the autocompletion script for the specified shell
 * [kasapi-cli config](kasapi-cli_config.md)	 - Inspect and bootstrap the kasapi-cli configuration
-* [kasapi-cli cronjobs](kasapi-cli_cronjobs.md)	 - Inspect cronjobs visible to the login (get_cronjobs)
+* [kasapi-cli cronjobs](kasapi-cli_cronjobs.md)	 - Inspect and manage cronjobs (get/add/update/delete_cronjob)
 * [kasapi-cli databases](kasapi-cli_databases.md)	 - Inspect databases visible to the login (get_databases)
 * [kasapi-cli ddnsusers](kasapi-cli_ddnsusers.md)	 - Inspect DDNS users visible to the login (get_ddnsusers)
 * [kasapi-cli directoryprotection](kasapi-cli_directoryprotection.md)	 - Inspect directory (htaccess) protections (get_directoryprotection)
