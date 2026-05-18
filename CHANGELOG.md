@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Extracted the shared KAS write post-call contract (transport-error
+  passthrough + nil-response guard + `ReturnString="TRUE"` check) from
+  the duplicated per-module private `call` methods in `mailforward` /
+  `mailinglist` / `session` into one `internal/kaswrite` seam, the
+  write-side counterpart of `internal/kasread`. There is now one
+  canonical `errors.Is` sentinel (`kaswrite.ErrUnexpectedReturnString`);
+  the per-module `ErrUnexpectedReturnString` are re-export aliases of
+  it, so `errors.Is(err, <module>.ErrUnexpectedReturnString)` keeps
+  working. No behaviour change; the wrapped error message is now uniform
+  (`kaswrite: …`).
+
 ### Added
 
 - Mailing-list write endpoints (#117, #13 write slice):

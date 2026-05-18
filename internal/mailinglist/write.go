@@ -3,19 +3,15 @@ package mailinglist
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/kaswrite"
 )
 
-// ErrUnexpectedReturnString is returned by the write methods when the
-// KAS call succeeds at the transport level (no SOAP fault) but the
-// server's ReturnString is not "TRUE" — an API-drift / contract
-// violation. Callers may errors.Is against it to tell a protocol-shape
-// regression apart from a transport or KAS-fault error; the wrapped
-// message carries the action and the observed value. Mirrors
-// mailforward.ErrUnexpectedReturnString.
-var ErrUnexpectedReturnString = errors.New("mailinglist: unexpected ReturnString (want TRUE)")
+// ErrUnexpectedReturnString is the shared canonical post-call-contract
+// sentinel, re-exported so errors.Is(err, mailinglist.ErrUnexpectedReturnString)
+// keeps working and the slice stays self-describing. See
+// kaswrite.ErrUnexpectedReturnString for the full contract.
+var ErrUnexpectedReturnString = kaswrite.ErrUnexpectedReturnString
 
 const (
 	addAction    = "add_mailinglist"
@@ -53,7 +49,7 @@ func (cl *Client) Add(ctx context.Context, name, domain, password string) (strin
 	if password == "" {
 		return "", errors.New("mailinglist: add_mailinglist requires a non-empty password")
 	}
-	resp, err := cl.call(ctx, addAction, AddParams(name, domain, password))
+	resp, err := kaswrite.Call(ctx, cl.c, "mailinglist", addAction, AddParams(name, domain, password))
 	if err != nil {
 		return "", err
 	}
@@ -84,7 +80,7 @@ func (cl *Client) Update(ctx context.Context, name string, fields map[string]str
 	if len(fields) == 0 {
 		return errors.New("mailinglist: update_mailinglist requires at least one field to change")
 	}
-	_, err := cl.call(ctx, updateAction, UpdateParams(name, fields))
+	_, err := kaswrite.Call(ctx, cl.c, "mailinglist", updateAction, UpdateParams(name, fields))
 	return err
 }
 
@@ -106,7 +102,7 @@ func (cl *Client) Delete(ctx context.Context, name string) error {
 	if name == "" {
 		return errors.New("mailinglist: delete_mailinglist requires a non-empty mailing list name")
 	}
-	_, err := cl.call(ctx, deleteAction, DeleteParams(name))
+	_, err := kaswrite.Call(ctx, cl.c, "mailinglist", deleteAction, DeleteParams(name))
 	return err
 }
 
@@ -114,22 +110,4 @@ func (cl *Client) Delete(ctx context.Context, name string) error {
 // (single source of truth, see AddParams).
 func DeleteParams(name string) map[string]any {
 	return map[string]any{"mailinglist_name": name}
-}
-
-// call dispatches a write action and enforces the shared post-call
-// contract: a non-fault response must echo ReturnString="TRUE";
-// anything else wraps ErrUnexpectedReturnString so a future API drift
-// fails the mapping test instead of silently passing.
-func (cl *Client) call(ctx context.Context, action string, params map[string]any) (*soap.Response, error) {
-	resp, err := cl.c.Call(ctx, action, params)
-	if err != nil {
-		return nil, err
-	}
-	if resp == nil {
-		return nil, fmt.Errorf("mailinglist: %s: nil response without error from Caller", action)
-	}
-	if got := resp.Body.ReturnString; got != "TRUE" {
-		return nil, fmt.Errorf("%w: %s got %q", ErrUnexpectedReturnString, action, got)
-	}
-	return resp, nil
 }

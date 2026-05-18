@@ -3,20 +3,16 @@ package mailforward
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 
-	"github.com/chmmou/kasapi-cli/internal/soap"
+	"github.com/chmmou/kasapi-cli/internal/kaswrite"
 )
 
-// ErrUnexpectedReturnString is returned by the write methods when the
-// KAS call succeeds at the transport level (no SOAP fault) but the
-// server's ReturnString is not "TRUE" — an API-drift / contract
-// violation. Callers may errors.Is against it to tell a protocol-shape
-// regression apart from a transport or KAS-fault error; the wrapped
-// message carries the action and the observed value. Mirrors
-// session.ErrUnexpectedReturnString.
-var ErrUnexpectedReturnString = errors.New("mailforward: unexpected ReturnString (want TRUE)")
+// ErrUnexpectedReturnString is the shared canonical post-call-contract
+// sentinel, re-exported so errors.Is(err, mailforward.ErrUnexpectedReturnString)
+// keeps working and the slice stays self-describing. See
+// kaswrite.ErrUnexpectedReturnString for the full contract.
+var ErrUnexpectedReturnString = kaswrite.ErrUnexpectedReturnString
 
 const (
 	addAction    = "add_mailforward"
@@ -38,7 +34,7 @@ func (cl *Client) Add(ctx context.Context, localPart, domainPart string, targets
 	if len(targets) == 0 {
 		return "", errors.New("mailforward: add_mailforward requires at least one target")
 	}
-	resp, err := cl.call(ctx, addAction, AddParams(localPart, domainPart, targets))
+	resp, err := kaswrite.Call(ctx, cl.c, "mailforward", addAction, AddParams(localPart, domainPart, targets))
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +63,7 @@ func (cl *Client) Update(ctx context.Context, address string, targets []string) 
 	if len(targets) == 0 {
 		return errors.New("mailforward: update_mailforward requires at least one target")
 	}
-	_, err := cl.call(ctx, updateAction, UpdateParams(address, targets))
+	_, err := kaswrite.Call(ctx, cl.c, "mailforward", updateAction, UpdateParams(address, targets))
 	return err
 }
 
@@ -87,7 +83,7 @@ func (cl *Client) Delete(ctx context.Context, address string) error {
 	if address == "" {
 		return errors.New("mailforward: delete_mailforward requires a non-empty mail forward address")
 	}
-	_, err := cl.call(ctx, deleteAction, DeleteParams(address))
+	_, err := kaswrite.Call(ctx, cl.c, "mailforward", deleteAction, DeleteParams(address))
 	return err
 }
 
@@ -95,24 +91,6 @@ func (cl *Client) Delete(ctx context.Context, address string) error {
 // (single source of truth, see AddParams).
 func DeleteParams(address string) map[string]any {
 	return map[string]any{"mail_forward": address}
-}
-
-// call dispatches a write action and enforces the shared post-call
-// contract: a non-fault response must echo ReturnString="TRUE";
-// anything else wraps ErrUnexpectedReturnString so a future API drift
-// fails the mapping test instead of silently passing.
-func (cl *Client) call(ctx context.Context, action string, params map[string]any) (*soap.Response, error) {
-	resp, err := cl.c.Call(ctx, action, params)
-	if err != nil {
-		return nil, err
-	}
-	if resp == nil {
-		return nil, fmt.Errorf("mailforward: %s: nil response without error from Caller", action)
-	}
-	if got := resp.Body.ReturnString; got != "TRUE" {
-		return nil, fmt.Errorf("%w: %s got %q", ErrUnexpectedReturnString, action, got)
-	}
-	return resp, nil
 }
 
 // addTargets writes the targets slice into params as the KAS-numbered
