@@ -110,10 +110,15 @@ func TestWriteValidation(t *testing.T) {
 	if _, err := c.Add(ctx, missingURL); err == nil {
 		t.Error("Add missing http_url: err = nil, want validation error")
 	}
-	missingSchedule := sampleSpec()
-	missingSchedule.Minute = ""
-	if _, err := c.Add(ctx, missingSchedule); err == nil {
+	missingMinute := sampleSpec()
+	missingMinute.Minute = ""
+	if _, err := c.Add(ctx, missingMinute); err == nil {
 		t.Error("Add missing minute: err = nil, want validation error")
+	}
+	missingHour := sampleSpec()
+	missingHour.Hour = ""
+	if _, err := c.Add(ctx, missingHour); err == nil {
+		t.Error("Add missing hour: err = nil, want validation error")
 	}
 	if err := c.Update(ctx, "", map[string]string{cronjob.FieldComment: "x"}); err == nil {
 		t.Error("Update empty id: err = nil, want validation error")

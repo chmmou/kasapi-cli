@@ -84,7 +84,7 @@ func (cl *Client) Add(ctx context.Context, s Spec) (string, error) {
 		return "", errors.New("cronjob: add_cronjob requires a non-empty protocol, http url and comment")
 	}
 	if s.Minute == "" || s.Hour == "" || s.DayOfMonth == "" || s.Month == "" || s.DayOfWeek == "" {
-		return "", errors.New("cronjob: add_cronjob requires all five schedule fields (minute, hour, day_of_month, month, day_of_week)")
+		return "", errors.New("cronjob: add_cronjob requires --minute and --hour (and non-empty day_of_month/month/day_of_week)")
 	}
 	resp, err := kaswrite.Call(ctx, cl.c, "cronjob", addAction, AddParams(s))
 	if err != nil {

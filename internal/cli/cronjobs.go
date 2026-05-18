@@ -78,8 +78,8 @@ func (f *cronjobWriteFlags) bind(cmd *cobra.Command) {
 	fl.StringVar(&f.protocol, "protocol", "https", "request protocol (http|https)")
 	fl.StringVar(&f.url, "url", "", "URL to call (http_url; required for add)")
 	fl.StringVar(&f.comment, "comment", "", "cronjob comment / label (required for add)")
-	fl.StringVar(&f.minute, "minute", "*", "schedule minute field")
-	fl.StringVar(&f.hour, "hour", "*", "schedule hour field")
+	fl.StringVar(&f.minute, "minute", "", "schedule minute field (required for add)")
+	fl.StringVar(&f.hour, "hour", "", "schedule hour field (required for add)")
 	fl.StringVar(&f.dayOfMonth, "day-of-month", "*", "schedule day-of-month field")
 	fl.StringVar(&f.month, "month", "*", "schedule month field")
 	fl.StringVar(&f.dayOfWeek, "day-of-week", "*", "schedule day-of-week field (0-7, Sun=0|7)")
@@ -120,7 +120,7 @@ func boolToYN(b bool) string {
 func newCronjobsAddCmd(opts *RootOptions) *cobra.Command {
 	f := &cronjobWriteFlags{}
 	cmd := &cobra.Command{
-		Use:   "add --url <url> --comment <text> [schedule/mail flags]",
+		Use:   "add --url <url> --comment <text> --minute <m> --hour <h> [flags]",
 		Short: "Create a cronjob (add_cronjob)",
 		Args:  cobra.NoArgs,
 		RunE: runWriteE(opts, func([]string) (writeSpec, error) {
@@ -129,6 +129,9 @@ func newCronjobsAddCmd(opts *RootOptions) *cobra.Command {
 			}
 			if f.comment == "" {
 				return writeSpec{}, fmt.Errorf("--comment is required")
+			}
+			if f.minute == "" || f.hour == "" {
+				return writeSpec{}, fmt.Errorf("--minute and --hour are required")
 			}
 			s := f.spec()
 			return writeSpec{

@@ -3,7 +3,7 @@
 Create a cronjob (add_cronjob)
 
 ```
-kasapi-cli cronjobs add --url <url> --comment <text> [schedule/mail flags] [flags]
+kasapi-cli cronjobs add --url <url> --comment <text> --minute <m> --hour <h> [flags]
 ```
 
 ### Options
@@ -14,13 +14,13 @@ kasapi-cli cronjobs add --url <url> --comment <text> [schedule/mail flags] [flag
       --day-of-month string     schedule day-of-month field (default "*")
       --day-of-week string      schedule day-of-week field (0-7, Sun=0|7) (default "*")
   -h, --help                    help for add
-      --hour string             schedule hour field (default "*")
+      --hour string             schedule hour field (required for add)
       --http-password string    HTTP basic-auth password for the call
       --http-user string        HTTP basic-auth user for the call
       --mail-address string     notification mail address (mail_adress)
       --mail-condition string   when to send the notification mail
       --mail-subject string     notification mail subject (default|comment) (default "default")
-      --minute string           schedule minute field (default "*")
+      --minute string           schedule minute field (required for add)
       --month string            schedule month field (default "*")
       --protocol string         request protocol (http|https) (default "https")
       --url string              URL to call (http_url; required for add)

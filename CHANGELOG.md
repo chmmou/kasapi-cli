@@ -23,8 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Cronjob write endpoints (#118, #13 write slice):
-  `kasapi-cli cronjobs add --url <u> --comment <c> [schedule/mail
-  flags]`, `… update <cronjob-id> [flags]` and `… delete <cronjob-id>`
+  `kasapi-cli cronjobs add --url <u> --comment <c> --minute <m> --hour
+  <h> [flags]`, `… update <cronjob-id> [flags]` and `… delete
+  <cronjob-id>`
   wire `add_cronjob` / `update_cronjob` / `delete_cronjob`. `update`
   and `delete` are gated by the #109 confirmation prompt
   (`update_cronjob` replaces every supplied field wholesale); `add` is

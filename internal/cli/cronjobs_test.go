@@ -38,6 +38,7 @@ func TestCronjobsAddRejectsBadInput(t *testing.T) {
 	}{
 		{"missing --url", []string{"cronjobs", "add", "--comment", "c"}},
 		{"missing --comment", []string{"cronjobs", "add", "--url", "example.de/cron.php"}},
+		{"missing schedule", []string{"cronjobs", "add", "--url", "example.de/cron.php", "--comment", "c"}},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
