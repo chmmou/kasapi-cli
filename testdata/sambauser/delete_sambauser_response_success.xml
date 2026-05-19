@@ -50,7 +50,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The samba user was deleted.</value>
+                                        <value xsi:type="xsd:string">The user was deleted.</value>
                                     </item>
                                 </item>
                             </value>

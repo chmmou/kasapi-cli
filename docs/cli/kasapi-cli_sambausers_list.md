@@ -32,5 +32,5 @@ kasapi-cli sambausers list [flags]
 
 ### SEE ALSO
 
-* [kasapi-cli sambausers](kasapi-cli_sambausers.md)	 - Inspect Samba/CIFS users visible to the login (get_sambausers)
+* [kasapi-cli sambausers](kasapi-cli_sambausers.md)	 - Inspect and manage Samba/CIFS users (get/add/update/delete_sambauser)
 

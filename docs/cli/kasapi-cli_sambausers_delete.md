@@ -1,15 +1,15 @@
-## kasapi-cli sambausers get
+## kasapi-cli sambausers delete
 
-Show details for a single Samba user (get_sambausers with samba_login)
+Delete a Samba user (delete_sambauser)
 
 ```
-kasapi-cli sambausers get <samba-login> [flags]
+kasapi-cli sambausers delete <samba-login> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands

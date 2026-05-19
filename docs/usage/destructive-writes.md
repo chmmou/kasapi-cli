@@ -47,6 +47,17 @@ it on success. The `--password` flag is redacted in the `--dry-run`
 preview and the audit record for both `add` and `update` (it maps to
 `ftp_password` on add, `ftp_new_password` on update).
 
+[`sambausers`](https://github.com/chmmou/kasapi-cli/issues/120) `add` /
+`update` / `delete` wire the same contract with the same policy:
+`update` and `delete` are gated; `add` is reversible and not prompted.
+`update` is gated because every field it sets is replaced wholesale
+(the confirmation prompt phrases this as replacing the Samba user's
+*settings*) and `update` sends only the explicitly-changed flags.
+`add_sambauser` takes no login — KAS generates it and the command
+prints it on success. The `--password` flag is redacted in the
+`--dry-run` preview and the audit record for both `add` and `update`
+(it maps to `samba_password` on add, `samba_new_password` on update).
+
 ## The contract
 
 Before a destructive call leaves the machine, the command prints a

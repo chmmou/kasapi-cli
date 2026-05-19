@@ -30,22 +30,30 @@ type SambaUser struct {
 // cli.Tabular.
 type SambaUserList []SambaUser
 
-// Client groups the read endpoints scoped to Samba users:
-// get_sambausers (list and singular).
+// Client groups the read endpoint scoped to Samba users
+// (get_sambausers, list and singular) and the write endpoints
+// add_sambauser / update_sambauser / delete_sambauser (see write.go).
+// The raw Caller is kept alongside the read helper so the write
+// methods can dispatch their own KAS actions through the shared
+// kaswrite seam.
 type Client struct {
 	lg kasread.ListGet[SambaUserList, SambaUser]
+	c  Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
 func NewClient(c Caller) *Client {
-	return &Client{lg: kasread.ListGet[SambaUserList, SambaUser]{
-		Caller:    c,
-		Action:    "get_sambausers",
-		Label:     "sambauser",
-		ArgName:   "login",
-		FilterKey: "samba_login",
-		Decoder:   DecodeSambaUsers,
-	}}
+	return &Client{
+		lg: kasread.ListGet[SambaUserList, SambaUser]{
+			Caller:    c,
+			Action:    "get_sambausers",
+			Label:     "sambauser",
+			ArgName:   "login",
+			FilterKey: "samba_login",
+			Decoder:   DecodeSambaUsers,
+		},
+		c: c,
+	}
 }
 
 // List calls get_sambausers without parameters and decodes the

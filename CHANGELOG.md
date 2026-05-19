@@ -22,6 +22,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Samba-user write endpoints (#120, #13 write slice):
+  `kasapi-cli sambausers add --password <pw> --comment <c> --path <p>`,
+  `… update <samba-login> [flags]` and `… delete <samba-login>` wire
+  `add_sambauser` / `update_sambauser` / `delete_sambauser`. `update`
+  and `delete` are gated by the #109 confirmation prompt
+  (`update_sambauser` replaces every supplied field wholesale); `add`
+  is reversible and not prompted. All three honour `--dry-run` (#132)
+  and emit a #131 audit record; the password is redacted in both.
+  `update` sends only the explicitly-set flags (keyed on cobra
+  `Changed`), so an empty value is a deliberate "clear".
+  `add_sambauser` takes no `samba_login` — KAS generates it and echoes
+  it in `ReturnInfo`, which the command prints. The KAS documentation
+  wrongly lists the create password parameter as `samba_new_password`;
+  the captured `add_sambauser` request fixture (and its success-
+  response request echo) confirm the real key is `samba_password`, so
+  the fixture — the authoritative request-shape contract — was
+  corrected and the code follows it. `update_sambauser` does use
+  `samba_new_password`; the CLI maps the single `--password` flag to
+  the correct key per command.
+
 - FTP-user write endpoints (#119, #13 write slice):
   `kasapi-cli ftpusers add --password <pw> --comment <c> [flags]`,
   `… update <ftp-login> [flags]` and `… delete <ftp-login>` wire

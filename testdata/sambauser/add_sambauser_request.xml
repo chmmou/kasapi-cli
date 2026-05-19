@@ -6,7 +6,7 @@
             {
                 "KasRequestParams": {
                     "samba_path": "/example.com/share/",
-                    "samba_new_password": "REDACTED",
+                    "samba_password": "REDACTED",
                     "samba_comment": "Shared documents"
                 },
                 "kas_action": "add_sambauser",

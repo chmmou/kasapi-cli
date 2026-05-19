@@ -1,15 +1,18 @@
-## kasapi-cli sambausers get
+## kasapi-cli sambausers update
 
-Show details for a single Samba user (get_sambausers with samba_login)
+Replace mutable fields of a Samba user (update_sambauser)
 
 ```
-kasapi-cli sambausers get <samba-login> [flags]
+kasapi-cli sambausers update <samba-login> [password/path flags] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+      --comment string    user comment / label (required for add)
+  -h, --help              help for update
+      --password string   Samba password (required for add; new password for update)
+      --path string       share path the user is granted (samba_path; required for add)
 ```
 
 ### Options inherited from parent commands
