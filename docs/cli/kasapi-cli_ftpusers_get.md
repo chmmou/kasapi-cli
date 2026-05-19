@@ -32,5 +32,5 @@ kasapi-cli ftpusers get <ftp-login> [flags]
 
 ### SEE ALSO
 
-* [kasapi-cli ftpusers](kasapi-cli_ftpusers.md)	 - Inspect FTP users visible to the login (get_ftpusers)
+* [kasapi-cli ftpusers](kasapi-cli_ftpusers.md)	 - Inspect and manage FTP users (get/add/update/delete_ftpuser)
 

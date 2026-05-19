@@ -42,22 +42,29 @@ type FTPUser struct {
 // cli.Tabular.
 type FTPUserList []FTPUser
 
-// Client groups the read endpoints scoped to FTP users:
-// get_ftpusers (list and singular).
+// Client groups the read endpoint scoped to FTP users (get_ftpusers,
+// list and singular) and the write endpoints add_ftpuser /
+// update_ftpuser / delete_ftpuser (see write.go). The raw Caller is
+// kept alongside the read helper so the write methods can dispatch
+// their own KAS actions through the shared kaswrite seam.
 type Client struct {
 	lg kasread.ListGet[FTPUserList, FTPUser]
+	c  Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
 func NewClient(c Caller) *Client {
-	return &Client{lg: kasread.ListGet[FTPUserList, FTPUser]{
-		Caller:    c,
-		Action:    "get_ftpusers",
-		Label:     "ftpuser",
-		ArgName:   "login",
-		FilterKey: "ftp_login",
-		Decoder:   DecodeFTPUsers,
-	}}
+	return &Client{
+		lg: kasread.ListGet[FTPUserList, FTPUser]{
+			Caller:    c,
+			Action:    "get_ftpusers",
+			Label:     "ftpuser",
+			ArgName:   "login",
+			FilterKey: "ftp_login",
+			Decoder:   DecodeFTPUsers,
+		},
+		c: c,
+	}
 }
 
 // List calls get_ftpusers without parameters and decodes the response

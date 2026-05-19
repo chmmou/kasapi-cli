@@ -22,6 +22,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- FTP-user write endpoints (#119, #13 write slice):
+  `kasapi-cli ftpusers add --password <pw> --comment <c> [flags]`,
+  `… update <ftp-login> [flags]` and `… delete <ftp-login>` wire
+  `add_ftpuser` / `update_ftpuser` / `delete_ftpuser`. `update` and
+  `delete` are gated by the #109 confirmation prompt (`update_ftpuser`
+  replaces every supplied field wholesale); `add` is reversible and
+  not prompted. All three honour `--dry-run` (#132) and emit a #131
+  audit record; the password is redacted in both. `update` sends only
+  the explicitly-set flags (keyed on cobra `Changed`), so an empty
+  value is a deliberate "clear". `add_ftpuser` takes no `ftp_login` —
+  KAS generates it and echoes it in `ReturnInfo`, which the command
+  prints. The password key differs by action: `add_ftpuser` uses
+  `ftp_password`, `update_ftpuser` uses `ftp_new_password` (per the KAS
+  docs and the captured request fixtures); the CLI maps the single
+  `--password` flag to the correct key per command. The plural-vs-
+  singular question from #13 is resolved: the live KAS action is
+  `add_ftpuser` (singular) — the documentation's `add_ftpusers` is the
+  internal PHP function name, while the doc example URL, both request
+  fixtures and the success-response request echo all use the singular
+  form; no fixture change was needed.
+
 - Cronjob write endpoints (#118, #13 write slice):
   `kasapi-cli cronjobs add --url <u> --comment <c> --minute <m> --hour
   <h> [flags]`, `… update <cronjob-id> [flags]` and `… delete
