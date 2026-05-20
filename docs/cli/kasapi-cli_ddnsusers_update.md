@@ -1,15 +1,23 @@
-## kasapi-cli ddnsusers get
+## kasapi-cli ddnsusers update
 
-Show details for a single DDNS user (get_ddnsusers with ddns_login)
+Replace mutable fields of a DDNS user (update_ddnsuser)
 
 ```
-kasapi-cli ddnsusers get <ddns-login> [flags]
+kasapi-cli ddnsusers update <dyndns-login> [password/target/dual-stack flags] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+      --comment string       user comment / label (required for add)
+      --dual-stack           enable dual-stack (Y/N); off by default
+  -h, --help                 help for update
+      --label string         host label below the zone (required for add)
+      --password string      DDNS password (required for add; same key for update)
+      --target-ip string     legacy single-IP target for add_ddnsuser
+      --target-ipv4 string   IPv4 target for update_ddnsuser (undocumented but verified)
+      --target-ipv6 string   IPv6 target for update_ddnsuser (undocumented but verified)
+      --zone string          DNS zone the record lives under (required for add)
 ```
 
 ### Options inherited from parent commands

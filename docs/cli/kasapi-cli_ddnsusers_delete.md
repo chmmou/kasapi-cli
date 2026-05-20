@@ -1,15 +1,15 @@
-## kasapi-cli ddnsusers get
+## kasapi-cli ddnsusers delete
 
-Show details for a single DDNS user (get_ddnsusers with ddns_login)
+Delete a DDNS user (delete_ddnsuser)
 
 ```
-kasapi-cli ddnsusers get <ddns-login> [flags]
+kasapi-cli ddnsusers delete <dyndns-login> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for get
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands

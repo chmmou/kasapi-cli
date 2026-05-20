@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777748700</value>
+                            <value xsi:type="xsd:int">1779236213</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -19,7 +19,7 @@
                             <value xsi:type="ns2:Map">
                                 <item>
                                     <key xsi:type="xsd:string">dyndns_login</key>
-                                    <value xsi:type="xsd:string">d0000001</value>
+                                    <value xsi:type="xsd:string">dyn0000001</value>
                                 </item>
                             </value>
                         </item>
@@ -50,7 +50,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The DDNS user was deleted.</value>
+                                        <value xsi:type="xsd:string">The user was deleted.</value>
                                     </item>
                                 </item>
                             </value>

@@ -58,6 +58,21 @@ prints it on success. The `--password` flag is redacted in the
 `--dry-run` preview and the audit record for both `add` and `update`
 (it maps to `samba_password` on add, `samba_new_password` on update).
 
+[`ddnsusers`](https://github.com/chmmou/kasapi-cli/issues/121) `add` /
+`update` / `delete` wire the same contract with the same policy:
+`update` and `delete` are gated; `add` is reversible and not prompted.
+`update` is gated because every field it sets is replaced wholesale
+(the confirmation prompt phrases this as replacing the DDNS user's
+*settings*) and `update` sends only the explicitly-changed flags.
+`add_ddnsuser` takes no login — KAS generates it and the command
+prints it on success. Unlike the FTP/Samba slices there is no
+`_new_password` split: `--password` maps to `dyndns_password` on both
+`add` and `update`, and is redacted in the `--dry-run` preview and the
+audit record. `update_ddnsuser` accepts `--target-ipv4` /
+`--target-ipv6` instead of `add`'s legacy `--target-ip`; the ipv4/ipv6
+keys are undocumented in the KAS API but verified to work against the
+live system (the captured update request fixture is authoritative).
+
 ## The contract
 
 Before a destructive call leaves the machine, the command prints a

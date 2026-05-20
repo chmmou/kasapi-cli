@@ -22,6 +22,10 @@
                                     <value xsi:type="xsd:string">Home router</value>
                                 </item>
                                 <item>
+                                    <key xsi:type="xsd:string">dyndns_password</key>
+                                    <value xsi:type="xsd:string">REDACTED</value>
+                                </item>
+                                <item>
                                     <key xsi:type="xsd:string">dyndns_zone</key>
                                     <value xsi:type="xsd:string">example.com</value>
                                 </item>
@@ -31,11 +35,11 @@
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">dyndns_target_ip</key>
-                                    <value xsi:type="xsd:string">203.0.113.42</value>
+                                    <value xsi:type="xsd:string">127.0.0.1</value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">dyndns_dual_stack</key>
-                                    <value xsi:type="xsd:string">Y</value>
+                                    <value xsi:type="xsd:string">N</value>
                                 </item>
                             </value>
                         </item>
@@ -54,7 +58,7 @@
                         </item>
                         <item>
                             <key xsi:type="xsd:string">ReturnInfo</key>
-                            <value xsi:type="xsd:string">d0000001</value>
+                            <value xsi:type="xsd:string">dyn0000001</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">Msg</key>
@@ -66,7 +70,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The DDNS user has been created. The automatically generated login is: &lt;b&gt;d0000001&lt;/b&gt;</value>
+                                        <value xsi:type="xsd:string">The user has been created. The automatically generated login is: &lt;b&gt;dyn0000001&lt;/b&gt;</value>
                                     </item>
                                 </item>
                             </value>

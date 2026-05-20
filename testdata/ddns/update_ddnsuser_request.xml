@@ -5,10 +5,12 @@
             <Params>
             {
                 "KasRequestParams": {
-                    "dyndns_login": "d0000001",
+                    "dyndns_login": "dyn0000001",
                     "dyndns_password": "REDACTED",
                     "dyndns_comment": "Home router (renamed)",
-                    "dyndns_dual_stack": "N"
+                    "dyndns_target_ipv4": "127.0.0.1",
+                    "dyndns_target_ipv6": "::ffff:7f00:1",
+                    "dyndns_dual_stack": "Y"
                 },
                 "kas_action": "update_ddnsuser",
                 "kas_auth_data": "REDACTED",

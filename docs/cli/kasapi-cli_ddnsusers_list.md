@@ -32,5 +32,5 @@ kasapi-cli ddnsusers list [flags]
 
 ### SEE ALSO
 
-* [kasapi-cli ddnsusers](kasapi-cli_ddnsusers.md)	 - Inspect DDNS users visible to the login (get_ddnsusers)
+* [kasapi-cli ddnsusers](kasapi-cli_ddnsusers.md)	 - Inspect and manage DDNS users (get/add/update/delete_ddnsuser)
 

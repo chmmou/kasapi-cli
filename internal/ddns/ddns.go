@@ -62,8 +62,12 @@ func (u DDNSUser) FQDN() string {
 // cli.Tabular.
 type DDNSUserList []DDNSUser
 
-// Client groups the read endpoints scoped to DDNS users:
-// get_ddnsusers (list and singular).
+// Client groups the read endpoints scoped to DDNS users
+// (get_ddnsusers, list and singular) and the write endpoints
+// add_ddnsuser / update_ddnsuser / delete_ddnsuser (see write.go).
+// The raw Caller is kept alongside the read helper so the write
+// methods can dispatch their own KAS actions through the shared
+// kaswrite seam.
 //
 // The KAS API signals "filter matched no entry" with a SOAP fault
 // (`dyndns_login_not_found`) rather than an empty array; that fault
@@ -72,18 +76,22 @@ type DDNSUserList []DDNSUser
 // not-found path.
 type Client struct {
 	lg kasread.ListGet[DDNSUserList, DDNSUser]
+	c  Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
 func NewClient(c Caller) *Client {
-	return &Client{lg: kasread.ListGet[DDNSUserList, DDNSUser]{
-		Caller:    c,
-		Action:    "get_ddnsusers",
-		Label:     "ddns",
-		ArgName:   "login",
-		FilterKey: "ddns_login",
-		Decoder:   DecodeDDNSUsers,
-	}}
+	return &Client{
+		lg: kasread.ListGet[DDNSUserList, DDNSUser]{
+			Caller:    c,
+			Action:    "get_ddnsusers",
+			Label:     "ddns",
+			ArgName:   "login",
+			FilterKey: "ddns_login",
+			Decoder:   DecodeDDNSUsers,
+		},
+		c: c,
+	}
 }
 
 // List calls get_ddnsusers without parameters and decodes the

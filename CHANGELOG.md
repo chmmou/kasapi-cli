@@ -22,6 +22,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- DDNS-user write endpoints (#121, #13 write slice):
+  `kasapi-cli ddnsusers add --password <pw> --zone <z> --label <l>
+  --target-ip <ip> --comment <text> [--dual-stack]`,
+  `… update <dyndns-login> [flags]` and `… delete <dyndns-login>` wire
+  `add_ddnsuser` / `update_ddnsuser` / `delete_ddnsuser`. `update` and
+  `delete` are gated by the #109 confirmation prompt
+  (`update_ddnsuser` replaces every supplied field wholesale); `add`
+  is reversible and not prompted. All three honour `--dry-run` (#132)
+  and emit a #131 audit record; the password is redacted in both.
+  `update` sends only the explicitly-set flags (keyed on cobra
+  `Changed`), so an empty value is a deliberate "clear".
+  `add_ddnsuser` takes no `dyndns_login` — KAS generates it and echoes
+  it in `ReturnInfo`, which the command prints. Unlike the
+  ftpuser/sambauser slices there is no `_new_password` split: the
+  password maps to `dyndns_password` on both actions, per the
+  fixtures. `update_ddnsuser` accepts `--target-ipv4` / `--target-ipv6`
+  instead of `add`'s legacy `--target-ip`; the dual-stack
+  `dyndns_target_ipv4` / `dyndns_target_ipv6` request keys are
+  *undocumented* in the public KAS API documentation but verified to
+  work against the live system (observed in the KAS panel's browser
+  network tab), and the captured `update_ddnsuser` request fixture
+  (with its success-response request echo) is the authoritative
+  request-shape contract for the slice. The (`dyndns_*` prefix) write
+  request keys keep the same wire-side asymmetry as the read path —
+  the action / get filter use the `ddns*` form without the `y`.
 - Samba-user write endpoints (#120, #13 write slice):
   `kasapi-cli sambausers add --password <pw> --comment <c> --path <p>`,
   `… update <samba-login> [flags]` and `… delete <samba-login>` wire
