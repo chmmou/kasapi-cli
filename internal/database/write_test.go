@@ -116,7 +116,6 @@ func TestWriteValidation(t *testing.T) {
 	}{
 		{"missing password", func(s *database.Spec) { s.Password = "" }, "password"},
 		{"missing comment", func(s *database.Spec) { s.Comment = "" }, "comment"},
-		{"missing allowed_hosts", func(s *database.Spec) { s.AllowedHosts = "" }, "allowed_hosts"},
 	} {
 		s := sampleSpec()
 		tc.mut(&s)
@@ -128,6 +127,17 @@ func TestWriteValidation(t *testing.T) {
 		if !strings.Contains(err.Error(), tc.wantSub) {
 			t.Errorf("Add %s: err = %q, want it to mention %q", tc.name, err.Error(), tc.wantSub)
 		}
+	}
+	// AllowedHosts == "" is a deliberate "any host may connect" value,
+	// not a missing parameter — it must NOT trigger domain validation
+	// and Add must reach the SOAP call (which the FakeCaller intercepts
+	// with a success-response fixture).
+	resp := testutil.DecodeFixture(t, "database/add_database_response_success.xml")
+	emptyHostsClient := database.NewClient(&testutil.FakeCaller{Resp: resp})
+	emptyHosts := sampleSpec()
+	emptyHosts.AllowedHosts = ""
+	if _, err := emptyHostsClient.Add(ctx, emptyHosts); err != nil {
+		t.Errorf("Add with empty AllowedHosts: err = %v, want nil (empty is the documented wildcard)", err)
 	}
 	if err := c.Update(ctx, "", map[string]string{database.FieldComment: "x"}); err == nil {
 		t.Error("Update empty login: err = nil, want validation error")

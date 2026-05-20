@@ -39,12 +39,16 @@ const (
 	FieldAllowedHosts = "database_allowed_hosts"
 )
 
-// Spec carries the add_database request fields. Password, comment and
-// allowed_hosts are required by the KAS API and validated as non-empty
-// before any SOAP call so the CLI can surface a fast validation error.
-// The allowed_hosts grammar (comma-separated host names / IPs / CIDR)
-// is delegated to the API — a wrong value surfaces as
-// database_allowed_hosts_syntax_incorrect.
+// Spec carries the add_database request fields. Password and comment
+// are required by the KAS API and validated as non-empty before any
+// SOAP call so the CLI can surface a fast validation error.
+//
+// AllowedHosts is the comma-separated host name / IP / CIDR list the
+// new database accepts connections from. An empty AllowedHosts is a
+// meaningful, explicit "any host may connect" — the API treats the
+// absence of a host list as wildcard access, not as a missing
+// parameter. The grammar (when non-empty) is delegated to the API; a
+// malformed value surfaces as database_allowed_hosts_syntax_incorrect.
 //
 // add_database takes no database_login: the server auto-generates the
 // login (always equal to the database name on creation, e.g.
@@ -69,9 +73,11 @@ func (cl *Client) Add(ctx context.Context, s Spec) (string, error) {
 		return "", errors.New("database: add_database requires a non-empty password")
 	case s.Comment == "":
 		return "", errors.New("database: add_database requires a non-empty comment")
-	case s.AllowedHosts == "":
-		return "", errors.New("database: add_database requires a non-empty allowed_hosts")
 	}
+	// s.AllowedHosts is intentionally NOT validated as non-empty: an
+	// empty list means "any host may connect" (the KAS API's documented
+	// wildcard semantics), which is a deliberate user choice rather
+	// than a missing parameter.
 	resp, err := kaswrite.Call(ctx, cl.c, "database", addAction, AddParams(s))
 	if err != nil {
 		return "", err

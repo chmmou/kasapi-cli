@@ -29,10 +29,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   captured fixture row, so the previous omitempty added drift without
   shielding callers from a missing key.
 - `database.Client.Add`'s domain-level validation now emits per-field
-  errors ("requires a non-empty password" / "comment" /
-  "allowed_hosts") instead of a single combined message, so callers
-  who hit the domain validator (rather than the CLI's per-flag
-  required-flag checks) can tell which field actually broke.
+  errors ("requires a non-empty password" / "comment") instead of a
+  single combined message, so callers who hit the domain validator
+  (rather than the CLI's per-flag required-flag checks) can tell
+  which field actually broke. `AllowedHosts` is no longer required —
+  an empty value is the KAS API's documented "any host may connect"
+  wildcard, not a missing parameter; `kasapi-cli databases add`'s
+  `--allowed-hosts` flag is therefore optional and the empty-string
+  wildcard is sent verbatim on the wire.
 - `(cli.ConfirmAction).Summary` is now exported (was `summary`), so
   tests can pin the rendered prompt (and the per-slice loudness verb)
   without instantiating a real terminal.

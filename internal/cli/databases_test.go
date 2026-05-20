@@ -38,7 +38,6 @@ func TestDatabasesAddRejectsBadInput(t *testing.T) {
 	}{
 		{"missing --password", []string{"databases", "add", "--comment", "c", "--allowed-hosts", "localhost"}},
 		{"missing --comment", []string{"databases", "add", "--password", "s3cret", "--allowed-hosts", "localhost"}},
-		{"missing --allowed-hosts", []string{"databases", "add", "--password", "s3cret", "--comment", "c"}},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -57,6 +56,48 @@ func TestDatabasesAddRejectsBadInput(t *testing.T) {
 				t.Errorf("exit code = %d, want ExitUserError", cli.CodeFor(err))
 			}
 		})
+	}
+}
+
+// add must accept omitted --allowed-hosts: an empty value is the KAS
+// API's documented "any host may connect" wildcard, not a missing
+// parameter. The dry-run preview must therefore reach action /
+// params assembly (no validation rejection) and the
+// database_allowed_hosts key must be present in the params with the
+// empty-string value.
+func TestDatabasesAddOptionalAllowedHosts(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewDatabasesCmd(opts))
+	var out, errb bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&errb)
+	root.SetArgs([]string{
+		"databases", "add",
+		"--password", "s3cret",
+		"--comment", "Test DB",
+		"--dry-run", "-o", "json",
+		"--login", "w0", "--auth-data", "x", "--auth-type", "plain",
+	})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("Execute: %v\nstderr: %s", err, errb.String())
+	}
+	var got struct {
+		Action string            `json:"action"`
+		Params map[string]string `json:"params"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+		t.Fatalf("unmarshal preview: %v\nstdout: %s", err, out.String())
+	}
+	if got.Action != "add_database" {
+		t.Errorf("action = %q, want add_database", got.Action)
+	}
+	v, ok := got.Params["database_allowed_hosts"]
+	if !ok {
+		t.Errorf("params missing database_allowed_hosts (empty wildcard must still be sent on the wire): %v", got.Params)
+	}
+	if v != "" {
+		t.Errorf("params[database_allowed_hosts] = %q, want \"\" (wildcard)", v)
 	}
 }
 
