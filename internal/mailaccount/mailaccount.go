@@ -138,17 +138,19 @@ func DecodeMailAccounts(returnInfo soap.Value) (MailAccountList, error) {
 // TableHeaders returns the columns used by --output=table for
 // MailAccountList.
 func (MailAccountList) TableHeaders() []string {
-	return []string{"LOGIN", "ADDRESS", "USED_MB", "RESPONDER", "ACTIVE", "IN_PROGRESS"}
+	return []string{"LOGIN", "ADDRESS", "USED", "RESPONDER", "ACTIVE", "IN_PROGRESS"}
 }
 
-// TableRows emits one row per MailAccount entry.
+// TableRows emits one row per MailAccount entry. used_mailaccount_space
+// carries the " MB" unit as part of the value to match the singular
+// detail row and the cross-module convention.
 func (l MailAccountList) TableRows() [][]string {
 	rows := make([][]string, 0, len(l))
 	for _, a := range l {
 		rows = append(rows, []string{
 			a.Login,
 			a.Addresses,
-			strconv.FormatFloat(a.UsedSpace, 'f', 2, 64),
+			strconv.FormatFloat(a.UsedSpace, 'f', 2, 64) + " MB",
 			a.Responder,
 			a.IsActive,
 			a.InProgress,
@@ -183,7 +185,7 @@ func (a MailAccount) TableRows() [][]string {
 		{"mail_xlist_trash", a.XListTrash},
 		{"mail_xlist_spam", a.XListSpam},
 		{"mail_xlist_archiv", a.XListArchiv},
-		{"used_mailaccount_space", strconv.FormatFloat(a.UsedSpace, 'f', 2, 64)},
+		{"used_mailaccount_space", strconv.FormatFloat(a.UsedSpace, 'f', 2, 64) + " MB"},
 		{"mail_is_active", a.IsActive},
 		{"show_password", a.ShowPassword},
 		{"mail_allow_nets", a.AllowNets},

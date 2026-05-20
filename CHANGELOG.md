@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Cross-module convention alignment, post-#122-review parity sweep:
+  - `account.AccountList` / `mailaccount.MailAccountList` now render
+    the `used_*_space` column with a `" MB"` suffix as part of the
+    value (matching the singular detail row) and use a bare `USED`
+    header. Consistent with the database slice after #122 followups
+    — all three modules now share a single unit-rendering convention.
+  - `ddns.DDNSUser.in_progress` is no longer marked `omitempty`,
+    aligning with the majority of read modules. Captured fixtures
+    have always carried `in_progress`; the empty-string fallback on
+    an older account is harmless.
+  - `cronjob.Client.Add`, `ddns.Client.Add`, `ftpuser.Client.Add`,
+    `sambauser.Client.Add`, `mailinglist.Client.Add` and
+    `mailforward.Client.Add` now emit per-field validation errors
+    (`requires a non-empty <field>`) instead of a single combined
+    message ("requires a non-empty X, Y and Z"). A caller hitting
+    the domain validator can now tell which field actually broke,
+    matching the convention introduced by the database slice in
+    #122 followups.
+- `docs/usage/destructive-writes.md` refactored: a single
+  "per-slice baseline" section captures the contract every wired
+  slice carries (gating policy, dry-run/audit/redaction,
+  generated-login printing) and a "per-slice deviations" table
+  calls out only what each slice changes (mailforward's target-list
+  phrasing, database's louder delete verb + optional
+  `--allowed-hosts` wildcard, ddns's no-`_new_password` split, …).
+  Replaces eight near-identical paragraphs that had grown to
+  roughly copy-paste.
+
 - `kasapi-cli databases add` and `… update` now bind disjoint flag
   sets (mirroring the ddnsuser slice). The flag names are identical
   on both subcommands, but the help text of each reflects its own

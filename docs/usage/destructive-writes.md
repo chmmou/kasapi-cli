@@ -10,85 +10,40 @@ This page documents the behavioural contract (issue
 v0.2.0 write phase, [#13](https://github.com/chmmou/kasapi-cli/issues/13)).
 The read commands are non-destructive and are not gated.
 
-The first write endpoints —
-[`mail forwards`](https://github.com/chmmou/kasapi-cli/issues/115)
-`add` / `update` / `delete` — wire this contract. `delete` and
-`update` are gated by the confirmation prompt (an `update_mailforward`
-replaces the whole target list and is therefore irreversible); `add`
-creates and is reversible, so it is **not** prompted. All three honour
-`--dry-run` and emit an audit record.
+## Per-slice baseline
 
-[`mail lists`](https://github.com/chmmou/kasapi-cli/issues/117) `add` /
-`update` / `delete` wire the same contract with the same policy:
-`update` and `delete` are gated; `add` is reversible and not prompted.
-`update` is gated because the fields it sets — subscriber,
-restrict-post and config — are each replaced wholesale (the
-confirmation prompt phrases this as replacing the list's *settings*).
-The list password passed to `add` is redacted in the `--dry-run`
-preview and the audit record.
+Every wired write slice carries the same baseline policy. Listing it
+once here keeps the per-slice notes below short — they only call out
+the deviations.
 
-[`cronjobs`](https://github.com/chmmou/kasapi-cli/issues/118) `add` /
-`update` / `delete` wire the same contract with the same policy:
-`update` and `delete` are gated; `add` is reversible and not prompted.
-`update` is gated because every field it sets is replaced wholesale
-(the confirmation prompt phrases this as replacing the cronjob's
-*settings*) and `update` sends only the explicitly-changed flags. Any
-`--http-password` passed to `add`/`update` is redacted in the
-`--dry-run` preview and the audit record.
+- `add` is reversible (creates a new resource) → **not** gated; no
+  prompt.
+- `update` and `delete` are irreversible (wholesale field replacement
+  on `update`; resource removal on `delete`) → **gated** by the #109
+  prompt. The prompt phrases `update` as replacing the resource's
+  *settings*.
+- `update` sends **only the explicitly-changed flags** (keyed on
+  cobra `Changed`), so an empty value is a deliberate "clear", not
+  "leave unchanged".
+- All three subcommands honour `--dry-run` (#132) and emit a #131
+  audit record. Secret request parameters are redacted in **both**
+  sinks.
+- Subcommands whose KAS action generates the login server-side
+  (`add_ftpuser`, `add_sambauser`, `add_ddnsuser`, `add_database`,
+  `add_mailinglist`, `add_mailforward`) print the generated identifier
+  on success.
 
-[`ftpusers`](https://github.com/chmmou/kasapi-cli/issues/119) `add` /
-`update` / `delete` wire the same contract with the same policy:
-`update` and `delete` are gated; `add` is reversible and not prompted.
-`update` is gated because every field it sets is replaced wholesale
-(the confirmation prompt phrases this as replacing the FTP user's
-*settings*) and `update` sends only the explicitly-changed flags.
-`add_ftpuser` takes no login — KAS generates it and the command prints
-it on success. The `--password` flag is redacted in the `--dry-run`
-preview and the audit record for both `add` and `update` (it maps to
-`ftp_password` on add, `ftp_new_password` on update).
+## Per-slice deviations
 
-[`sambausers`](https://github.com/chmmou/kasapi-cli/issues/120) `add` /
-`update` / `delete` wire the same contract with the same policy:
-`update` and `delete` are gated; `add` is reversible and not prompted.
-`update` is gated because every field it sets is replaced wholesale
-(the confirmation prompt phrases this as replacing the Samba user's
-*settings*) and `update` sends only the explicitly-changed flags.
-`add_sambauser` takes no login — KAS generates it and the command
-prints it on success. The `--password` flag is redacted in the
-`--dry-run` preview and the audit record for both `add` and `update`
-(it maps to `samba_password` on add, `samba_new_password` on update).
-
-[`databases`](https://github.com/chmmou/kasapi-cli/issues/122) `add` /
-`update` / `delete` wire the same contract with one important
-loudness adjustment: `delete_database`'s confirmation prompt uses the
-verb `"permanently delete"` rather than the bare `"delete"` every
-other slice uses, because dropping a database also drops every row
-it contains — the loudest data-loss surface of the v0.2.0 write
-phase. `update` and `delete` are gated; `add` is reversible and not
-prompted. `update` is gated because every field it sets is replaced
-wholesale (the confirmation prompt phrases this as replacing the
-database's *settings*) and `update` sends only the explicitly-changed
-flags. `add_database` takes no login — KAS generates it (the login
-equals the database name on creation, e.g. `d0123460`) and the
-command prints it on success. The `--password` flag is redacted in
-the `--dry-run` preview and the audit record for both `add` and
-`update` (it maps to `database_password` on add,
-`database_new_password` on update).
-
-[`ddnsusers`](https://github.com/chmmou/kasapi-cli/issues/121) `add` /
-`update` / `delete` wire the same contract with the same policy:
-`update` and `delete` are gated; `add` is reversible and not prompted.
-`update` is gated because every field it sets is replaced wholesale
-(the confirmation prompt phrases this as replacing the DDNS user's
-*settings*) and `update` sends only the explicitly-changed flags.
-`add_ddnsuser` takes no login — KAS generates it and the command
-prints it on success. Unlike the FTP/Samba slices there is no
-`_new_password` split: `--password` maps to `dyndns_password` on both
-`add` and `update`, and is redacted in the `--dry-run` preview and the
-audit record. `update_ddnsuser` accepts `--target-ipv4` /
-`--target-ipv6` instead of `add`'s legacy `--target-ip`; the ipv4/ipv6
-keys are undocumented in the KAS API but verified to work against the
-live system (the captured update request fixture is authoritative).
+| Slice (issue) | Deviation from the baseline above |
+|---|---|
+| [`mail forwards`](https://github.com/chmmou/kasapi-cli/issues/115) | First slice to wire #109/#131/#132. `update_mailforward` replaces the whole *target list*; the prompt phrases this as replacing the forward's *targets* (not "settings"). |
+| [`mail lists`](https://github.com/chmmou/kasapi-cli/issues/117) | The list password passed to `add` is redacted in the dry-run preview and audit record. |
+| [`cronjobs`](https://github.com/chmmou/kasapi-cli/issues/118) | Any `--http-password` passed to `add`/`update` is redacted. |
+| [`ftpusers`](https://github.com/chmmou/kasapi-cli/issues/119) | Password key splits between actions: `--password` → `ftp_password` on add, `ftp_new_password` on update. |
+| [`sambausers`](https://github.com/chmmou/kasapi-cli/issues/120) | Password key splits between actions: `--password` → `samba_password` on add, `samba_new_password` on update. Note: the KAS docs wrongly list `samba_new_password` for the create call; the captured fixture confirms the real key is `samba_password`. |
+| [`databases`](https://github.com/chmmou/kasapi-cli/issues/122) | **Louder delete prompt**: `delete_database` uses the verb `"permanently delete"` (vs the bare `"delete"` every other slice uses) because the action drops the database AND every row in it — the loudest data-loss surface of the v0.2.0 write phase. Password key splits between actions: `--password` → `database_password` on add, `database_new_password` on update. `--allowed-hosts` is **optional**: an empty value is the KAS API's documented "any host may connect" wildcard, sent verbatim on the wire. |
+| [`ddnsusers`](https://github.com/chmmou/kasapi-cli/issues/121) | **No `_new_password` split**: `--password` maps to `dyndns_password` on both `add` and `update`. `update_ddnsuser` accepts `--target-ipv4` / `--target-ipv6` instead of `add`'s legacy `--target-ip`; the ipv4/ipv6 keys are undocumented in the KAS API docs but verified to work against the live system (the captured update request fixture is authoritative). |
 
 ## The contract
 

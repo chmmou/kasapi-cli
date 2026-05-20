@@ -62,8 +62,13 @@ type Spec struct {
 // (path_syntax_incorrect, password_syntax_incorrect, …) is left to the
 // API and surfaces verbatim through the Caller.
 func (cl *Client) Add(ctx context.Context, s Spec) (string, error) {
-	if s.Password == "" || s.Comment == "" || s.Path == "" {
-		return "", errors.New("sambauser: add_sambauser requires a non-empty password, comment and path")
+	switch {
+	case s.Password == "":
+		return "", errors.New("sambauser: add_sambauser requires a non-empty password")
+	case s.Comment == "":
+		return "", errors.New("sambauser: add_sambauser requires a non-empty comment")
+	case s.Path == "":
+		return "", errors.New("sambauser: add_sambauser requires a non-empty path")
 	}
 	resp, err := kaswrite.Call(ctx, cl.c, "sambauser", addAction, AddParams(s))
 	if err != nil {

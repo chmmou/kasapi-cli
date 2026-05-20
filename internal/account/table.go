@@ -14,14 +14,17 @@ type AccountList []Account
 
 // TableHeaders returns the column names for the account list view.
 func (AccountList) TableHeaders() []string {
-	return []string{"LOGIN", "COMMENT", "MAIL", "MAX_DOMAIN", "MAX_WEBSPACE", "USED_MB", "2FA", "IN_PROGRESS"}
+	return []string{"LOGIN", "COMMENT", "MAIL", "MAX_DOMAIN", "MAX_WEBSPACE", "USED", "2FA", "IN_PROGRESS"}
 }
 
 // TableRows returns one row per account, in the order returned by KAS.
 // KAS returns used_account_space in KiB (the phpdoc at
 // https://kasapi.kasserver.com/dokumentation/phpdoc/ does not state the
 // unit, but real responses have magnitudes and fractional digits
-// consistent with bytes/1024); /1024 yields MiB, displayed as MB.
+// consistent with bytes/1024); /1024 yields MiB, displayed as MB. The
+// unit travels with the value (matching the singular detail row and
+// the cross-module convention) so list and detail views share a
+// single unit-rendering rule.
 func (l AccountList) TableRows() [][]string {
 	rows := make([][]string, 0, len(l))
 	for _, a := range l {
@@ -31,7 +34,7 @@ func (l AccountList) TableRows() [][]string {
 			a.AccountContactMail,
 			strconv.Itoa(a.MaxDomain),
 			strconv.Itoa(a.MaxWebspace),
-			strconv.FormatFloat(a.UsedAccountSpace/1024, 'f', 1, 64),
+			strconv.FormatFloat(a.UsedAccountSpace/1024, 'f', 1, 64) + " MB",
 			a.Account2FA,
 			a.InProgress,
 		})

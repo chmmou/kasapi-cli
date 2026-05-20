@@ -43,10 +43,12 @@ const (
 // rejected before any SOAP call so the CLI can surface a fast
 // validation error.
 func (cl *Client) Add(ctx context.Context, name, domain, password string) (string, error) {
-	if name == "" || domain == "" {
-		return "", errors.New("mailinglist: add_mailinglist requires a non-empty name and domain")
-	}
-	if password == "" {
+	switch {
+	case name == "":
+		return "", errors.New("mailinglist: add_mailinglist requires a non-empty name")
+	case domain == "":
+		return "", errors.New("mailinglist: add_mailinglist requires a non-empty domain")
+	case password == "":
 		return "", errors.New("mailinglist: add_mailinglist requires a non-empty password")
 	}
 	resp, err := kaswrite.Call(ctx, cl.c, "mailinglist", addAction, AddParams(name, domain, password))

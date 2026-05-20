@@ -28,8 +28,13 @@ type Caller = kasread.Caller
 // `dyndns_target_ip` alongside the explicit `dyndns_target_ipv4` and
 // `dyndns_target_ipv6` dual-stack fields (see
 // testdata/ddns/get_ddnsuser*_response_success.xml). The ipv4/ipv6
-// pair plus `in_progress` may still be absent on older accounts, so
-// all three are flagged with omitempty.
+// pair may still be absent on older accounts, so those two carry
+// omitempty.
+//
+// `in_progress` is no longer omitempty for parity with the majority
+// of read modules (account, mailaccount, mailinglist, sambauser,
+// ftpuser, database): every captured fixture row carries it and a
+// stray empty-string on an older account is harmless.
 type DDNSUser struct {
 	Login    string `json:"dyndns_login" yaml:"dyndns_login"`
 	Password string `json:"dyndns_password,omitempty" yaml:"dyndns_password,omitempty"`
@@ -43,7 +48,7 @@ type DDNSUser struct {
 	DualStack string `json:"dyndns_dual_stack" yaml:"dyndns_dual_stack"`
 	Comment   string `json:"dyndns_comment" yaml:"dyndns_comment"`
 
-	InProgress string `json:"in_progress,omitempty" yaml:"in_progress,omitempty"`
+	InProgress string `json:"in_progress" yaml:"in_progress"`
 }
 
 // FQDN returns the fully-qualified DDNS hostname (label + zone) for

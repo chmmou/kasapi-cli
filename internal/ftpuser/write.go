@@ -68,8 +68,11 @@ type Spec struct {
 // (ftp_path_syntax_incorrect, password_syntax_incorrect, …) is left to
 // the API and surfaces verbatim through the Caller.
 func (cl *Client) Add(ctx context.Context, s Spec) (string, error) {
-	if s.Password == "" || s.Comment == "" {
-		return "", errors.New("ftpuser: add_ftpuser requires a non-empty password and comment")
+	switch {
+	case s.Password == "":
+		return "", errors.New("ftpuser: add_ftpuser requires a non-empty password")
+	case s.Comment == "":
+		return "", errors.New("ftpuser: add_ftpuser requires a non-empty comment")
 	}
 	resp, err := kaswrite.Call(ctx, cl.c, "ftpuser", addAction, AddParams(s))
 	if err != nil {

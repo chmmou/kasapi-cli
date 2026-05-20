@@ -80,11 +80,23 @@ type Spec struct {
 // (minute_syntax_incorrect, time_not_allowed, …) surface verbatim
 // through the Caller.
 func (cl *Client) Add(ctx context.Context, s Spec) (string, error) {
-	if s.Protocol == "" || s.HTTPURL == "" || s.Comment == "" {
-		return "", errors.New("cronjob: add_cronjob requires a non-empty protocol, http url and comment")
-	}
-	if s.Minute == "" || s.Hour == "" || s.DayOfMonth == "" || s.Month == "" || s.DayOfWeek == "" {
-		return "", errors.New("cronjob: add_cronjob requires --minute and --hour (and non-empty day_of_month/month/day_of_week)")
+	switch {
+	case s.Protocol == "":
+		return "", errors.New("cronjob: add_cronjob requires a non-empty protocol")
+	case s.HTTPURL == "":
+		return "", errors.New("cronjob: add_cronjob requires a non-empty http url")
+	case s.Comment == "":
+		return "", errors.New("cronjob: add_cronjob requires a non-empty comment")
+	case s.Minute == "":
+		return "", errors.New("cronjob: add_cronjob requires a non-empty minute schedule")
+	case s.Hour == "":
+		return "", errors.New("cronjob: add_cronjob requires a non-empty hour schedule")
+	case s.DayOfMonth == "":
+		return "", errors.New("cronjob: add_cronjob requires a non-empty day_of_month schedule")
+	case s.Month == "":
+		return "", errors.New("cronjob: add_cronjob requires a non-empty month schedule")
+	case s.DayOfWeek == "":
+		return "", errors.New("cronjob: add_cronjob requires a non-empty day_of_week schedule")
 	}
 	resp, err := kaswrite.Call(ctx, cl.c, "cronjob", addAction, AddParams(s))
 	if err != nil {

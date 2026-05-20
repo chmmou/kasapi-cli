@@ -28,10 +28,12 @@ const (
 // value is rejected before any SOAP call so the CLI can surface a fast
 // validation error.
 func (cl *Client) Add(ctx context.Context, localPart, domainPart string, targets []string) (string, error) {
-	if localPart == "" || domainPart == "" {
-		return "", errors.New("mailforward: add_mailforward requires a non-empty local and domain part")
-	}
-	if len(targets) == 0 {
+	switch {
+	case localPart == "":
+		return "", errors.New("mailforward: add_mailforward requires a non-empty local part")
+	case domainPart == "":
+		return "", errors.New("mailforward: add_mailforward requires a non-empty domain part")
+	case len(targets) == 0:
 		return "", errors.New("mailforward: add_mailforward requires at least one target")
 	}
 	resp, err := kaswrite.Call(ctx, cl.c, "mailforward", addAction, AddParams(localPart, domainPart, targets))

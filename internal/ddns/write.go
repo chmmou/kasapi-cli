@@ -85,8 +85,17 @@ type Spec struct {
 // dyndns_target_ip_syntax_incorrect, …) is left to the API and surfaces
 // verbatim through the Caller.
 func (cl *Client) Add(ctx context.Context, s Spec) (string, error) {
-	if s.Password == "" || s.Zone == "" || s.Label == "" || s.TargetIP == "" || s.Comment == "" {
-		return "", errors.New("ddns: add_ddnsuser requires a non-empty password, zone, label, target IP and comment")
+	switch {
+	case s.Password == "":
+		return "", errors.New("ddns: add_ddnsuser requires a non-empty password")
+	case s.Zone == "":
+		return "", errors.New("ddns: add_ddnsuser requires a non-empty zone")
+	case s.Label == "":
+		return "", errors.New("ddns: add_ddnsuser requires a non-empty label")
+	case s.TargetIP == "":
+		return "", errors.New("ddns: add_ddnsuser requires a non-empty target IP")
+	case s.Comment == "":
+		return "", errors.New("ddns: add_ddnsuser requires a non-empty comment")
 	}
 	resp, err := kaswrite.Call(ctx, cl.c, "ddns", addAction, AddParams(s))
 	if err != nil {
