@@ -17,6 +17,10 @@ type Caller = kasread.Caller
 // Database is one entry of get_databases. The list and singular views
 // (the latter being get_databases called with a database_login filter)
 // return the same Map shape, so a single struct covers both.
+//
+// in_progress is a pending-async-write flag the KAS API surfaces on
+// every database row (typically "FALSE"). It is flagged with omitempty
+// for parity with the other modules' optional flags.
 type Database struct {
 	Name              string  `json:"database_name" yaml:"database_name"`
 	Login             string  `json:"database_login" yaml:"database_login"`
@@ -24,28 +28,36 @@ type Database struct {
 	Comment           string  `json:"database_comment" yaml:"database_comment"`
 	AllowedHosts      string  `json:"database_allowed_hosts" yaml:"database_allowed_hosts"`
 	UsedDatabaseSpace float64 `json:"used_database_space" yaml:"used_database_space"`
+	InProgress        string  `json:"in_progress,omitempty" yaml:"in_progress,omitempty"`
 }
 
 // DatabaseList is the typed payload of get_databases; satisfies
 // cli.Tabular.
 type DatabaseList []Database
 
-// Client groups the read endpoints scoped to databases:
-// get_databases (list and singular).
+// Client groups the read endpoints scoped to databases
+// (get_databases, list and singular) and the write endpoints
+// add_database / update_database / delete_database (see write.go). The
+// raw Caller is kept alongside the read helper so the write methods
+// can dispatch their own KAS actions through the shared kaswrite seam.
 type Client struct {
 	lg kasread.ListGet[DatabaseList, Database]
+	c  Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
 func NewClient(c Caller) *Client {
-	return &Client{lg: kasread.ListGet[DatabaseList, Database]{
-		Caller:    c,
-		Action:    "get_databases",
-		Label:     "database",
-		ArgName:   "login",
-		FilterKey: "database_login",
-		Decoder:   DecodeDatabases,
-	}}
+	return &Client{
+		lg: kasread.ListGet[DatabaseList, Database]{
+			Caller:    c,
+			Action:    "get_databases",
+			Label:     "database",
+			ArgName:   "login",
+			FilterKey: "database_login",
+			Decoder:   DecodeDatabases,
+		},
+		c: c,
+	}
 }
 
 // List calls get_databases without parameters and decodes the response
@@ -71,6 +83,7 @@ func DecodeDatabases(returnInfo soap.Value) (DatabaseList, error) {
 			Comment:           item.MapString("database_comment"),
 			AllowedHosts:      item.MapString("database_allowed_hosts"),
 			UsedDatabaseSpace: item.MapFloat("used_database_space"),
+			InProgress:        item.MapString("in_progress"),
 		}
 	})
 	if err != nil {
@@ -82,7 +95,7 @@ func DecodeDatabases(returnInfo soap.Value) (DatabaseList, error) {
 // TableHeaders returns the columns used by --output=table for
 // DatabaseList.
 func (DatabaseList) TableHeaders() []string {
-	return []string{"LOGIN", "NAME", "COMMENT", "ALLOWED_HOSTS", "USED_MB"}
+	return []string{"LOGIN", "NAME", "COMMENT", "ALLOWED_HOSTS", "USED_MB", "IN_PROGRESS"}
 }
 
 // TableRows emits one row per Database entry. used_database_space is
@@ -97,6 +110,7 @@ func (l DatabaseList) TableRows() [][]string {
 			d.Comment,
 			d.AllowedHosts,
 			strconv.FormatFloat(d.UsedDatabaseSpace/1024, 'f', 2, 64),
+			d.InProgress,
 		})
 	}
 	return rows
@@ -110,12 +124,17 @@ func (Database) TableHeaders() []string {
 
 // TableRows emits the scalar fields. database_password is intentionally
 // omitted — consumers that need it should use --output=json|yaml.
+// in_progress only appears when the API actually returned it.
 func (d Database) TableRows() [][]string {
-	return [][]string{
+	rows := [][]string{
 		{"database_login", d.Login},
 		{"database_name", d.Name},
 		{"database_comment", d.Comment},
 		{"database_allowed_hosts", d.AllowedHosts},
 		{"used_database_space", strconv.FormatFloat(d.UsedDatabaseSpace/1024, 'f', 2, 64) + " MB"},
 	}
+	if d.InProgress != "" {
+		rows = append(rows, []string{"in_progress", d.InProgress})
+	}
+	return rows
 }

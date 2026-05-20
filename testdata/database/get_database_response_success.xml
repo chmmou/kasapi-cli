@@ -19,7 +19,7 @@
                             <value xsi:type="ns2:Map">
                                 <item>
                                     <key xsi:type="xsd:string">database_login</key>
-                                    <value xsi:type="xsd:string">d0123452</value>
+                                    <value xsi:type="xsd:string">d0123460</value>
                                 </item>
                             </value>
                         </item>
@@ -42,11 +42,11 @@
                                 <item xsi:type="ns2:Map">
                                     <item>
                                         <key xsi:type="xsd:string">database_name</key>
-                                        <value xsi:type="xsd:string">d0123452</value>
+                                        <value xsi:type="xsd:string">d0123460</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">database_login</key>
-                                        <value xsi:type="xsd:string">d0123452</value>
+                                        <value xsi:type="xsd:string">d0123460</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">database_password</key>
@@ -54,15 +54,19 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">database_comment</key>
-                                        <value xsi:type="xsd:string">my database comment</value>
+                                        <value xsi:type="xsd:string">Test Database for CLI Test Update</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">database_allowed_hosts</key>
-                                        <value xsi:type="xsd:string"></value>
+                                        <value xsi:type="xsd:string">localhost, 192.168.100.10, 192.168.100.10/32</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">used_database_space</key>
-                                        <value xsi:type="xsd:float">0.0654296875</value>
+                                        <value xsi:type="xsd:int">0</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">in_progress</key>
+                                        <value xsi:type="xsd:string">FALSE</value>
                                     </item>
                                 </item>
                             </value>

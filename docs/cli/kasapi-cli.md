@@ -35,7 +35,7 @@ kasapi-cli [flags]
 * [kasapi-cli completion](kasapi-cli_completion.md)	 - Generate the autocompletion script for the specified shell
 * [kasapi-cli config](kasapi-cli_config.md)	 - Inspect and bootstrap the kasapi-cli configuration
 * [kasapi-cli cronjobs](kasapi-cli_cronjobs.md)	 - Inspect and manage cronjobs (get/add/update/delete_cronjob)
-* [kasapi-cli databases](kasapi-cli_databases.md)	 - Inspect databases visible to the login (get_databases)
+* [kasapi-cli databases](kasapi-cli_databases.md)	 - Inspect and manage databases (get/add/update/delete_database)
 * [kasapi-cli ddnsusers](kasapi-cli_ddnsusers.md)	 - Inspect and manage DDNS users (get/add/update/delete_ddnsuser)
 * [kasapi-cli directoryprotection](kasapi-cli_directoryprotection.md)	 - Inspect directory (htaccess) protections (get_directoryprotection)
 * [kasapi-cli dns](kasapi-cli_dns.md)	 - Inspect DNS records for a zone

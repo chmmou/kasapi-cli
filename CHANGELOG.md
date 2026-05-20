@@ -36,6 +36,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Database write endpoints (#122, #13 write slice):
+  `kasapi-cli databases add --password <pw> --comment <text>
+  --allowed-hosts <hosts>`,
+  `… update <database-login> [flags]` and
+  `… delete <database-login>` wire `add_database` /
+  `update_database` / `delete_database`. `update` and `delete` are
+  gated by the #109 confirmation prompt; `add` is reversible and not
+  prompted. All three honour `--dry-run` (#132) and emit a #131 audit
+  record; the password is redacted in both. `update` sends only the
+  explicitly-set flags (keyed on cobra `Changed`), so an empty value
+  is a deliberate "clear". `add_database` takes no `database_login`
+  — KAS generates it (the login equals the database name on creation,
+  e.g. `d0123460`) and echoes it in `ReturnInfo`, which the command
+  prints. The password key is split between actions: `--password`
+  maps to `database_password` on `add` and to `database_new_password`
+  on `update` (the same `_new_password` split the ftpuser/sambauser
+  slices carry). `delete_database`'s confirmation prompt uses the
+  louder verb "permanently delete" because the action drops the
+  database and every row it contains — the loudest data-loss surface
+  of the v0.2.0 write phase.
+
+### Changed
+
+- `kasapi-cli databases list`/`databases get` now decode the
+  `in_progress` flag the KAS API surfaces on every `get_databases`
+  entry. The list view exposes a new `IN_PROGRESS` column, and the
+  singular detail view appends an `in_progress` row when present.
+  Read-test fixtures were captured against an account with a newly-
+  created database `d0123460`; the existing decode/tabular tests now
+  pin against that snapshot rather than the previous `d0123450`-based
+  one.
+
 - DDNS-user write endpoints (#121, #13 write slice):
   `kasapi-cli ddnsusers add --password <pw> --zone <z> --label <l>
   --target-ip <ip> --comment <text> [--dual-stack]`,

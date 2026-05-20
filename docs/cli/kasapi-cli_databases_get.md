@@ -32,5 +32,5 @@ kasapi-cli databases get <database-login> [flags]
 
 ### SEE ALSO
 
-* [kasapi-cli databases](kasapi-cli_databases.md)	 - Inspect databases visible to the login (get_databases)
+* [kasapi-cli databases](kasapi-cli_databases.md)	 - Inspect and manage databases (get/add/update/delete_database)
 

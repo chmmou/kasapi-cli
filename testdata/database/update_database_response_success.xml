@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777415298</value>
+                            <value xsi:type="xsd:int">1779301840</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -19,7 +19,7 @@
                             <value xsi:type="ns2:Map">
                                 <item>
                                     <key xsi:type="xsd:string">database_login</key>
-                                    <value xsi:type="xsd:string">d0123456</value>
+                                    <value xsi:type="xsd:string">d0123460</value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">database_new_password</key>
@@ -31,7 +31,7 @@
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">database_allowed_hosts</key>
-                                    <value xsi:type="xsd:string"></value>
+                                    <value xsi:type="xsd:string">localhost, 192.168.100.10, 192.168.100.10/24</value>
                                 </item>
                             </value>
                         </item>
@@ -62,7 +62,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The settings of the database d0123456 have been altered.</value>
+                                        <value xsi:type="xsd:string">The settings of the database d0123460 have been altered.</value>
                                     </item>
                                 </item>
                             </value>

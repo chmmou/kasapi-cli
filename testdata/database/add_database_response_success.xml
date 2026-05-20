@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777413557</value>
+                            <value xsi:type="xsd:int">1779301662</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -27,7 +27,7 @@
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">database_allowed_hosts</key>
-                                    <value xsi:type="xsd:string"></value>
+                                    <value xsi:type="xsd:string">localhost, 192.168.100.10, 192.168.100.10/32</value>
                                 </item>
                             </value>
                         </item>
@@ -46,7 +46,7 @@
                         </item>
                         <item>
                             <key xsi:type="xsd:string">ReturnInfo</key>
-                            <value xsi:type="xsd:string">d0123456</value>
+                            <value xsi:type="xsd:string">d0123460</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">Msg</key>
@@ -58,7 +58,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The database d0123456 has been created.</value>
+                                        <value xsi:type="xsd:string">The database d0123460 has been created.</value>
                                     </item>
                                 </item>
                             </value>

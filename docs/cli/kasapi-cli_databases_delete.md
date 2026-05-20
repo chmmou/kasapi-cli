@@ -1,15 +1,15 @@
-## kasapi-cli databases list
+## kasapi-cli databases delete
 
-List all databases (get_databases, no filter)
+Permanently delete a database and all data in it (delete_database)
 
 ```
-kasapi-cli databases list [flags]
+kasapi-cli databases delete <database-login> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands

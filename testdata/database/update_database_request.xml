@@ -5,10 +5,10 @@
             <Params>
             {
                 "KasRequestParams": {
-                    "database_login": "d0123456",
+                    "database_login": "d0123460",
                     "database_new_password": "REDACTED",
                     "database_comment": "Test Database for CLI Test Update",
-                    "database_allowed_hosts": ""
+                    "database_allowed_hosts": "localhost, 192.168.100.10, 192.168.100.10/24"
                 },
                 "kas_action": "update_database",
                 "kas_auth_data": "REDACTED",

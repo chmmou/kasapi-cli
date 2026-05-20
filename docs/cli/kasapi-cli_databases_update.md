@@ -1,15 +1,18 @@
-## kasapi-cli databases list
+## kasapi-cli databases update
 
-List all databases (get_databases, no filter)
+Replace mutable fields of a database (update_database)
 
 ```
-kasapi-cli databases list [flags]
+kasapi-cli databases update <database-login> [password/comment/allowed-hosts flags] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for list
+      --allowed-hosts string   comma-separated list of hosts allowed to connect (required for add; e.g. "localhost, 192.168.100.10, 192.168.100.10/32")
+      --comment string         user comment / label (required for add)
+  -h, --help                   help for update
+      --password string        database password (required for add; new password for update)
 ```
 
 ### Options inherited from parent commands

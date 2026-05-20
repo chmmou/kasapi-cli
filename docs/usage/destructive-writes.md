@@ -58,6 +58,23 @@ prints it on success. The `--password` flag is redacted in the
 `--dry-run` preview and the audit record for both `add` and `update`
 (it maps to `samba_password` on add, `samba_new_password` on update).
 
+[`databases`](https://github.com/chmmou/kasapi-cli/issues/122) `add` /
+`update` / `delete` wire the same contract with one important
+loudness adjustment: `delete_database`'s confirmation prompt uses the
+verb `"permanently delete"` rather than the bare `"delete"` every
+other slice uses, because dropping a database also drops every row
+it contains — the loudest data-loss surface of the v0.2.0 write
+phase. `update` and `delete` are gated; `add` is reversible and not
+prompted. `update` is gated because every field it sets is replaced
+wholesale (the confirmation prompt phrases this as replacing the
+database's *settings*) and `update` sends only the explicitly-changed
+flags. `add_database` takes no login — KAS generates it (the login
+equals the database name on creation, e.g. `d0123460`) and the
+command prints it on success. The `--password` flag is redacted in
+the `--dry-run` preview and the audit record for both `add` and
+`update` (it maps to `database_password` on add,
+`database_new_password` on update).
+
 [`ddnsusers`](https://github.com/chmmou/kasapi-cli/issues/121) `add` /
 `update` / `delete` wire the same contract with the same policy:
 `update` and `delete` are gated; `add` is reversible and not prompted.

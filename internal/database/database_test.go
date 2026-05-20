@@ -17,23 +17,26 @@ func TestDecodeDatabases(t *testing.T) {
 	if err != nil {
 		t.Fatalf("DecodeDatabases: %v", err)
 	}
-	if len(got) != 4 {
-		t.Fatalf("len = %d, want 4", len(got))
+	if len(got) != 5 {
+		t.Fatalf("len = %d, want 5", len(got))
 	}
 	d := got[0]
-	if d.Login != "d0123450" {
-		t.Errorf("Login = %q, want d0123450", d.Login)
+	if d.Login != "d0123456" {
+		t.Errorf("Login = %q, want d0123456", d.Login)
 	}
-	if d.Name != "d0123450" {
-		t.Errorf("Name = %q, want d0123450", d.Name)
+	if d.Name != "d0123456" {
+		t.Errorf("Name = %q, want d0123456", d.Name)
 	}
-	if d.Comment != "my database comment" {
-		t.Errorf("Comment = %q", d.Comment)
+	if d.Comment != "my_database_comment" {
+		t.Errorf("Comment = %q, want my_database_comment", d.Comment)
 	}
 	if d.UsedDatabaseSpace == 0 {
 		t.Errorf("UsedDatabaseSpace = 0, want non-zero from xsd:float")
 	}
-	// d0123451 is the only entry with a non-empty allowed_hosts in the
+	if d.InProgress != "FALSE" {
+		t.Errorf("InProgress = %q, want FALSE", d.InProgress)
+	}
+	// d0123457 is the first entry with a non-empty allowed_hosts in the
 	// fixture; verify the empty-string default survives for the others.
 	if got[1].AllowedHosts != "localhost" {
 		t.Errorf("got[1].AllowedHosts = %q, want localhost", got[1].AllowedHosts)
@@ -54,11 +57,11 @@ func TestDecodeDatabaseSingular(t *testing.T) {
 		t.Fatalf("len = %d, want 1", len(got))
 	}
 	d := got[0]
-	if d.Login != "d0123452" {
-		t.Errorf("Login = %q, want d0123452", d.Login)
+	if d.Login != "d0123460" {
+		t.Errorf("Login = %q, want d0123460", d.Login)
 	}
-	if d.UsedDatabaseSpace == 0 {
-		t.Errorf("UsedDatabaseSpace = 0, want non-zero")
+	if d.InProgress != "FALSE" {
+		t.Errorf("InProgress = %q, want FALSE", d.InProgress)
 	}
 }
 
@@ -85,18 +88,18 @@ func TestClientGet(t *testing.T) {
 	t.Parallel()
 	resp := testutil.DecodeFixture(t, "database/get_database_response_success.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
-	d, err := database.NewClient(fc).Get(context.Background(), "d0123452")
+	d, err := database.NewClient(fc).Get(context.Background(), "d0123460")
 	if err != nil {
 		t.Fatalf("Get: %v", err)
 	}
 	if fc.GotAction != "get_databases" {
 		t.Errorf("action = %q, want get_databases", fc.GotAction)
 	}
-	if got, _ := fc.GotParams["database_login"].(string); got != "d0123452" {
-		t.Errorf("params[database_login] = %v, want d0123452", fc.GotParams["database_login"])
+	if got, _ := fc.GotParams["database_login"].(string); got != "d0123460" {
+		t.Errorf("params[database_login] = %v, want d0123460", fc.GotParams["database_login"])
 	}
-	if d.Login != "d0123452" {
-		t.Errorf("Login = %q, want d0123452", d.Login)
+	if d.Login != "d0123460" {
+		t.Errorf("Login = %q, want d0123460", d.Login)
 	}
 }
 
@@ -124,7 +127,7 @@ func TestClientPropagatesError(t *testing.T) {
 	if _, err := c.List(context.Background()); !errors.Is(err, want) {
 		t.Errorf("List err = %v, want %v wrapped", err, want)
 	}
-	if _, err := c.Get(context.Background(), "d0123452"); !errors.Is(err, want) {
+	if _, err := c.Get(context.Background(), "d0123460"); !errors.Is(err, want) {
 		t.Errorf("Get err = %v, want %v wrapped", err, want)
 	}
 }
@@ -138,11 +141,11 @@ func TestDatabaseListTabular(t *testing.T) {
 		t.Errorf("headers[0] = %q, want LOGIN", headers[0])
 	}
 	rows := list.TableRows()
-	if len(rows) != 4 {
-		t.Fatalf("rows = %d, want 4", len(rows))
+	if len(rows) != 5 {
+		t.Fatalf("rows = %d, want 5", len(rows))
 	}
-	if rows[0][0] != "d0123450" {
-		t.Errorf("rows[0][0] = %q, want d0123450", rows[0][0])
+	if rows[0][0] != "d0123456" {
+		t.Errorf("rows[0][0] = %q, want d0123456", rows[0][0])
 	}
 }
 
@@ -159,7 +162,7 @@ func TestDatabaseTabular(t *testing.T) {
 		t.Errorf("headers = %v, want [FIELD VALUE]", headers)
 	}
 	rows := d.TableRows()
-	if rows[0][0] != "database_login" || rows[0][1] != "d0123452" {
-		t.Errorf("rows[0] = %v, want [database_login d0123452]", rows[0])
+	if rows[0][0] != "database_login" || rows[0][1] != "d0123460" {
+		t.Errorf("rows[0] = %v, want [database_login d0123460]", rows[0])
 	}
 }

@@ -7,7 +7,7 @@
                 "KasRequestParams": {
                     "database_password": "REDACTED",
                     "database_comment": "Test Database for CLI Test",
-                    "database_allowed_hosts": "localhost or comma seperated ip list or empty string"
+                    "database_allowed_hosts": "localhost, 192.168.100.10, 192.168.100.10/32"
                 },
                 "kas_action": "add_database",
                 "kas_auth_data": "REDACTED",
