@@ -3,6 +3,7 @@ package database_test
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/chmmou/kasapi-cli/internal/database"
@@ -104,18 +105,28 @@ func TestWriteValidation(t *testing.T) {
 	c := database.NewClient(&testutil.FakeCaller{})
 	ctx := context.Background()
 
+	// Each missing-field case must surface a per-field validation
+	// error (mentioning only that single field), not a combined
+	// "requires password, comment AND X" message — the latter forces
+	// the caller to guess which field actually broke.
 	for _, tc := range []struct {
-		name string
-		mut  func(*database.Spec)
+		name    string
+		mut     func(*database.Spec)
+		wantSub string
 	}{
-		{"missing password", func(s *database.Spec) { s.Password = "" }},
-		{"missing comment", func(s *database.Spec) { s.Comment = "" }},
-		{"missing allowed_hosts", func(s *database.Spec) { s.AllowedHosts = "" }},
+		{"missing password", func(s *database.Spec) { s.Password = "" }, "password"},
+		{"missing comment", func(s *database.Spec) { s.Comment = "" }, "comment"},
+		{"missing allowed_hosts", func(s *database.Spec) { s.AllowedHosts = "" }, "allowed_hosts"},
 	} {
 		s := sampleSpec()
 		tc.mut(&s)
-		if _, err := c.Add(ctx, s); err == nil {
+		_, err := c.Add(ctx, s)
+		if err == nil {
 			t.Errorf("Add %s: err = nil, want validation error", tc.name)
+			continue
+		}
+		if !strings.Contains(err.Error(), tc.wantSub) {
+			t.Errorf("Add %s: err = %q, want it to mention %q", tc.name, err.Error(), tc.wantSub)
 		}
 	}
 	if err := c.Update(ctx, "", map[string]string{database.FieldComment: "x"}); err == nil {

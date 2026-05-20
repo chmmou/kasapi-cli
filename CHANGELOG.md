@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `kasapi-cli databases add` and `… update` now bind disjoint flag
+  sets (mirroring the ddnsuser slice). The flag names are identical
+  on both subcommands, but the help text of each reflects its own
+  action semantics ("initial password" / "required" on add;
+  "replacement password" on update) and cobra rejects an unknown flag
+  at parse time. The regenerated `docs/cli/kasapi-cli_databases_*.md`
+  pages now stop claiming "required for add" on the update help
+  output.
+- `kasapi-cli databases list` renders the `used_database_space`
+  column with a " MB" suffix as part of the value (matching how the
+  singular detail view already rendered it) and drops the `USED_MB`
+  header in favour of a bare `USED` header. List and singular views
+  now share a single unit-rendering convention.
+- The `database` package's `Database.in_progress` JSON/YAML field is
+  no longer marked `omitempty`, aligning with the majority of read
+  modules (`mailaccount`, `mailinglist`, `sambauser`, `ftpuser`,
+  `account`). The KAS API has returned `in_progress` on every
+  captured fixture row, so the previous omitempty added drift without
+  shielding callers from a missing key.
+- `database.Client.Add`'s domain-level validation now emits per-field
+  errors ("requires a non-empty password" / "comment" /
+  "allowed_hosts") instead of a single combined message, so callers
+  who hit the domain validator (rather than the CLI's per-flag
+  required-flag checks) can tell which field actually broke.
+- `(cli.ConfirmAction).Summary` is now exported (was `summary`), so
+  tests can pin the rendered prompt (and the per-slice loudness verb)
+  without instantiating a real terminal.
+
 - `kasapi-cli ddnsusers add` and `… update` now bind disjoint flag
   sets — `add` carries `--zone` / `--label` / `--target-ip`, `update`
   carries `--target-ipv4` / `--target-ipv6` instead — so each
@@ -35,6 +63,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`kaswrite: …`).
 
 ### Added
+
+- `database.InProgressFalse` / `database.InProgressTrue` package
+  constants for the literal `"FALSE"` / `"TRUE"` strings the KAS API
+  uses to encode the async-write flag, so mapping code and tests
+  share one source of truth rather than re-typing literals.
 
 - Database write endpoints (#122, #13 write slice):
   `kasapi-cli databases add --password <pw> --comment <text>

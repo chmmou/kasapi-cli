@@ -9,10 +9,10 @@ kasapi-cli databases update <database-login> [password/comment/allowed-hosts fla
 ### Options
 
 ```
-      --allowed-hosts string   comma-separated list of hosts allowed to connect (required for add; e.g. "localhost, 192.168.100.10, 192.168.100.10/32")
-      --comment string         user comment / label (required for add)
+      --allowed-hosts string   replacement comma-separated list of hosts allowed to connect
+      --comment string         replacement comment / label
   -h, --help                   help for update
-      --password string        database password (required for add; new password for update)
+      --password string        replacement database password (sent as database_new_password)
 ```
 
 ### Options inherited from parent commands

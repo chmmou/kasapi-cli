@@ -33,8 +33,8 @@ func TestDecodeDatabases(t *testing.T) {
 	if d.UsedDatabaseSpace == 0 {
 		t.Errorf("UsedDatabaseSpace = 0, want non-zero from xsd:float")
 	}
-	if d.InProgress != "FALSE" {
-		t.Errorf("InProgress = %q, want FALSE", d.InProgress)
+	if d.InProgress != database.InProgressFalse {
+		t.Errorf("InProgress = %q, want %q", d.InProgress, database.InProgressFalse)
 	}
 	// d0123457 is the first entry with a non-empty allowed_hosts in the
 	// fixture; verify the empty-string default survives for the others.
@@ -60,8 +60,8 @@ func TestDecodeDatabaseSingular(t *testing.T) {
 	if d.Login != "d0123460" {
 		t.Errorf("Login = %q, want d0123460", d.Login)
 	}
-	if d.InProgress != "FALSE" {
-		t.Errorf("InProgress = %q, want FALSE", d.InProgress)
+	if d.InProgress != database.InProgressFalse {
+		t.Errorf("InProgress = %q, want %q", d.InProgress, database.InProgressFalse)
 	}
 }
 

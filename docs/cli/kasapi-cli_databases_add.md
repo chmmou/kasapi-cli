@@ -9,10 +9,10 @@ kasapi-cli databases add --password <pw> --comment <text> --allowed-hosts <hosts
 ### Options
 
 ```
-      --allowed-hosts string   comma-separated list of hosts allowed to connect (required for add; e.g. "localhost, 192.168.100.10, 192.168.100.10/32")
-      --comment string         user comment / label (required for add)
+      --allowed-hosts string   comma-separated list of hosts allowed to connect (required; e.g. "localhost, 192.168.100.10, 192.168.100.10/32")
+      --comment string         human-readable comment / label for the new database (required)
   -h, --help                   help for add
-      --password string        database password (required for add; new password for update)
+      --password string        initial database password (required)
 ```
 
 ### Options inherited from parent commands

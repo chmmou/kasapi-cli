@@ -65,7 +65,11 @@ type ConfirmAction struct {
 	ID       string // identifier of the target resource
 }
 
-func (a ConfirmAction) summary() string {
+// Summary renders the one-line description shown to the user before
+// the [y/N] prompt. Exported so tests can pin the rendered prompt
+// (and the loudness verb each slice chose) without instantiating a
+// real terminal.
+func (a ConfirmAction) Summary() string {
 	return fmt.Sprintf("About to %s %s %q. This cannot be undone.", a.Verb, a.Resource, a.ID)
 }
 
@@ -87,7 +91,7 @@ func GateDestructive(in io.Reader, out io.Writer, isTTY, yes bool, a ConfirmActi
 	if !isTTY {
 		return UserError(ErrConfirmationRequired, "")
 	}
-	ok, err := Confirm(in, out, a.summary())
+	ok, err := Confirm(in, out, a.Summary())
 	if err != nil {
 		return UserError(err, "confirm")
 	}

@@ -167,14 +167,118 @@ func TestDatabasesUpdateDryRunFieldAssembly(t *testing.T) {
 	}
 }
 
+// add and update bind disjoint flag sets. Each set is currently
+// flag-name-identical (--password / --comment / --allowed-hosts), but
+// the bind is per-subcommand so the help text reflects the action
+// semantics (initial vs replacement, required vs optional) and a
+// future refactor that re-merges them silently can't sneak past the
+// help-text-truthfulness contract. Add a sentinel update-only flag
+// here when the action surfaces diverge (ddnsuser-style).
+func TestDatabasesFlagSetsAreDisjoint(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name string
+		args []string
+	}{
+		// Sentinel: passing an unknown flag (--target-ipv4) on add or
+		// update must fail at cobra parse time rather than be silently
+		// ignored. Identical add/update surfaces today still rely on
+		// per-subcommand bind, so re-merging would re-introduce the
+		// help-text drift the ddnsuser slice already fixed.
+		{"unknown --target-ipv4 rejected on add", []string{
+			"databases", "add",
+			"--password", "s3cret", "--comment", "c", "--allowed-hosts", "localhost",
+			"--target-ipv4", "127.0.0.1",
+		}},
+		{"unknown --target-ipv4 rejected on update", []string{
+			"databases", "update", "d0123460",
+			"--target-ipv4", "127.0.0.1",
+		}},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			root, opts := cli.NewRootCmd()
+			root.AddCommand(cli.NewDatabasesCmd(opts))
+			var buf bytes.Buffer
+			root.SetOut(&buf)
+			root.SetErr(&buf)
+			root.SetArgs(c.args)
+			err := root.Execute()
+			if err == nil {
+				t.Fatalf("Execute %v: want unknown-flag error, got nil", c.args)
+			}
+			if !strings.Contains(err.Error(), "unknown flag") {
+				t.Errorf("err = %q, want it to contain 'unknown flag'", err)
+			}
+		})
+	}
+}
+
+// The delete_database ConfirmAction uses the louder "permanently
+// delete" verb instead of the bare "delete" every other slice uses.
+// Pin both the verb and the rendered Summary so a future refactor of
+// either the slice or the shared ConfirmAction template cannot
+// silently regress the loudness contract — the source-code comment
+// alone is not enforceable.
+func TestDatabasesDeleteConfirmIsLouder(t *testing.T) {
+	t.Parallel()
+	a := cli.DatabaseDeleteConfirm("d0123460")
+	if a.Verb != "permanently delete" {
+		t.Errorf("Verb = %q, want %q", a.Verb, "permanently delete")
+	}
+	if a.Resource != "database" {
+		t.Errorf("Resource = %q, want %q", a.Resource, "database")
+	}
+	if a.ID != "d0123460" {
+		t.Errorf("ID = %q, want d0123460", a.ID)
+	}
+	want := `About to permanently delete database "d0123460". This cannot be undone.`
+	if got := a.Summary(); got != want {
+		t.Errorf("Summary() = %q, want %q", got, want)
+	}
+}
+
+// On --dry-run the runWriteE seam must still emit a #131 audit record
+// (outcome=dry-run, action=delete_database, target=<login>,
+// database_login=<login>) on stderr, even though no SOAP call is
+// dispatched. This pins the database delete subcommand's wiring into
+// the audit emission path — without it, a future refactor that breaks
+// the runWriteE → WriteAudit glue would only be caught at the
+// surrounding-package level.
+func TestDatabasesDeleteDryRunEmitsAuditLine(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewDatabasesCmd(opts))
+	var out, errb bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&errb)
+	root.SetArgs([]string{
+		"databases", "delete", "d0123460",
+		"--dry-run",
+		"--login", "w0000000", "--auth-data", "x", "--auth-type", "plain",
+	})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	line := errb.String()
+	for _, want := range []string{
+		"action=delete_database",
+		"target=d0123460",
+		"outcome=dry-run",
+		"database_login=d0123460",
+		"login=w0000000",
+	} {
+		if !strings.Contains(line, want) {
+			t.Errorf("audit line missing %q\nline: %s", want, line)
+		}
+	}
+}
+
 // delete_database's dry-run preview must address the database by its
 // login (target=<login>) and use the delete_database action verbatim,
 // so the audit trail can later be reconciled to the resource that was
-// dropped. The "louder" prompt verb itself ("permanently delete") is
-// pinned by the source-code review anchor (database.go) rather than
-// this CLI test because the dry-run preview JSON intentionally omits
-// the ConfirmAction shape — only the action / target / params are
-// machine-readable.
+// dropped.
 func TestDatabasesDeleteDryRunTargetsLogin(t *testing.T) {
 	t.Parallel()
 	root, opts := cli.NewRootCmd()

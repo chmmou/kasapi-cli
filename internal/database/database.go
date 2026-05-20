@@ -14,13 +14,25 @@ import (
 // return a *soap.Response decoded from a fixture.
 type Caller = kasread.Caller
 
+// The KAS API encodes the in_progress async-write flag as the literal
+// strings "TRUE" / "FALSE" (not booleans). Both literals are exported
+// so mappings + tests share a single source of truth instead of
+// re-typing string literals at every comparison site.
+const (
+	InProgressFalse = "FALSE"
+	InProgressTrue  = "TRUE"
+)
+
 // Database is one entry of get_databases. The list and singular views
 // (the latter being get_databases called with a database_login filter)
 // return the same Map shape, so a single struct covers both.
 //
 // in_progress is a pending-async-write flag the KAS API surfaces on
-// every database row (typically "FALSE"). It is flagged with omitempty
-// for parity with the other modules' optional flags.
+// every database row (typically "FALSE"). It is rendered without
+// omitempty for parity with the majority of the read modules
+// (account, mailaccount, mailinglist, sambauser, ftpuser, …) — the
+// fixture has shown it on every row captured so far, and a leak as
+// the empty string is harmless if the API ever stops sending it.
 type Database struct {
 	Name              string  `json:"database_name" yaml:"database_name"`
 	Login             string  `json:"database_login" yaml:"database_login"`
@@ -28,7 +40,7 @@ type Database struct {
 	Comment           string  `json:"database_comment" yaml:"database_comment"`
 	AllowedHosts      string  `json:"database_allowed_hosts" yaml:"database_allowed_hosts"`
 	UsedDatabaseSpace float64 `json:"used_database_space" yaml:"used_database_space"`
-	InProgress        string  `json:"in_progress,omitempty" yaml:"in_progress,omitempty"`
+	InProgress        string  `json:"in_progress" yaml:"in_progress"`
 }
 
 // DatabaseList is the typed payload of get_databases; satisfies
@@ -95,12 +107,14 @@ func DecodeDatabases(returnInfo soap.Value) (DatabaseList, error) {
 // TableHeaders returns the columns used by --output=table for
 // DatabaseList.
 func (DatabaseList) TableHeaders() []string {
-	return []string{"LOGIN", "NAME", "COMMENT", "ALLOWED_HOSTS", "USED_MB", "IN_PROGRESS"}
+	return []string{"LOGIN", "NAME", "COMMENT", "ALLOWED_HOSTS", "USED", "IN_PROGRESS"}
 }
 
 // TableRows emits one row per Database entry. used_database_space is
-// reported in KiB by KAS; we convert to MB to match the units used in
-// the accounts/mailaccounts list views.
+// reported in KiB by KAS; we convert to MB and render the unit as part
+// of the value so the list cells share a single convention with the
+// singular FIELD/VALUE detail view (both carry the unit in the value,
+// not in a header column).
 func (l DatabaseList) TableRows() [][]string {
 	rows := make([][]string, 0, len(l))
 	for _, d := range l {
@@ -109,7 +123,7 @@ func (l DatabaseList) TableRows() [][]string {
 			d.Name,
 			d.Comment,
 			d.AllowedHosts,
-			strconv.FormatFloat(d.UsedDatabaseSpace/1024, 'f', 2, 64),
+			strconv.FormatFloat(d.UsedDatabaseSpace/1024, 'f', 2, 64) + " MB",
 			d.InProgress,
 		})
 	}
@@ -123,7 +137,9 @@ func (Database) TableHeaders() []string {
 }
 
 // TableRows emits the scalar fields. database_password is intentionally
-// omitted — consumers that need it should use --output=json|yaml.
+// omitted — consumers that need it should use --output=json|yaml. The
+// used_database_space row carries the unit (" MB") as part of the
+// value so the singular and list views share a single convention.
 // in_progress only appears when the API actually returned it.
 func (d Database) TableRows() [][]string {
 	rows := [][]string{

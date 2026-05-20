@@ -64,8 +64,13 @@ type Spec struct {
 // database_allowed_hosts_syntax_incorrect, …) is left to the API and
 // surfaces verbatim through the Caller.
 func (cl *Client) Add(ctx context.Context, s Spec) (string, error) {
-	if s.Password == "" || s.Comment == "" || s.AllowedHosts == "" {
-		return "", errors.New("database: add_database requires a non-empty password, comment and allowed_hosts")
+	switch {
+	case s.Password == "":
+		return "", errors.New("database: add_database requires a non-empty password")
+	case s.Comment == "":
+		return "", errors.New("database: add_database requires a non-empty comment")
+	case s.AllowedHosts == "":
+		return "", errors.New("database: add_database requires a non-empty allowed_hosts")
 	}
 	resp, err := kaswrite.Call(ctx, cl.c, "database", addAction, AddParams(s))
 	if err != nil {

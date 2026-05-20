@@ -33,3 +33,9 @@ var RevokeSession = revokeSession
 // `sessions delete` subcommand. Tests inject a RevokeFunc spy and a
 // temp session.Store, mirroring the `config use-profile` pattern.
 var RunSessionsDelete = runSessionsDelete
+
+// DatabaseDeleteConfirm exposes the package-private helper that
+// builds the ConfirmAction for delete_database. Tests use it to pin
+// the "permanently delete" loudness adjustment (database is the only
+// slice using that emphatic verb).
+var DatabaseDeleteConfirm = databaseDeleteConfirm
