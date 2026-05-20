@@ -5,12 +5,12 @@
             <Params>
             {
                 "KasRequestParams": {
-                    "database_login": "d0123456"
+                    "database_login": "d0123460"
                 },
                 "kas_action": "delete_database",
-                "kas_auth_data": "{{kas_auth_data_session}}",
-                "kas_auth_type": "{{kas_auth_type_session}}",
-                "kas_login": "{{kas_login}}"
+                "kas_auth_data": "REDACTED",
+                "kas_auth_type": "session",
+                "kas_login": "w0000000"
             }
             </Params>
         </tns:KasApi>

@@ -89,13 +89,13 @@ func TestClientDelete(t *testing.T) {
 	t.Parallel()
 	resp := testutil.DecodeFixture(t, "database/delete_database_response_success.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
-	if err := database.NewClient(fc).Delete(context.Background(), "d0123456"); err != nil {
+	if err := database.NewClient(fc).Delete(context.Background(), "d0123460"); err != nil {
 		t.Fatalf("Delete: %v", err)
 	}
 	if fc.GotAction != "delete_database" {
 		t.Errorf("action = %q, want delete_database", fc.GotAction)
 	}
-	if fc.GotParams["database_login"] != "d0123456" {
+	if fc.GotParams["database_login"] != "d0123460" {
 		t.Errorf("params = %v", fc.GotParams)
 	}
 }

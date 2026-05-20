@@ -19,7 +19,7 @@
                             <value xsi:type="ns2:Map">
                                 <item>
                                     <key xsi:type="xsd:string">database_login</key>
-                                    <value xsi:type="xsd:string">d0123456</value>
+                                    <value xsi:type="xsd:string">d0123460</value>
                                 </item>
                             </value>
                         </item>
@@ -50,7 +50,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The database d0123456 has been deleted.</value>
+                                        <value xsi:type="xsd:string">The database d0123460 has been deleted.</value>
                                     </item>
                                 </item>
                             </value>
