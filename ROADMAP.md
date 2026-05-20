@@ -21,16 +21,17 @@ The list is kept in sync with the code on `main`. To claim an unchecked item, pl
 
 ## CLI write safety
 
-Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API endpoints themselves but gate every destructive subcommand.
+Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API endpoints themselves but gate every destructive subcommand. All three are in place and wired by every landed write slice; the shared post-call seam lives in `internal/kaswrite`. The umbrella tracker for the write phase is [#13](https://github.com/chmmou/kasapi-cli/issues/13).
 
-- [ ] Destructive-write confirmation infrastructure (`--yes` / interactive `[y/N]` prompt, see #109)
-- [ ] Structured write-action audit log (`--audit-log <path>` / `KAS_AUDIT_LOG`, see #131)
-- [ ] `--dry-run` for write commands (preview KAS action + parameters without dispatching, see #132)
+- [x] Destructive-write confirmation infrastructure (`--yes` / interactive `[y/N]` prompt, #109)
+- [x] Structured write-action audit log (`--audit-log <path>` / `KAS_AUDIT_LOG`, #131)
+- [x] `--dry-run` for write commands (preview KAS action + parameters without dispatching, #132)
 
 ## Accounts & server
 
 - [x] `accounts list` / `accounts get <account-login>` (`get_accounts`, with `account_login` filter)
 - [x] `accounts settings` / `accounts resources` (`get_accountsettings`, `get_accountresources`)
+- [ ] Account write paths (`add_account`, `update_account`, `delete_account`, `update_accountsettings`, `update_superusersettings`, #110)
 - [x] `server get` (`get_server_information`)
 
 ## Usage
@@ -45,36 +46,35 @@ Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API
 - [x] `subdomains list` / `subdomains get <name>` (`get_subdomains`, with `subdomain_name` filter)
 - [x] `tlds list` (`get_topleveldomains`)
 - [x] `dns list --domain <d> [--nameserver <ns>]` (`get_dns_settings`)
-- [ ] DNS write paths (`add_dns_settings`, `update_dns_settings`, `delete_dns_settings`)
-- [ ] Domain write paths (`add_domain`, `update_domain`, `delete_domain`, transfer flow)
-- [ ] Subdomain write paths (`add_subdomain`, `update_subdomain`, `move_subdomain`, `delete_subdomain`)
+- [ ] DNS write paths (`add_dns_settings`, `update_dns_settings`, `delete_dns_settings`, `reset_dns_settings`, #113)
+- [ ] Domain write paths (`add_domain`, `update_domain`, `delete_domain`, `move_domain`, #111)
+- [ ] Subdomain write paths (`add_subdomain`, `update_subdomain`, `move_subdomain`, `delete_subdomain`, #112)
 
 ## Mail
 
 - [x] `mail accounts list` / `mail accounts get <mail-login>` (`get_mailaccounts`, with `mail_login` filter)
-- [ ] Mail account write paths (`add_mailaccount`, `update_mailaccount`, `delete_mailaccount`)
+- [ ] Mail account write paths (`add_mailaccount`, `update_mailaccount`, `delete_mailaccount`, #114)
 - [x] `mail forwards list` / `mail forwards get <address>` (`get_mailforwards`, with `mail_forward` filter)
-- [ ] Mail forward write paths (`add_mailforward`, `update_mailforward`, `delete_mailforward`)
+- [x] `mail forwards add/update/delete` (`add_mailforward`, `update_mailforward`, `delete_mailforward`, #115)
 - [x] `mail filters list` (`get_mailstandardfilter`)
-- [ ] Mail standard filter write paths (`add_mailstandardfilter`, `delete_mailstandardfilter`)
+- [ ] Mail standard filter write paths (`add_mailstandardfilter`, `delete_mailstandardfilter`, #116)
 - [x] `mail lists list` (`get_mailinglists`)
-- [ ] Mailing list write paths (`add_mailinglist`, `update_mailinglist`, `delete_mailinglist`)
+- [x] `mail lists add/update/delete` (`add_mailinglist`, `update_mailinglist`, `delete_mailinglist`, #117)
 
 ## Hosting resources
 
 - [x] `databases list` / `databases get <database-login>` (`get_databases`, with `database_login` filter)
-- [ ] Database write paths (`add_database`, `update_database`, `delete_database`)
+- [ ] Database write paths (`add_database`, `update_database`, `delete_database`, #122)
 - [x] `ftpusers list` / `ftpusers get <ftp-login>` (`get_ftpusers`, with `ftp_login` filter)
-- [ ] FTP user write paths (`add_ftpuser`, `update_ftpuser`, `delete_ftpuser`)
+- [x] `ftpusers add/update/delete` (`add_ftpuser`, `update_ftpuser`, `delete_ftpuser`, #119)
 - [x] `sambausers list` / `sambausers get <samba-login>` (`get_sambausers`, with `samba_login` filter)
-- [ ] Samba user write paths (`add_sambauser`, `update_sambauser`, `delete_sambauser`)
+- [x] `sambausers add/update/delete` (`add_sambauser`, `update_sambauser`, `delete_sambauser`, #120)
 - [x] `ddnsusers list` / `ddnsusers get <dyndns-login>` (`get_ddnsusers`, with `ddns_login` filter)
-- [ ] DDNS user write paths (`add_ddnsuser`, `update_ddnsuser`, `delete_ddnsuser`)
+- [x] `ddnsusers add/update/delete` (`add_ddnsuser`, `update_ddnsuser`, `delete_ddnsuser`, #121)
 - [x] `cronjobs list` / `cronjobs get <cronjob-id>` (`get_cronjobs`, with `cronjob_id` filter)
-- [ ] Cronjob write paths (`add_cronjob`, `update_cronjob`, `delete_cronjob`)
+- [x] `cronjobs add/update/delete` (`add_cronjob`, `update_cronjob`, `delete_cronjob`, #118)
 - [x] `directoryprotection list [--path PATH]` (`get_directoryprotection`, optional `directory_path` filter)
-- [ ] Directory protection write paths (`add_directoryprotection`, `update_directoryprotection`, `delete_directoryprotection`)
+- [ ] Directory protection write paths (`add_directoryprotection`, `update_directoryprotection`, `delete_directoryprotection`, #123)
 - [x] `softwareinstalls list` / `softwareinstalls get <software-id>` (`get_softwareinstall`, with `software_id` filter)
-- [ ] Software install write paths (`add_softwareinstall`, `delete_softwareinstall`)
-- [ ] SSL certificate management (`add_lets_encrypt_csr`, `update_ssl_certificate`, …)
-- [ ] Filesystem helpers (`chown`, `symlink`)
+- [ ] Software install write path (`add_softwareinstall`, #124 — the KAS API exposes only the `add` action, no `update`/`delete`)
+- [ ] Filesystem & SSL helpers (`add_symlink`, `update_chown`, `update_ssl`, #125)
