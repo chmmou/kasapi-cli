@@ -110,8 +110,7 @@ func TestDDNSUsersDestructiveRefuseNonTTY(t *testing.T) {
 // empty value passed explicitly is a deliberate set. The password flag
 // must map to dyndns_password (no _new_password split exists here),
 // --target-ipv4/--target-ipv6 map to the undocumented-but-verified
-// dual-stack keys, and --zone/--label/--target-ip are deliberately
-// silenced on update.
+// dual-stack keys.
 func TestDDNSUsersUpdateDryRunFieldAssembly(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
@@ -153,21 +152,6 @@ func TestDDNSUsersUpdateDryRunFieldAssembly(t *testing.T) {
 			},
 			[]string{"dyndns_target_ip", "dyndns_comment"},
 		},
-		{
-			// --zone/--label/--target-ip are bound for help-text unity
-			// but ignored on update; passing them must NOT leak into
-			// the request map.
-			"zone/label/target-ip silenced on update",
-			[]string{
-				"ddnsusers", "update", "dyn0000001",
-				"--zone", "ignored.example",
-				"--label", "ignored",
-				"--target-ip", "203.0.113.42",
-				"--comment", "kept",
-			},
-			map[string]string{"dyndns_login": "dyn0000001", "dyndns_comment": "kept"},
-			[]string{"dyndns_zone", "dyndns_label", "dyndns_target_ip"},
-		},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -203,6 +187,54 @@ func TestDDNSUsersUpdateDryRunFieldAssembly(t *testing.T) {
 				if _, ok := got.Params[k]; ok {
 					t.Errorf("params[%q] present, want absent (full: %v)", k, got.Params)
 				}
+			}
+		})
+	}
+}
+
+// add and update bind disjoint flag sets. Passing an add-only flag
+// (--zone / --label / --target-ip) to update must fail at cobra parse
+// time with "unknown flag", and vice versa for update-only flags
+// (--target-ipv4 / --target-ipv6) on add. This pins the boundary so a
+// future refactor that merges the bindings cannot silently re-introduce
+// the help-text-unity-with-silenced-flags footgun.
+func TestDDNSUsersFlagSetsAreDisjoint(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name string
+		args []string
+	}{
+		{"--zone rejected on update", []string{"ddnsusers", "update", "dyn0000001", "--zone", "example.com"}},
+		{"--label rejected on update", []string{"ddnsusers", "update", "dyn0000001", "--label", "home"}},
+		{"--target-ip rejected on update", []string{"ddnsusers", "update", "dyn0000001", "--target-ip", "127.0.0.1"}},
+		{"--target-ipv4 rejected on add", []string{
+			"ddnsusers", "add",
+			"--password", "s3cret", "--zone", "example.com", "--label", "home",
+			"--target-ip", "127.0.0.1", "--comment", "c",
+			"--target-ipv4", "127.0.0.1",
+		}},
+		{"--target-ipv6 rejected on add", []string{
+			"ddnsusers", "add",
+			"--password", "s3cret", "--zone", "example.com", "--label", "home",
+			"--target-ip", "127.0.0.1", "--comment", "c",
+			"--target-ipv6", "::1",
+		}},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			root, opts := cli.NewRootCmd()
+			root.AddCommand(cli.NewDDNSUsersCmd(opts))
+			var buf bytes.Buffer
+			root.SetOut(&buf)
+			root.SetErr(&buf)
+			root.SetArgs(c.args)
+			err := root.Execute()
+			if err == nil {
+				t.Fatalf("Execute %v: want unknown-flag error, got nil", c.args)
+			}
+			if !strings.Contains(err.Error(), "unknown flag") {
+				t.Errorf("err = %q, want it to contain 'unknown flag'", err)
 			}
 		})
 	}

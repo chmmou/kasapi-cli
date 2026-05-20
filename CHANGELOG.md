@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `kasapi-cli ddnsusers add` and `… update` now bind disjoint flag
+  sets — `add` carries `--zone` / `--label` / `--target-ip`, `update`
+  carries `--target-ipv4` / `--target-ipv6` instead — so each
+  subcommand's `--help` reflects only the flags the corresponding KAS
+  action consumes and unsupported flags fail at cobra parse time
+  rather than being silently ignored. No behaviour change for any
+  command-line invocation that was already valid; the previously
+  silenced-on-update flags are now a hard parse error there.
+- Realigned `testdata/ddns/add_ddnsuser_request.xml` to the values the
+  matching `add_ddnsuser_response_success.xml` request-echo block
+  carries (`dyndns_target_ip=127.0.0.1`, `dyndns_dual_stack=N`), and
+  updated the `ddns` write-test `sampleSpec` to match. The two
+  fixture sides now tell the same story; no test depended on the
+  earlier echo divergence.
 - Extracted the shared KAS write post-call contract (transport-error
   passthrough + nil-response guard + `ReturnString="TRUE"` check) from
   the duplicated per-module private `call` methods in `mailforward` /

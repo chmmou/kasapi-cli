@@ -15,9 +15,9 @@ func sampleSpec() ddns.Spec {
 		Password:  "s3cret",
 		Zone:      "example.com",
 		Label:     "home",
-		TargetIP:  "203.0.113.42",
+		TargetIP:  "127.0.0.1",
 		Comment:   "Home router",
-		DualStack: "Y",
+		DualStack: "N",
 	}
 }
 
@@ -36,9 +36,9 @@ func TestClientAdd(t *testing.T) {
 		"dyndns_password":   "s3cret",
 		"dyndns_zone":       "example.com",
 		"dyndns_label":      "home",
-		"dyndns_target_ip":  "203.0.113.42",
+		"dyndns_target_ip":  "127.0.0.1",
 		"dyndns_comment":    "Home router",
-		"dyndns_dual_stack": "Y",
+		"dyndns_dual_stack": "N",
 	}
 	for k, v := range wantParams {
 		if fc.GotParams[k] != v {
@@ -183,9 +183,9 @@ func TestParamBuilders(t *testing.T) {
 		"dyndns_password":   "s3cret",
 		"dyndns_zone":       "example.com",
 		"dyndns_label":      "home",
-		"dyndns_target_ip":  "203.0.113.42",
+		"dyndns_target_ip":  "127.0.0.1",
 		"dyndns_comment":    "Home router",
-		"dyndns_dual_stack": "Y",
+		"dyndns_dual_stack": "N",
 	}
 	for k, v := range wantAdd {
 		if add[k] != v {

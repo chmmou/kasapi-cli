@@ -9,15 +9,12 @@ kasapi-cli ddnsusers update <dyndns-login> [password/target/dual-stack flags] [f
 ### Options
 
 ```
-      --comment string       user comment / label (required for add)
-      --dual-stack           enable dual-stack (Y/N); off by default
+      --comment string       replacement user comment / label
+      --dual-stack           enable dual-stack (Y) for this user; pass --dual-stack=false to disable
   -h, --help                 help for update
-      --label string         host label below the zone (required for add)
-      --password string      DDNS password (required for add; same key for update)
-      --target-ip string     legacy single-IP target for add_ddnsuser
-      --target-ipv4 string   IPv4 target for update_ddnsuser (undocumented but verified)
-      --target-ipv6 string   IPv6 target for update_ddnsuser (undocumented but verified)
-      --zone string          DNS zone the record lives under (required for add)
+      --password string      replacement DDNS password
+      --target-ipv4 string   IPv4 target (undocumented but verified)
+      --target-ipv6 string   IPv6 target (undocumented but verified)
 ```
 
 ### Options inherited from parent commands

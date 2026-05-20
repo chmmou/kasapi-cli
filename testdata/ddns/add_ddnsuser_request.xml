@@ -9,8 +9,8 @@
                     "dyndns_password": "REDACTED",
                     "dyndns_zone": "example.com",
                     "dyndns_label": "home",
-                    "dyndns_target_ip": "203.0.113.42",
-                    "dyndns_dual_stack": "Y"
+                    "dyndns_target_ip": "127.0.0.1",
+                    "dyndns_dual_stack": "N"
                 },
                 "kas_action": "add_ddnsuser",
                 "kas_auth_data": "REDACTED",
