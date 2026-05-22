@@ -96,6 +96,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Mail account write endpoints (#114, #13 write slice):
+  `kasapi-cli mail accounts add <address> --password <pw> [field flags]`,
+  `… update <mail-login> [field flags]` and
+  `… delete <mail-login>` wire `add_mailaccount` / `update_mailaccount`
+  / `delete_mailaccount`. `update` and `delete` are gated by the #109
+  confirmation prompt; `add` is reversible and not prompted. All three
+  honour `--dry-run` (#132) and emit a #131 audit record; the password
+  is redacted in both. `add` splits the address on the last `@` into
+  the `local_part` / `domain_part` KAS expects and takes no
+  `mail_login` — KAS generates the login (e.g. `m0000001`) and echoes
+  it in `ReturnInfo`, which the command prints. The Y/N/text toggles
+  and XLIST folder names default to the KAS API's own defaults, so a
+  bare `add <address> --password <pw>` is a complete create. `update`
+  sends only the explicitly-set flags (keyed on cobra `Changed`), adds
+  the `--active` (`is_active`) toggle, and its `--password` maps to
+  `mail_new_password` (the `_new_password` split the
+  database/ftpuser/sambauser slices carry) rather than the add-only
+  `mail_password`. `responder` is passed through verbatim ("N", "Y" or
+  a `<start>|<end>` timestamp range). `delete_mailaccount`'s prompt
+  uses the louder verb "permanently delete" — it drops the mailbox and
+  every message in it (the same data-loss emphasis as
+  `delete_database`).
+
 - `database.InProgressFalse` / `database.InProgressTrue` package
   constants for the literal `"FALSE"` / `"TRUE"` strings the KAS API
   uses to encode the async-write flag, so mapping code and tests

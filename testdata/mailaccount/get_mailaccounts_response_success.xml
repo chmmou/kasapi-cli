@@ -45,11 +45,11 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_adresses</key>
-                                        <value xsi:type="xsd:string">m0000001@example.com</value>
+                                        <value xsi:type="xsd:string">info@example.com</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_addresses</key>
-                                        <value xsi:type="xsd:string">m0000001@example.com</value>
+                                        <value xsi:type="xsd:string">info@example.com</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_comment</key>

@@ -30,8 +30,8 @@ the deviations.
   sinks.
 - Subcommands whose KAS action generates the login server-side
   (`add_ftpuser`, `add_sambauser`, `add_ddnsuser`, `add_database`,
-  `add_mailinglist`, `add_mailforward`) print the generated identifier
-  on success.
+  `add_mailinglist`, `add_mailforward`, `add_mailaccount`) print the
+  generated identifier on success.
 
 ## Per-slice deviations
 
@@ -44,6 +44,7 @@ the deviations.
 | [`sambausers`](https://github.com/chmmou/kasapi-cli/issues/120) | Password key splits between actions: `--password` → `samba_password` on add, `samba_new_password` on update. Note: the KAS docs wrongly list `samba_new_password` for the create call; the captured fixture confirms the real key is `samba_password`. |
 | [`databases`](https://github.com/chmmou/kasapi-cli/issues/122) | **Louder delete prompt**: `delete_database` uses the verb `"permanently delete"` (vs the bare `"delete"` every other slice uses) because the action drops the database AND every row in it — the loudest data-loss surface of the v0.2.0 write phase. Password key splits between actions: `--password` → `database_password` on add, `database_new_password` on update. `--allowed-hosts` is **optional**: an empty value is the KAS API's documented "any host may connect" wildcard, sent verbatim on the wire. |
 | [`ddnsusers`](https://github.com/chmmou/kasapi-cli/issues/121) | **No `_new_password` split**: `--password` maps to `dyndns_password` on both `add` and `update`. `update_ddnsuser` accepts `--target-ipv4` / `--target-ipv6` instead of `add`'s legacy `--target-ip`; the ipv4/ipv6 keys are undocumented in the KAS API docs but verified to work against the live system (the captured update request fixture is authoritative). |
+| [`mail accounts`](https://github.com/chmmou/kasapi-cli/issues/114) | **Louder delete prompt**: `delete_mailaccount` uses `"permanently delete"` (shared with `databases`) — it drops the mailbox AND every message in it. `add` splits the address on the last `@` into `local_part` / `domain_part`; `update`/`delete` address the account by its generated `mail_login`. Password key splits between actions: `--password` → `mail_password` on add, `mail_new_password` on update. `add`'s Y/N/text toggles and XLIST folder names default to the KAS API's own defaults; `--responder` is passed through verbatim (`N`, `Y`, or a `<start>\|<end>` timestamp range). |
 
 ## The contract
 

@@ -32,5 +32,5 @@ kasapi-cli mail accounts list [flags]
 
 ### SEE ALSO
 
-* [kasapi-cli mail accounts](kasapi-cli_mail_accounts.md)	 - Inspect mail accounts (get_mailaccounts)
+* [kasapi-cli mail accounts](kasapi-cli_mail_accounts.md)	 - Inspect and manage mail accounts (get/add/update/delete_mailaccount)
 

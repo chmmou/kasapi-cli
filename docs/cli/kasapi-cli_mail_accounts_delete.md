@@ -1,11 +1,15 @@
-## kasapi-cli mail
+## kasapi-cli mail accounts delete
 
-Inspect mail accounts and filters; inspect and manage forwards and mailing lists
+Permanently delete a mail account and all messages in it (delete_mailaccount)
+
+```
+kasapi-cli mail accounts delete <mail-login> [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for mail
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands
@@ -28,9 +32,5 @@ Inspect mail accounts and filters; inspect and manage forwards and mailing lists
 
 ### SEE ALSO
 
-* [kasapi-cli](kasapi-cli.md)	 - Command-line client for the All-Inkl KAS API
 * [kasapi-cli mail accounts](kasapi-cli_mail_accounts.md)	 - Inspect and manage mail accounts (get/add/update/delete_mailaccount)
-* [kasapi-cli mail filters](kasapi-cli_mail_filters.md)	 - Inspect mail standard filters (get_mailstandardfilter)
-* [kasapi-cli mail forwards](kasapi-cli_mail_forwards.md)	 - Inspect and manage mail forwards (get/add/update/delete_mailforward)
-* [kasapi-cli mail lists](kasapi-cli_mail_lists.md)	 - Inspect and manage mailing lists (get/add/update/delete_mailinglist)
 

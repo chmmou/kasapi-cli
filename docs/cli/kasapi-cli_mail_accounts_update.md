@@ -1,11 +1,31 @@
-## kasapi-cli mail
+## kasapi-cli mail accounts update
 
-Inspect mail accounts and filters; inspect and manage forwards and mailing lists
+Replace mutable fields of a mail account (update_mailaccount)
+
+```
+kasapi-cli mail accounts update <mail-login> [field flags] [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for mail
+      --active string                   mailbox status (Y|N)
+      --allow-nets string               restrict access to these IP/CIDR networks
+      --copy-address string             BCC copy recipient address(es)
+  -h, --help                            help for update
+      --password string                 replacement mailbox password (sent as mail_new_password)
+      --responder string                auto-responder: "N", "Y", or a "<start>|<end>" timestamp range
+      --responder-content-type string   auto-responder body format (html|text)
+      --responder-displayname string    auto-responder sender display name
+      --responder-text string           auto-responder message body
+      --sender-alias string             permitted FROM alias address(es)
+      --webmail-autologin string        allow KAS-to-webmail auto-login (Y|N)
+      --xlist-archiv string             XLIST archive folder name
+      --xlist-drafts string             XLIST drafts folder name
+      --xlist-enabled string            enable XLIST special-folder mapping (Y|N)
+      --xlist-sent string               XLIST sent-items folder name
+      --xlist-spam string               XLIST spam folder name
+      --xlist-trash string              XLIST trash folder name
 ```
 
 ### Options inherited from parent commands
@@ -28,9 +48,5 @@ Inspect mail accounts and filters; inspect and manage forwards and mailing lists
 
 ### SEE ALSO
 
-* [kasapi-cli](kasapi-cli.md)	 - Command-line client for the All-Inkl KAS API
 * [kasapi-cli mail accounts](kasapi-cli_mail_accounts.md)	 - Inspect and manage mail accounts (get/add/update/delete_mailaccount)
-* [kasapi-cli mail filters](kasapi-cli_mail_filters.md)	 - Inspect mail standard filters (get_mailstandardfilter)
-* [kasapi-cli mail forwards](kasapi-cli_mail_forwards.md)	 - Inspect and manage mail forwards (get/add/update/delete_mailforward)
-* [kasapi-cli mail lists](kasapi-cli_mail_lists.md)	 - Inspect and manage mailing lists (get/add/update/delete_mailinglist)
 

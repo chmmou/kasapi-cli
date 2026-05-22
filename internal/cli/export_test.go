@@ -34,8 +34,13 @@ var RevokeSession = revokeSession
 // temp session.Store, mirroring the `config use-profile` pattern.
 var RunSessionsDelete = runSessionsDelete
 
-// DatabaseDeleteConfirm exposes the package-private helper that
-// builds the ConfirmAction for delete_database. Tests use it to pin
-// the "permanently delete" loudness adjustment (database is the only
-// slice using that emphatic verb).
-var DatabaseDeleteConfirm = databaseDeleteConfirm
+// DatabaseDeleteConfirm and MailAccountDeleteConfirm expose the
+// package-private helpers that build the delete ConfirmAction for their
+// slices. Tests use them to pin the "permanently delete" loudness
+// adjustment — the two data-loss deletes (a database drops all rows, a
+// mail account drops all stored messages) that use the emphatic verb
+// instead of the bare "delete" every other slice uses.
+var (
+	DatabaseDeleteConfirm    = databaseDeleteConfirm
+	MailAccountDeleteConfirm = mailAccountDeleteConfirm
+)

@@ -5,16 +5,17 @@
             <Params>
             {
                 "KasRequestParams": {
-                    "local_part": "info",
-                    "domain_part": "example.com",
                     "mail_password": "REDACTED",
                     "webmail_autologin": "Y",
+                    "local_part": "info",
+                    "domain_part": "example.com",
                     "responder": "N",
                     "mail_responder_content_type": "text",
                     "mail_responder_displayname": "Info",
                     "responder_text": "",
                     "copy_adress": "",
                     "mail_sender_alias": "",
+                    "mail_xlist_enabled": "Y",
                     "mail_xlist_sent": "Sent",
                     "mail_xlist_drafts": "Drafts",
                     "mail_xlist_trash": "Trash",

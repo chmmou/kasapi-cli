@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777736120</value>
+                            <value xsi:type="xsd:int">1779410980</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -22,12 +22,28 @@
                                     <value xsi:type="xsd:string">m0000001</value>
                                 </item>
                                 <item>
+                                    <key xsi:type="xsd:string">mail_new_password</key>
+                                    <value xsi:type="xsd:string">REDACTED</value>
+                                </item>
+                                <item>
                                     <key xsi:type="xsd:string">webmail_autologin</key>
                                     <value xsi:type="xsd:string">Y</value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">responder</key>
                                     <value xsi:type="xsd:string">N</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_responder_content_type</key>
+                                    <value xsi:type="xsd:string">html</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_responder_displayname</key>
+                                    <value xsi:type="xsd:string">Info Update</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">responder_text</key>
+                                    <value xsi:type="xsd:string"></value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">copy_adress</key>
@@ -39,6 +55,34 @@
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">mail_sender_alias</key>
+                                    <value xsi:type="xsd:string"></value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_enabled</key>
+                                    <value xsi:type="xsd:string">Y</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_sent</key>
+                                    <value xsi:type="xsd:string">gesendete Objekte</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_drafts</key>
+                                    <value xsi:type="xsd:string">Entwürfe</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_trash</key>
+                                    <value xsi:type="xsd:string">Papierkorb</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_spam</key>
+                                    <value xsi:type="xsd:string">Spam</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_archiv</key>
+                                    <value xsi:type="xsd:string">Archiv</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_allow_nets</key>
                                     <value xsi:type="xsd:string"></value>
                                 </item>
                             </value>
@@ -58,7 +102,7 @@
                         </item>
                         <item>
                             <key xsi:type="xsd:string">ReturnInfo</key>
-                            <value xsi:type="xsd:string"></value>
+                            <value xsi:type="xsd:string">m0000001</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">Msg</key>
@@ -70,7 +114,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The mail account <b>m0000001</b> has been edited.</value>
+                                        <value xsi:type="xsd:string">The mailbox of the address info@example.com (login m0000001) has been processed.</value>
                                     </item>
                                 </item>
                             </value>

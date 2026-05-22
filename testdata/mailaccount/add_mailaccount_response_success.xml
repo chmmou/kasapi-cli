@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777736000</value>
+                            <value xsi:type="xsd:int">1779406589</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -18,16 +18,20 @@
                             <key xsi:type="xsd:string">KasRequestParams</key>
                             <value xsi:type="ns2:Map">
                                 <item>
+                                    <key xsi:type="xsd:string">mail_password</key>
+                                    <value xsi:type="xsd:string">REDACTED</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">webmail_autologin</key>
+                                    <value xsi:type="xsd:string">Y</value>
+                                </item>
+                                <item>
                                     <key xsi:type="xsd:string">local_part</key>
                                     <value xsi:type="xsd:string">info</value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">domain_part</key>
                                     <value xsi:type="xsd:string">example.com</value>
-                                </item>
-                                <item>
-                                    <key xsi:type="xsd:string">webmail_autologin</key>
-                                    <value xsi:type="xsd:string">Y</value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">responder</key>
@@ -42,12 +46,20 @@
                                     <value xsi:type="xsd:string">Info</value>
                                 </item>
                                 <item>
+                                    <key xsi:type="xsd:string">responder_text</key>
+                                    <value xsi:type="xsd:string"></value>
+                                </item>
+                                <item>
                                     <key xsi:type="xsd:string">copy_adress</key>
                                     <value xsi:type="xsd:string"></value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">mail_sender_alias</key>
                                     <value xsi:type="xsd:string"></value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">mail_xlist_enabled</key>
+                                    <value xsi:type="xsd:string">Y</value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">mail_xlist_sent</key>
@@ -102,7 +114,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The mail account has been created. The automatically generated login is: <b>m0000001</b></value>
+                                        <value xsi:type="xsd:string">The email account info@example.com is going to be created. The username &lt;i&gt;m0000001&lt;/i&gt; has been generated automatically.</value>
                                     </item>
                                 </item>
                             </value>

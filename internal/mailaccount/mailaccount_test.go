@@ -24,7 +24,7 @@ func TestDecodeMailAccounts(t *testing.T) {
 	if a.Login != "m0000001" {
 		t.Errorf("Login = %q, want m0000001", a.Login)
 	}
-	if a.Addresses != "m0000001@example.com" || a.Adresses != "m0000001@example.com" {
+	if a.Addresses != "info@example.com" || a.Adresses != "info@example.com" {
 		t.Errorf("addresses pair = %q / %q", a.Addresses, a.Adresses)
 	}
 	if a.Spamfilter != "pdw,sf" {
@@ -52,11 +52,14 @@ func TestDecodeMailAccountSingular(t *testing.T) {
 		t.Fatalf("len = %d, want 1", len(got))
 	}
 	a := got[0]
-	if a.Login == "" {
-		t.Errorf("Login empty")
+	if a.Login != "m0000001" {
+		t.Errorf("Login = %q, want m0000001", a.Login)
 	}
-	if a.UsedSpace == 0 {
-		t.Errorf("UsedSpace = 0, want non-zero")
+	// The singular fixture is an empty mailbox, so used_mailaccount_space
+	// is a real 0 (xsd:int) — assert the address decodes instead of
+	// pinning a non-zero usage that the fixture no longer carries.
+	if a.Addresses != "info@example.com" {
+		t.Errorf("Addresses = %q, want info@example.com", a.Addresses)
 	}
 }
 

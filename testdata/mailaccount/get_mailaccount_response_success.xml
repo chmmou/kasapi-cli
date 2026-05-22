@@ -50,11 +50,11 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_adresses</key>
-                                        <value xsi:type="xsd:string">m0000001@example.com</value>
+                                        <value xsi:type="xsd:string">info@example.com</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_addresses</key>
-                                        <value xsi:type="xsd:string">m0000001@example.com</value>
+                                        <value xsi:type="xsd:string">info@example.com</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_comment</key>
@@ -70,7 +70,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_responder_displayname</key>
-                                        <value xsi:type="xsd:string"></value>
+                                        <value xsi:type="xsd:string">Info</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_responder_content_type</key>
@@ -90,11 +90,11 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_spamfilter</key>
-                                        <value xsi:type="xsd:string">pdw,sf</value>
+                                        <value xsi:type="xsd:string"></value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">in_progress</key>
-                                        <value xsi:type="xsd:string">FALSE</value>
+                                        <value xsi:type="xsd:string">TRUE</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_xlist_enabled</key>
@@ -102,15 +102,15 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_xlist_sent</key>
-                                        <value xsi:type="xsd:string">Gesendet</value>
+                                        <value xsi:type="xsd:string">Sent</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_xlist_drafts</key>
-                                        <value xsi:type="xsd:string">Entwürfe</value>
+                                        <value xsi:type="xsd:string">Drafts</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_xlist_trash</key>
-                                        <value xsi:type="xsd:string">Papierkorb</value>
+                                        <value xsi:type="xsd:string">Trash</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_xlist_spam</key>
@@ -118,11 +118,11 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_xlist_archiv</key>
-                                        <value xsi:type="xsd:string">Archiv</value>
+                                        <value xsi:type="xsd:string">Archive</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">used_mailaccount_space</key>
-                                        <value xsi:type="xsd:float">212.200195312</value>
+                                        <value xsi:type="xsd:int">0</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">mail_is_active</key>
