@@ -171,7 +171,7 @@ func TestWritePropagatesError(t *testing.T) {
 
 func TestParamBuilders(t *testing.T) {
 	t.Parallel()
-	addParams := mailfilter.AddParams("m0000001", []string{"pdw", "virus_mark"})
+	addParams := mailfilter.AddParams("m0000001", "pdw;virus_mark")
 	if got, _ := addParams["mail_login"].(string); got != "m0000001" {
 		t.Errorf("AddParams[mail_login] = %v, want m0000001", addParams["mail_login"])
 	}

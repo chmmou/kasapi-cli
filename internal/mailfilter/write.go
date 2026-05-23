@@ -69,23 +69,18 @@ func (cl *Client) Add(ctx context.Context, mailLogin string, filterItems []strin
 	if err != nil {
 		return err
 	}
-	_, err = kaswrite.Call(ctx, cl.c, "mailfilter", addAction, map[string]any{
-		FieldMailLogin: mailLogin,
-		FieldFilter:    chain,
-	})
+	_, err = kaswrite.Call(ctx, cl.c, "mailfilter", addAction, AddParams(mailLogin, chain))
 	return err
 }
 
-// AddParams builds the add_mailstandardfilter KAS request parameter map.
-// It is the single source of truth for the request shape so the CLI
-// dry-run preview / audit record and the dispatched call cannot diverge.
-// The filter chain is joined by JoinFilters; an empty or malformed slice
-// surfaces as an error there, but AddParams itself returns the params
-// nil-tolerant (an empty chain string) so callers that already validated
-// can build the map without re-checking. Real callers go through Add,
-// which validates first.
-func AddParams(mailLogin string, filterItems []string) map[string]any {
-	chain, _ := JoinFilters(filterItems)
+// AddParams builds the add_mailstandardfilter KAS request parameter map
+// from an already-joined chain string. It is the single source of truth
+// for the request shape so the CLI dry-run preview / audit record and
+// the dispatched call cannot diverge. Callers obtain the chain from
+// JoinFilters (which validates the items and rejects empties /
+// embedded ';' separators) so an invalid slice cannot silently produce
+// an empty chain string here.
+func AddParams(mailLogin, chain string) map[string]any {
 	return map[string]any{
 		FieldMailLogin: mailLogin,
 		FieldFilter:    chain,

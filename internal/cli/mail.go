@@ -227,12 +227,20 @@ Use "mail filters list" for the available filter ids.`,
 			if len(items) == 0 {
 				return writeSpec{}, fmt.Errorf("at least one --filter is required")
 			}
+			// Validate + join here, before the writeSpec is built, so the
+			// dry-run preview and the audit record see the exact chain
+			// string that will be dispatched and an invalid item cannot
+			// reach the audit log with a silently-empty filter field.
+			chain, err := mailfilter.JoinFilters(items)
+			if err != nil {
+				return writeSpec{}, err
+			}
 			login := args[0]
 			return writeSpec{
 				action:      "add_mailstandardfilter",
 				destructive: true,
 				confirm:     ConfirmAction{Verb: "replace the standard-filter chain of", Resource: "mail account", ID: login},
-				params:      mailfilter.AddParams(login, items),
+				params:      mailfilter.AddParams(login, chain),
 				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
 					if derr := mailfilter.NewClient(c).Add(ctx, login, items); derr != nil {
 						return "", derr

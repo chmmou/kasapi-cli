@@ -367,23 +367,53 @@ func TestMailFiltersHelpListsSubcommands(t *testing.T) {
 	}
 }
 
-// add_mailstandardfilter without --filter is rejected at build time
-// (before any gating or credential resolution) — the KAS API would
-// otherwise fault missing_parameter.
-func TestMailFiltersAddRejectsNoFilter(t *testing.T) {
+// add_mailstandardfilter without --filter, or with a malformed --filter
+// (empty item, embedded ';'), is rejected at build time before any
+// gating, credential resolution OR audit/dry-run record is emitted —
+// the KAS API would otherwise fault missing_parameter or accept a
+// silently-mangled chain. The dry-run + --yes path is asserted
+// explicitly so the validation runs even when the user is wired up for
+// non-interactive automation.
+func TestMailFiltersAddRejectsBadFilter(t *testing.T) {
 	t.Parallel()
-	root, opts := cli.NewRootCmd()
-	root.AddCommand(cli.NewMailCmd(opts))
-	var buf bytes.Buffer
-	root.SetOut(&buf)
-	root.SetErr(&buf)
-	root.SetArgs([]string{"mail", "filters", "add", "m0000001"})
-	err := root.Execute()
-	if err == nil {
-		t.Fatalf("Execute: want error, got nil")
+	cases := []struct {
+		name string
+		args []string
+	}{
+		{
+			"no --filter",
+			[]string{"mail", "filters", "add", "m0000001"},
+		},
+		{
+			"empty --filter item",
+			[]string{"mail", "filters", "add", "m0000001", "--filter", ""},
+		},
+		{
+			"--filter contains ';'",
+			[]string{"mail", "filters", "add", "m0000001", "--filter", "pdw;virus_mark"},
+		},
 	}
-	if cli.CodeFor(err) != cli.ExitUserError {
-		t.Errorf("exit code = %d, want ExitUserError", cli.CodeFor(err))
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			root, opts := cli.NewRootCmd()
+			root.AddCommand(cli.NewMailCmd(opts))
+			var buf bytes.Buffer
+			root.SetOut(&buf)
+			root.SetErr(&buf)
+			// --dry-run + --yes would otherwise skip the prompt and emit
+			// an audit record — assert the validator still runs first.
+			root.SetArgs(append(append([]string{}, c.args...),
+				"--dry-run", "--yes",
+				"--login", "w0000000", "--auth-data", "x", "--auth-type", "plain"))
+			err := root.Execute()
+			if err == nil {
+				t.Fatalf("Execute %v: want error, got nil", c.args)
+			}
+			if cli.CodeFor(err) != cli.ExitUserError {
+				t.Errorf("exit code = %d, want ExitUserError", cli.CodeFor(err))
+			}
+		})
 	}
 }
 
