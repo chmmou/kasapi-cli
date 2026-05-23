@@ -53,7 +53,7 @@ Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API
 ## Mail
 
 - [x] `mail accounts list` / `mail accounts get <mail-login>` (`get_mailaccounts`, with `mail_login` filter)
-- [ ] Mail account write paths (`add_mailaccount`, `update_mailaccount`, `delete_mailaccount`, #114)
+- [x] `mail accounts add/update/delete` (`add_mailaccount`, `update_mailaccount`, `delete_mailaccount`, #114)
 - [x] `mail forwards list` / `mail forwards get <address>` (`get_mailforwards`, with `mail_forward` filter)
 - [x] `mail forwards add/update/delete` (`add_mailforward`, `update_mailforward`, `delete_mailforward`, #115)
 - [x] `mail filters list` (`get_mailstandardfilter`)
@@ -64,7 +64,7 @@ Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API
 ## Hosting resources
 
 - [x] `databases list` / `databases get <database-login>` (`get_databases`, with `database_login` filter)
-- [ ] Database write paths (`add_database`, `update_database`, `delete_database`, #122)
+- [x] `databases add/update/delete` (`add_database`, `update_database`, `delete_database`, #122)
 - [x] `ftpusers list` / `ftpusers get <ftp-login>` (`get_ftpusers`, with `ftp_login` filter)
 - [x] `ftpusers add/update/delete` (`add_ftpuser`, `update_ftpuser`, `delete_ftpuser`, #119)
 - [x] `sambausers list` / `sambausers get <samba-login>` (`get_sambausers`, with `samba_login` filter)
