@@ -57,7 +57,7 @@ Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API
 - [x] `mail forwards list` / `mail forwards get <address>` (`get_mailforwards`, with `mail_forward` filter)
 - [x] `mail forwards add/update/delete` (`add_mailforward`, `update_mailforward`, `delete_mailforward`, #115)
 - [x] `mail filters list` (`get_mailstandardfilter`)
-- [ ] Mail standard filter write paths (`add_mailstandardfilter`, `delete_mailstandardfilter`, #116)
+- [x] `mail filters add/delete` (`add_mailstandardfilter`, `delete_mailstandardfilter`, #116)
 - [x] `mail lists list` (`get_mailinglists`)
 - [x] `mail lists add/update/delete` (`add_mailinglist`, `update_mailinglist`, `delete_mailinglist`, #117)
 
