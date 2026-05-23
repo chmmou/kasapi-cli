@@ -1,11 +1,25 @@
-## kasapi-cli mail filters
+## kasapi-cli mail filters add
 
-Inspect and manage mail standard filters (get/add/delete_mailstandardfilter)
+Set the standard-filter chain on a mail account (add_mailstandardfilter)
+
+### Synopsis
+
+Set the configured standard-filter chain on a mail account via
+add_mailstandardfilter. Each --filter is one item of the chain, either a
+bare filter id (e.g. "pdw") or "<filter-id>:<option>=<value>" (e.g.
+"spamc_move:move=Spam"). Items are joined with ';' on the wire and the
+chain replaces what was configured before — there is no per-item add.
+Use "mail filters list" for the available filter ids.
+
+```
+kasapi-cli mail filters add <mail-login> --filter <item> [--filter <item>...] [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for filters
+      --filter stringArray   filter chain item (repeatable; replaces the full chain)
+  -h, --help                 help for add
 ```
 
 ### Options inherited from parent commands
@@ -28,8 +42,5 @@ Inspect and manage mail standard filters (get/add/delete_mailstandardfilter)
 
 ### SEE ALSO
 
-* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts and filters; inspect and manage forwards and mailing lists
-* [kasapi-cli mail filters add](kasapi-cli_mail_filters_add.md)	 - Set the standard-filter chain on a mail account (add_mailstandardfilter)
-* [kasapi-cli mail filters delete](kasapi-cli_mail_filters_delete.md)	 - Remove every standard filter from a mail account (delete_mailstandardfilter)
-* [kasapi-cli mail filters list](kasapi-cli_mail_filters_list.md)	 - List the available standard mail filters (get_mailstandardfilter)
+* [kasapi-cli mail filters](kasapi-cli_mail_filters.md)	 - Inspect and manage mail standard filters (get/add/delete_mailstandardfilter)
 

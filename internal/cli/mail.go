@@ -190,9 +190,13 @@ func newMailListsGetCmd(opts *RootOptions) *cobra.Command {
 func newMailFiltersCmd(opts *RootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "filters",
-		Short: "Inspect mail standard filters (get_mailstandardfilter)",
+		Short: "Inspect and manage mail standard filters (get/add/delete_mailstandardfilter)",
 	}
-	cmd.AddCommand(newMailFiltersListCmd(opts))
+	cmd.AddCommand(
+		newMailFiltersListCmd(opts),
+		newMailFiltersAddCmd(opts),
+		newMailFiltersDeleteCmd(opts),
+	)
 	return cmd
 }
 
@@ -203,6 +207,73 @@ func newMailFiltersListCmd(opts *RootOptions) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: runListE(opts, "get_mailstandardfilter", func(c *api.Client, ctx context.Context) (mailfilter.StandardFilterList, error) {
 			return mailfilter.NewClient(c).List(ctx)
+		}),
+	}
+}
+
+func newMailFiltersAddCmd(opts *RootOptions) *cobra.Command {
+	var items []string
+	cmd := &cobra.Command{
+		Use:   "add <mail-login> --filter <item> [--filter <item>...]",
+		Short: "Set the standard-filter chain on a mail account (add_mailstandardfilter)",
+		Long: `Set the configured standard-filter chain on a mail account via
+add_mailstandardfilter. Each --filter is one item of the chain, either a
+bare filter id (e.g. "pdw") or "<filter-id>:<option>=<value>" (e.g.
+"spamc_move:move=Spam"). Items are joined with ';' on the wire and the
+chain replaces what was configured before — there is no per-item add.
+Use "mail filters list" for the available filter ids.`,
+		Args: cobra.ExactArgs(1),
+		RunE: runWriteE(opts, func(args []string) (writeSpec, error) {
+			if len(items) == 0 {
+				return writeSpec{}, fmt.Errorf("at least one --filter is required")
+			}
+			login := args[0]
+			return writeSpec{
+				action:      "add_mailstandardfilter",
+				destructive: true,
+				confirm:     ConfirmAction{Verb: "replace the standard-filter chain of", Resource: "mail account", ID: login},
+				params:      mailfilter.AddParams(login, items),
+				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
+					if derr := mailfilter.NewClient(c).Add(ctx, login, items); derr != nil {
+						return "", derr
+					}
+					return "configured mail standard filter for " + login, nil
+				},
+			}, nil
+		}),
+	}
+	cmd.Flags().StringArrayVar(&items, "filter", nil, "filter chain item (repeatable; replaces the full chain)")
+	return cmd
+}
+
+func newMailFiltersDeleteCmd(opts *RootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "delete <mail-login>",
+		Short: "Remove every standard filter from a mail account (delete_mailstandardfilter)",
+		Long: `Remove every configured standard filter from a mail account via
+delete_mailstandardfilter. The KAS action takes only the mail login and
+drops the whole chain in one shot — there is no per-item delete.
+
+Note: the API sometimes surfaces an envelope-level SOAP fault (an
+internal "sizeof()" PHP error) even when the chain is in fact removed
+on the server. The fault is surfaced verbatim; if you see it, verify
+the actual outcome with "mail accounts get <login>" — the configured
+chain is reported in the mail_spamfilter field.`,
+		Args: cobra.ExactArgs(1),
+		RunE: runWriteE(opts, func(args []string) (writeSpec, error) {
+			login := args[0]
+			return writeSpec{
+				action:      "delete_mailstandardfilter",
+				destructive: true,
+				confirm:     ConfirmAction{Verb: "remove all standard filters of", Resource: "mail account", ID: login},
+				params:      mailfilter.DeleteParams(login),
+				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
+					if derr := mailfilter.NewClient(c).Delete(ctx, login); derr != nil {
+						return "", derr
+					}
+					return "removed mail standard filters for " + login, nil
+				},
+			}, nil
 		}),
 	}
 }

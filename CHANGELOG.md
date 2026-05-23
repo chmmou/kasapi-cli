@@ -96,6 +96,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Mail standard filter write endpoints (#116, #13 write slice):
+  `kasapi-cli mail filters add <mail-login> --filter <item> [--filter
+  <item>...]` and `… delete <mail-login>` wire
+  `add_mailstandardfilter` / `delete_mailstandardfilter`. Both are
+  gated by the #109 confirmation prompt: the KAS API has no
+  `update_mailstandardfilter` action, so `add` *replaces* the configured
+  filter chain wholesale (items previously set but missing from the new
+  `--filter` list are dropped), which is destructive to recover from
+  without a stored copy. Both honour `--dry-run` (#132) and emit a #131
+  audit record. Repeatable `--filter` items are joined with `;` on the
+  wire (the format the captured `add_mailstandardfilter` request
+  fixture uses); each item is either a bare filter id (e.g. `pdw`) or
+  `<filter-id>:<option>=<value>` (e.g. `spamc_move:move=Spam`). Items
+  must be non-empty and must not contain `;` themselves. `delete` takes
+  only `<mail-login>` and removes the whole chain in one shot — the KAS
+  API exposes no per-item delete — so its prompt verb is "remove all
+  standard filters of mail account" rather than the bare "delete" used
+  elsewhere, to make the all-at-once effect explicit. **Known API
+  quirk**: `delete_mailstandardfilter` sometimes surfaces an
+  envelope-level SOAP fault (an internal `sizeof()` PHP error) even
+  when the chain was in fact removed on the server; the fault is
+  surfaced verbatim, and `docs/usage/destructive-writes.md` documents
+  the verification path (`mail accounts get <login>` → `mail_spamfilter`).
+
+- A new shared envelope-level fault fixture
+  `testdata/response_failed_internal_server_error.xml` captures the
+  generic PHP `sizeof()` runtime error wrapped in a SOAP-ENV:Server
+  fault. It is exercised by the soap fixture walker and by
+  `mailfilter.Client.Delete`'s "fault surfaced verbatim" test.
+
 - Mail account write endpoints (#114, #13 write slice):
   `kasapi-cli mail accounts add <address> --password <pw> [field flags]`,
   `… update <mail-login> [field flags]` and

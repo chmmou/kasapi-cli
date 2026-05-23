@@ -6,7 +6,7 @@
             {
                 "KasRequestParams": {
                     "mail_login": "m0000001",
-                    "filter": "spamfilter:reject;virusfilter:reject"
+                    "filter": "pdw;virus_mark;spamc_move:move=Spam;rspamd:move=Spam;brbl:move=Spam;rbl_cbl:move=Spam;scbl:move=Spam"
                 },
                 "kas_action": "add_mailstandardfilter",
                 "kas_auth_data": "REDACTED",

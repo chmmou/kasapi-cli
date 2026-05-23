@@ -32,5 +32,5 @@ kasapi-cli mail filters list [flags]
 
 ### SEE ALSO
 
-* [kasapi-cli mail filters](kasapi-cli_mail_filters.md)	 - Inspect mail standard filters (get_mailstandardfilter)
+* [kasapi-cli mail filters](kasapi-cli_mail_filters.md)	 - Inspect and manage mail standard filters (get/add/delete_mailstandardfilter)
 

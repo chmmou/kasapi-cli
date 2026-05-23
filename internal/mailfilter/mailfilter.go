@@ -25,26 +25,39 @@ type StandardFilter struct {
 // satisfies cli.Tabular.
 type StandardFilterList []StandardFilter
 
-// Client groups the read endpoint scoped to mail standard filters.
-// Get is intentionally absent: the KAS docs at
+// Client groups the read endpoint scoped to mail standard filters
+// (get_mailstandardfilter, which lists the filter catalogue available to
+// the contract) and the write endpoints add_mailstandardfilter /
+// delete_mailstandardfilter (see write.go). The raw Caller is kept
+// alongside the read helper so the write methods can dispatch their own
+// KAS actions through the shared kaswrite seam.
+//
+// Get is intentionally absent on the read side: the KAS docs at
 // https://kasapi.kasserver.com/dokumentation/phpdoc/files/get-mailstandardfilter-inc.html
 // list only the three standard auth parameters (kas_login,
-// kas_auth_data, kas_auth_type) — there is no filter parameter
-// for looking up a single filter, the endpoint always returns the
-// full list. Verified against the KAS docs while closing the
-// mailfilter.Get follow-up from issue #73.
+// kas_auth_data, kas_auth_type) — there is no filter parameter for
+// looking up a single filter, the endpoint always returns the full
+// catalogue. Verified against the KAS docs while closing the
+// mailfilter.Get follow-up from issue #73. The chain *configured* on a
+// given mailbox is reported by get_mailaccounts in the
+// mail_spamfilter field; callers wanting to confirm the outcome of an
+// add/delete on a specific account read it from there.
 type Client struct {
 	lg kasread.ListGet[StandardFilterList, StandardFilter]
+	c  Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
 func NewClient(c Caller) *Client {
-	return &Client{lg: kasread.ListGet[StandardFilterList, StandardFilter]{
-		Caller:  c,
-		Action:  "get_mailstandardfilter",
-		Label:   "mailfilter",
-		Decoder: DecodeStandardFilters,
-	}}
+	return &Client{
+		lg: kasread.ListGet[StandardFilterList, StandardFilter]{
+			Caller:  c,
+			Action:  "get_mailstandardfilter",
+			Label:   "mailfilter",
+			Decoder: DecodeStandardFilters,
+		},
+		c: c,
+	}
 }
 
 // List calls get_mailstandardfilter and decodes the response into a

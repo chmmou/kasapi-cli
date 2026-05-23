@@ -360,8 +360,100 @@ func TestMailFiltersHelpListsSubcommands(t *testing.T) {
 		t.Fatalf("Execute: %v", err)
 	}
 	out := buf.String()
-	if !strings.Contains(out, "list") {
-		t.Errorf("--help output missing %q\n%s", "list", out)
+	for _, want := range []string{"list", "add", "delete"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("--help output missing %q\n%s", want, out)
+		}
+	}
+}
+
+// add_mailstandardfilter without --filter is rejected at build time
+// (before any gating or credential resolution) — the KAS API would
+// otherwise fault missing_parameter.
+func TestMailFiltersAddRejectsNoFilter(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewMailCmd(opts))
+	var buf bytes.Buffer
+	root.SetOut(&buf)
+	root.SetErr(&buf)
+	root.SetArgs([]string{"mail", "filters", "add", "m0000001"})
+	err := root.Execute()
+	if err == nil {
+		t.Fatalf("Execute: want error, got nil")
+	}
+	if cli.CodeFor(err) != cli.ExitUserError {
+		t.Errorf("exit code = %d, want ExitUserError", cli.CodeFor(err))
+	}
+}
+
+// Both destructive subcommands (add — replaces the chain wholesale —
+// and delete) must refuse on a non-interactive stdin without --yes
+// rather than dispatch unconfirmed.
+func TestMailFiltersDestructiveRefuseNonTTY(t *testing.T) {
+	t.Parallel()
+	for _, args := range [][]string{
+		{"mail", "filters", "add", "m0000001", "--filter", "pdw"},
+		{"mail", "filters", "delete", "m0000001"},
+	} {
+		t.Run(args[2], func(t *testing.T) {
+			t.Parallel()
+			root, opts := cli.NewRootCmd()
+			root.AddCommand(cli.NewMailCmd(opts))
+			var buf bytes.Buffer
+			root.SetOut(&buf)
+			root.SetErr(&buf)
+			root.SetIn(strings.NewReader(""))
+			root.SetArgs(append(args,
+				"--login", "w0000000", "--auth-data", "x", "--auth-type", "plain"))
+			err := root.Execute()
+			if err == nil {
+				t.Fatalf("Execute %v: want refusal error, got nil", args)
+			}
+			if !errors.Is(err, cli.ErrConfirmationRequired) {
+				t.Errorf("err = %v, want ErrConfirmationRequired", err)
+			}
+		})
+	}
+}
+
+// The mail filters add chain assembly is the most-likely drift surface
+// (repeatable --filter joined with ';'). --dry-run renders the exact
+// KAS params it would dispatch as JSON so this asserts the assembly end
+// to end without a network call.
+func TestMailFiltersAddDryRunChainAssembly(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewMailCmd(opts))
+	var out, errb bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&errb)
+	root.SetArgs([]string{
+		"mail", "filters", "add", "m0000001",
+		"--filter", "pdw",
+		"--filter", "virus_mark",
+		"--filter", "spamc_move:move=Spam",
+		"--dry-run", "-o", "json",
+		"--login", "w0", "--auth-data", "x", "--auth-type", "plain",
+	})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	var got struct {
+		Action string            `json:"action"`
+		Params map[string]string `json:"params"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+		t.Fatalf("unmarshal dry-run output: %v\n%s", err, out.String())
+	}
+	if got.Action != "add_mailstandardfilter" {
+		t.Errorf("action = %q, want add_mailstandardfilter", got.Action)
+	}
+	if got.Params["mail_login"] != "m0000001" {
+		t.Errorf("params[mail_login] = %q, want m0000001", got.Params["mail_login"])
+	}
+	if got.Params["filter"] != "pdw;virus_mark;spamc_move:move=Spam" {
+		t.Errorf("params[filter] = %q, want pdw;virus_mark;spamc_move:move=Spam", got.Params["filter"])
 	}
 }
 

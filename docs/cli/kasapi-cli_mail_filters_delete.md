@@ -1,11 +1,27 @@
-## kasapi-cli mail filters
+## kasapi-cli mail filters delete
 
-Inspect and manage mail standard filters (get/add/delete_mailstandardfilter)
+Remove every standard filter from a mail account (delete_mailstandardfilter)
+
+### Synopsis
+
+Remove every configured standard filter from a mail account via
+delete_mailstandardfilter. The KAS action takes only the mail login and
+drops the whole chain in one shot — there is no per-item delete.
+
+Note: the API sometimes surfaces an envelope-level SOAP fault (an
+internal "sizeof()" PHP error) even when the chain is in fact removed
+on the server. The fault is surfaced verbatim; if you see it, verify
+the actual outcome with "mail accounts get <login>" — the configured
+chain is reported in the mail_spamfilter field.
+
+```
+kasapi-cli mail filters delete <mail-login> [flags]
+```
 
 ### Options
 
 ```
-  -h, --help   help for filters
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands
@@ -28,8 +44,5 @@ Inspect and manage mail standard filters (get/add/delete_mailstandardfilter)
 
 ### SEE ALSO
 
-* [kasapi-cli mail](kasapi-cli_mail.md)	 - Inspect mail accounts and filters; inspect and manage forwards and mailing lists
-* [kasapi-cli mail filters add](kasapi-cli_mail_filters_add.md)	 - Set the standard-filter chain on a mail account (add_mailstandardfilter)
-* [kasapi-cli mail filters delete](kasapi-cli_mail_filters_delete.md)	 - Remove every standard filter from a mail account (delete_mailstandardfilter)
-* [kasapi-cli mail filters list](kasapi-cli_mail_filters_list.md)	 - List the available standard mail filters (get_mailstandardfilter)
+* [kasapi-cli mail filters](kasapi-cli_mail_filters.md)	 - Inspect and manage mail standard filters (get/add/delete_mailstandardfilter)
 
