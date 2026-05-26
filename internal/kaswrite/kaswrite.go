@@ -38,7 +38,10 @@ var ErrUnexpectedReturnString = errors.New("kaswrite: unexpected ReturnString (w
 // with label and action; a non-fault response whose ReturnString is
 // not "TRUE" wraps ErrUnexpectedReturnString so a future API drift
 // fails the mapping test instead of silently passing. label is the
-// domain module name used only for the nil-response diagnostic.
+// domain module name (e.g. "mailforward") prefixed onto both the
+// nil-response diagnostic and the ReturnString-wrap message so log
+// readers see which module surfaced the failure even after the
+// canonical "kaswrite:" sentinel.
 func Call(
 	ctx context.Context, caller Caller, label, action string, params map[string]any,
 ) (*soap.Response, error) {
@@ -50,7 +53,7 @@ func Call(
 		return nil, fmt.Errorf("%s: %s: nil response without error from Caller", label, action)
 	}
 	if got := resp.Body.ReturnString; got != "TRUE" {
-		return nil, fmt.Errorf("%w: %s got %q", ErrUnexpectedReturnString, action, got)
+		return nil, fmt.Errorf("%w: %s %s got %q", ErrUnexpectedReturnString, label, action, got)
 	}
 	return resp, nil
 }

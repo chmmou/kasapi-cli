@@ -10,7 +10,7 @@ kasapi-cli mail forwards add <address> --target <addr> [--target <addr>...] [fla
 
 ```
   -h, --help                 help for add
-      --target stringArray   forward target address (repeatable; replaces the full target list)
+      --target stringArray   forward target address (repeatable; at least one required)
 ```
 
 ### Options inherited from parent commands

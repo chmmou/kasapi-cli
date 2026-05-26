@@ -97,6 +97,12 @@ type writeSpec struct {
 // and the dry-run audit (#131) — and only then builds the API client
 // and dispatches. After dispatch it always emits the success/failure
 // audit record via OutcomeFor, then prints the result line on success.
+//
+// Credentials are resolved exactly once per invocation: the resolved
+// login feeds the dry-run / destructive-gate path directly, and the
+// post-gate dispatch reuses the same creds via the unexported
+// buildAPIClientFromCreds helper instead of re-running the
+// config+env+flag resolution that BuildAPIClient would do internally.
 func runWriteE(opts *RootOptions, build func(args []string) (writeSpec, error)) func(*cobra.Command, []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		spec, err := build(args)
@@ -133,7 +139,7 @@ func runWriteE(opts *RootOptions, build func(args []string) (writeSpec, error)) 
 			return err
 		}
 
-		c, err := BuildAPIClient(opts)
+		c, err := buildAPIClientFromCreds(opts, creds)
 		if err != nil {
 			return err
 		}

@@ -3,13 +3,13 @@
 Replace mutable fields of a mailing list (update_mailinglist)
 
 ```
-kasapi-cli mail lists update <name> [--subscriber <addr>...] [--restrict-post <addr>...] [--config-file <path>] [--active] [flags]
+kasapi-cli mail lists update <name> [--subscriber <addr>...] [--restrict-post <addr>...] [--config-file <path>] [--active Y|N] [flags]
 ```
 
 ### Options
 
 ```
-      --active                      activate the list; pass --active=false to deactivate it
+      --active string               list status (Y|N)
       --config-file string          path to the complete list configuration file (replaces the config wholesale)
   -h, --help                        help for update
       --restrict-post stringArray   restrict-post address (repeatable; replaces the full restrict-post list)

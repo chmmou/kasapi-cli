@@ -542,7 +542,7 @@ func TestMailListsDestructiveRefuseNonTTY(t *testing.T) {
 	t.Parallel()
 	for _, args := range [][]string{
 		{"mail", "lists", "delete", "announce-example-com"},
-		{"mail", "lists", "update", "announce-example-com", "--active"},
+		{"mail", "lists", "update", "announce-example-com", "--active", "Y"},
 	} {
 		t.Run(args[2], func(t *testing.T) {
 			t.Parallel()
@@ -580,14 +580,14 @@ func TestMailListsUpdateDryRunFieldAssembly(t *testing.T) {
 		absent []string
 	}{
 		{
-			"active true",
-			[]string{"mail", "lists", "update", "L", "--active"},
+			"active Y",
+			[]string{"mail", "lists", "update", "L", "--active", "Y"},
 			map[string]string{"mailinglist_name": "L", "is_active": "Y"},
 			[]string{"subscriber", "restrict_post", "config"},
 		},
 		{
-			"active false",
-			[]string{"mail", "lists", "update", "L", "--active=false"},
+			"active N",
+			[]string{"mail", "lists", "update", "L", "--active", "N"},
 			map[string]string{"mailinglist_name": "L", "is_active": "N"},
 			nil,
 		},

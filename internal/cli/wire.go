@@ -36,13 +36,20 @@ func BuildAPIClient(opts *RootOptions) (*api.Client, error) {
 	if opts == nil {
 		return nil, UserError(errors.New("nil RootOptions"), "cli")
 	}
-
-	logger := buildLogger(opts.Verbose)
-
 	creds, err := resolveCreds(opts)
 	if err != nil {
 		return nil, err
 	}
+	return buildAPIClientFromCreds(opts, creds)
+}
+
+// buildAPIClientFromCreds wires the transport + token source on top of
+// already-resolved credentials. Callers that need the login both for an
+// audit trace and the actual KAS call (runWriteE / sessions delete)
+// resolve once and call this helper to avoid re-running the
+// config+env+flag resolution.
+func buildAPIClientFromCreds(opts *RootOptions, creds config.Credentials) (*api.Client, error) {
+	logger := buildLogger(opts.Verbose)
 	logger.Info("cli: credentials resolved",
 		"login", creds.Login, "auth_type", creds.AuthType, "auth_data", "<redacted>")
 

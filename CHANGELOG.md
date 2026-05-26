@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Address the post-write-phase nice-to-have bundle from #168:
+  - `kaswrite.Call` now prefixes the module label onto the wrapped
+    `ErrUnexpectedReturnString` message, so a regression in e.g.
+    `mailforward.Client.Add` reads `kaswrite: unexpected ReturnString
+    (want TRUE): mailforward add_mailforward got "…"` instead of
+    losing the module hint to the canonical sentinel prefix. The
+    sentinel identity is unchanged — `errors.Is(err,
+    mailforward.ErrUnexpectedReturnString)` keeps working.
+  - `kasapi-cli mail forwards add --target` help no longer claims to
+    "replace the full target list" (which is true for `update`, not
+    for `add`); the add-side help now reads "repeatable; at least
+    one required".
+  - `kasapi-cli mail lists update --active` now takes an explicit
+    `Y|N` argument (string flag), matching the `mail accounts
+    update --active` surface and removing the slightly non-obvious
+    `--active=false` form that previously meant "deactivate".
+  - `runWriteE` resolves the credentials exactly once per write
+    invocation: the post-gate dispatch now reuses the creds
+    `runWriteE` already resolved for the audit login, via the new
+    unexported `buildAPIClientFromCreds` helper. Previously the
+    config + env + flag resolution ran twice — once for the audit,
+    once inside `BuildAPIClient` — for every real write call.
+    `BuildAPIClient` (the read-side seam) is unchanged.
+
 - Cross-module convention alignment, post-#122-review parity sweep:
   - `account.AccountList` / `mailaccount.MailAccountList` now render
     the `used_*_space` column with a `" MB"` suffix as part of the

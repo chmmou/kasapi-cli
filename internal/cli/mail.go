@@ -84,10 +84,9 @@ func newMailListsAddCmd(opts *RootOptions) *cobra.Command {
 
 func newMailListsUpdateCmd(opts *RootOptions) *cobra.Command {
 	var subscriber, restrictPost []string
-	var configFile string
-	var active bool
+	var configFile, active string
 	cmd := &cobra.Command{
-		Use:   "update <name> [--subscriber <addr>...] [--restrict-post <addr>...] [--config-file <path>] [--active]",
+		Use:   "update <name> [--subscriber <addr>...] [--restrict-post <addr>...] [--config-file <path>] [--active Y|N]",
 		Short: "Replace mutable fields of a mailing list (update_mailinglist)",
 		Args:  cobra.ExactArgs(1),
 	}
@@ -113,11 +112,7 @@ func newMailListsUpdateCmd(opts *RootOptions) *cobra.Command {
 			fields[mailinglist.FieldConfig] = string(b)
 		}
 		if cmd.Flags().Changed("active") {
-			if active {
-				fields[mailinglist.FieldIsActive] = "Y"
-			} else {
-				fields[mailinglist.FieldIsActive] = "N"
-			}
+			fields[mailinglist.FieldIsActive] = active
 		}
 		if len(fields) == 0 {
 			return writeSpec{}, fmt.Errorf("at least one of --subscriber/--restrict-post/--config-file/--active is required")
@@ -138,7 +133,7 @@ func newMailListsUpdateCmd(opts *RootOptions) *cobra.Command {
 	cmd.Flags().StringArrayVar(&subscriber, "subscriber", nil, "list subscriber address (repeatable; replaces the full subscriber list)")
 	cmd.Flags().StringArrayVar(&restrictPost, "restrict-post", nil, "restrict-post address (repeatable; replaces the full restrict-post list)")
 	cmd.Flags().StringVar(&configFile, "config-file", "", "path to the complete list configuration file (replaces the config wholesale)")
-	cmd.Flags().BoolVar(&active, "active", false, "activate the list; pass --active=false to deactivate it")
+	cmd.Flags().StringVar(&active, "active", "", "list status (Y|N)")
 	return cmd
 }
 
@@ -639,7 +634,7 @@ func newMailForwardsAddCmd(opts *RootOptions) *cobra.Command {
 			}, nil
 		}),
 	}
-	cmd.Flags().StringArrayVar(&targets, "target", nil, "forward target address (repeatable; replaces the full target list)")
+	cmd.Flags().StringArrayVar(&targets, "target", nil, "forward target address (repeatable; at least one required)")
 	return cmd
 }
 

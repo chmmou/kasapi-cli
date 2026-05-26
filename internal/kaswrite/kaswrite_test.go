@@ -53,6 +53,9 @@ func TestCallRejectsNonTrueReturnString(t *testing.T) {
 	if !strings.Contains(err.Error(), "update_mailinglist") || !strings.Contains(err.Error(), "FALSE") {
 		t.Errorf("err = %q, want it to contain the action and the observed value", err)
 	}
+	if !strings.Contains(err.Error(), "mailinglist") {
+		t.Errorf("err = %q, want it to carry the module label prefix", err)
+	}
 }
 
 func TestCallPropagatesCallerError(t *testing.T) {
