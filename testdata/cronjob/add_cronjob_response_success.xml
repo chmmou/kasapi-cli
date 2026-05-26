@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- KAS echoes the notification address under "mail_address" (double d) in the
+     KasRequestParams block below, while the documented request key is
+     "mail_adress" (single d) — see internal/cronjob/write.go FieldMailAdress.
+     KAS itself is inconsistent here; the read/write mapping always uses the
+     single-d key and never reads this echo block, so the typo is preserved
+     verbatim as captured rather than normalised. -->
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://kasapi.kasserver.com/soap/KasApi.php" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
     <SOAP-ENV:Body>
         <ns1:KasApiResponse>

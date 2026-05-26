@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `testdata/cronjob/{add_cronjob_response_success,add_cronjob_response_warning,update_cronjob_response_success}.xml`
+  carry a top-of-file XML comment documenting that KAS itself echoes
+  the notification address under `mail_address` (double d) in the
+  `KasRequestParams` echo block, while the documented request key is
+  `mail_adress` (single d). The read/write mapping uses the single-d
+  key and never reads the echo, so the captured fixtures keep the
+  typo verbatim instead of being normalised. Closes the last code
+  Nice-to-have from #168.
+
 - Address the post-write-phase nice-to-have bundle from #168:
   - `kaswrite.Call` now prefixes the module label onto the wrapped
     `ErrUnexpectedReturnString` message, so a regression in e.g.
