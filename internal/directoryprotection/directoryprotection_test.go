@@ -16,11 +16,11 @@ func TestDecodeDirectoryProtections(t *testing.T) {
 	if err != nil {
 		t.Fatalf("DecodeDirectoryProtections: %v", err)
 	}
-	if len(got) != 1 {
-		t.Fatalf("len = %d, want 1", len(got))
+	if len(got) != 2 {
+		t.Fatalf("len = %d, want 2", len(got))
 	}
 	d := got[0]
-	if d.User != "w0000000" {
+	if d.User != "protected_user" {
 		t.Errorf("User = %q", d.User)
 	}
 	if d.Path != "/protected/directory/" {
@@ -31,6 +31,12 @@ func TestDecodeDirectoryProtections(t *testing.T) {
 	}
 	if d.InProgress != "FALSE" {
 		t.Errorf("InProgress = %q", d.InProgress)
+	}
+	// Second entry: a directory with multiple protected users surfaces
+	// as multiple list rows (the read shape this module deliberately
+	// exposes instead of a single Get).
+	if got[1].User != "protected_user_1" || got[1].Path != "/protected/directory/1/" {
+		t.Errorf("got[1] = %+v, want user=protected_user_1 path=/protected/directory/1/", got[1])
 	}
 }
 
@@ -108,8 +114,8 @@ func TestDirectoryProtectionListTabular(t *testing.T) {
 		t.Errorf("headers[0] = %q, want PATH", headers[0])
 	}
 	rows := list.TableRows()
-	if len(rows) != 1 {
-		t.Fatalf("rows = %d, want 1", len(rows))
+	if len(rows) != 2 {
+		t.Fatalf("rows = %d, want 2", len(rows))
 	}
 	if rows[0][0] != "/protected/directory/" {
 		t.Errorf("rows[0][PATH] = %q", rows[0][0])

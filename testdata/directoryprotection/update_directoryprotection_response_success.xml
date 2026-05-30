@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777737120</value>
+                            <value xsi:type="xsd:int">1780124155</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -24,6 +24,10 @@
                                 <item>
                                     <key xsi:type="xsd:string">directory_path</key>
                                     <value xsi:type="xsd:string">/protected/directory/</value>
+                                </item>
+                                <item>
+                                    <key xsi:type="xsd:string">directory_password</key>
+                                    <value xsi:type="xsd:string">REDACTED</value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">directory_authname</key>
@@ -46,7 +50,7 @@
                         </item>
                         <item>
                             <key xsi:type="xsd:string">ReturnInfo</key>
-                            <value xsi:type="xsd:string"></value>
+                            <value xsi:type="xsd:string">protected_user</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">Msg</key>
@@ -58,7 +62,7 @@
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">text</key>
-                                        <value xsi:type="xsd:string">The directory protection has been edited.</value>
+                                        <value xsi:type="xsd:string">1 new users for the directory /temp/ have been created.</value>
                                     </item>
                                 </item>
                             </value>

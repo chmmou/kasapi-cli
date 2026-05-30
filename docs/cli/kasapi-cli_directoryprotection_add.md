@@ -1,16 +1,17 @@
-## kasapi-cli directoryprotection list
+## kasapi-cli directoryprotection add
 
-List directory protections, optionally filtered by --path
+Protect a path for a user (add_directoryprotection)
 
 ```
-kasapi-cli directoryprotection list [flags]
+kasapi-cli directoryprotection add <path> <user> --password <pw> [--authname <name>] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help          help for list
-      --path string   directory path to filter on (e.g. /protected/directory/); empty returns every protection
+      --authname string   htaccess realm label shown in the browser auth dialog (optional; directory_authname)
+  -h, --help              help for add
+      --password string   access password for the protected user (required)
 ```
 
 ### Options inherited from parent commands

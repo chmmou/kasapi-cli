@@ -1,6 +1,6 @@
 ## kasapi-cli directoryprotection
 
-Inspect directory (htaccess) protections (get_directoryprotection)
+Inspect and manage directory (htaccess) protections (get/add/update/delete_directoryprotection)
 
 ### Options
 
@@ -29,5 +29,8 @@ Inspect directory (htaccess) protections (get_directoryprotection)
 ### SEE ALSO
 
 * [kasapi-cli](kasapi-cli.md)	 - Command-line client for the All-Inkl KAS API
+* [kasapi-cli directoryprotection add](kasapi-cli_directoryprotection_add.md)	 - Protect a path for a user (add_directoryprotection)
+* [kasapi-cli directoryprotection delete](kasapi-cli_directoryprotection_delete.md)	 - Revoke a user's directory protection on a path (delete_directoryprotection)
 * [kasapi-cli directoryprotection list](kasapi-cli_directoryprotection_list.md)	 - List directory protections, optionally filtered by --path
+* [kasapi-cli directoryprotection update](kasapi-cli_directoryprotection_update.md)	 - Replace the password and/or realm of a directory protection (update_directoryprotection)
 

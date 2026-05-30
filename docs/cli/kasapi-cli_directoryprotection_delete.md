@@ -1,16 +1,15 @@
-## kasapi-cli directoryprotection list
+## kasapi-cli directoryprotection delete
 
-List directory protections, optionally filtered by --path
+Revoke a user's directory protection on a path (delete_directoryprotection)
 
 ```
-kasapi-cli directoryprotection list [flags]
+kasapi-cli directoryprotection delete <path> <user> [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help          help for list
-      --path string   directory path to filter on (e.g. /protected/directory/); empty returns every protection
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands

@@ -1,16 +1,17 @@
-## kasapi-cli directoryprotection list
+## kasapi-cli directoryprotection update
 
-List directory protections, optionally filtered by --path
+Replace the password and/or realm of a directory protection (update_directoryprotection)
 
 ```
-kasapi-cli directoryprotection list [flags]
+kasapi-cli directoryprotection update <path> <user> [--password <pw>] [--authname <name>] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help          help for list
-      --path string   directory path to filter on (e.g. /protected/directory/); empty returns every protection
+      --authname string   replacement htaccess realm label (directory_authname)
+  -h, --help              help for update
+      --password string   replacement access password (sent as directory_password)
 ```
 
 ### Options inherited from parent commands

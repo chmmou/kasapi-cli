@@ -129,6 +129,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Directory protection write endpoints (#123, #13 write slice):
+  `kasapi-cli directoryprotection add <path> <user> --password <pw>
+  [--authname <name>]`, `… update <path> <user> [--password <pw>]
+  [--authname <name>]` and `… delete <path> <user>` wire
+  `add_directoryprotection` / `update_directoryprotection` /
+  `delete_directoryprotection`. A protection entry is identified by the
+  `(path, user)` pair taken as two positional arguments (a single path
+  can protect several users). `update` and `delete` are gated by the
+  #109 confirmation prompt — `update` replaces the access password (the
+  previous one is unrecoverable) and `delete` revokes access, so both
+  can lock users out; `add` is reversible and not prompted. All three
+  honour `--dry-run` (#132) and emit a #131 audit record;
+  `directory_password` is redacted in both sinks. There is **no**
+  `_new_password` split — `update` sends the replacement under the same
+  `directory_password` key `add` uses — and `update` sends only the
+  explicitly-changed `--password`/`--authname` (keyed on cobra
+  `Changed`), so an omitted password keeps the current one. KAS also
+  accepts parallel `directory_user`/`directory_password` arrays to
+  create several protected users in one call (hence the
+  `directory_user_count_neq_passcount` fault); the captured request
+  fixtures only exercise the scalar single-user form, and the array
+  wire-encoding is not captured, so this slice deliberately models one
+  `(path, user)` protection per call rather than inventing the array
+  shape.
+
 - Mail standard filter write endpoints (#116, #13 write slice):
   `kasapi-cli mail filters add <mail-login> --filter <item> [--filter
   <item>...]` and `… delete <mail-login>` wire

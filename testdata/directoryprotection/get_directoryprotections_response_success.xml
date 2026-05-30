@@ -8,7 +8,7 @@
                     <value xsi:type="ns2:Map">
                         <item>
                             <key xsi:type="xsd:string">KasRequestTime</key>
-                            <value xsi:type="xsd:int">1777751550</value>
+                            <value xsi:type="xsd:int">1780124674</value>
                         </item>
                         <item>
                             <key xsi:type="xsd:string">KasRequestType</key>
@@ -33,11 +33,11 @@
                         </item>
                         <item>
                             <key xsi:type="xsd:string">ReturnInfo</key>
-                            <value SOAP-ENC:arrayType="ns2:Map[1]" xsi:type="SOAP-ENC:Array">
+                            <value SOAP-ENC:arrayType="ns2:Map[2]" xsi:type="SOAP-ENC:Array">
                                 <item xsi:type="ns2:Map">
                                     <item>
                                         <key xsi:type="xsd:string">directory_user</key>
-                                        <value xsi:type="xsd:string">w0000000</value>
+                                        <value xsi:type="xsd:string">protected_user</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">directory_path</key>
@@ -46,6 +46,28 @@
                                     <item>
                                         <key xsi:type="xsd:string">directory_authname</key>
                                         <value xsi:type="xsd:string">ByPassword</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">directory_password</key>
+                                        <value xsi:type="xsd:string">REDACTED</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">in_progress</key>
+                                        <value xsi:type="xsd:string">FALSE</value>
+                                    </item>
+                                </item>
+                                <item xsi:type="ns2:Map">
+                                    <item>
+                                        <key xsi:type="xsd:string">directory_user</key>
+                                        <value xsi:type="xsd:string">protected_user_1</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">directory_path</key>
+                                        <value xsi:type="xsd:string">/protected/directory/1/</value>
+                                    </item>
+                                    <item>
+                                        <key xsi:type="xsd:string">directory_authname</key>
+                                        <value xsi:type="xsd:string">ByPassword 1</value>
                                     </item>
                                     <item>
                                         <key xsi:type="xsd:string">directory_password</key>

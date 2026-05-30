@@ -37,7 +37,7 @@ kasapi-cli [flags]
 * [kasapi-cli cronjobs](kasapi-cli_cronjobs.md)	 - Inspect and manage cronjobs (get/add/update/delete_cronjob)
 * [kasapi-cli databases](kasapi-cli_databases.md)	 - Inspect and manage databases (get/add/update/delete_database)
 * [kasapi-cli ddnsusers](kasapi-cli_ddnsusers.md)	 - Inspect and manage DDNS users (get/add/update/delete_ddnsuser)
-* [kasapi-cli directoryprotection](kasapi-cli_directoryprotection.md)	 - Inspect directory (htaccess) protections (get_directoryprotection)
+* [kasapi-cli directoryprotection](kasapi-cli_directoryprotection.md)	 - Inspect and manage directory (htaccess) protections (get/add/update/delete_directoryprotection)
 * [kasapi-cli dns](kasapi-cli_dns.md)	 - Inspect DNS records for a zone
 * [kasapi-cli domains](kasapi-cli_domains.md)	 - Inspect domains owned by the authenticated account
 * [kasapi-cli ftpusers](kasapi-cli_ftpusers.md)	 - Inspect and manage FTP users (get/add/update/delete_ftpuser)
