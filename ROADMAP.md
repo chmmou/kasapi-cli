@@ -74,7 +74,7 @@ Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API
 - [x] `cronjobs list` / `cronjobs get <cronjob-id>` (`get_cronjobs`, with `cronjob_id` filter)
 - [x] `cronjobs add/update/delete` (`add_cronjob`, `update_cronjob`, `delete_cronjob`, #118)
 - [x] `directoryprotection list [--path PATH]` (`get_directoryprotection`, optional `directory_path` filter)
-- [ ] Directory protection write paths (`add_directoryprotection`, `update_directoryprotection`, `delete_directoryprotection`, #123)
+- [x] `directoryprotection add/update/delete` (`add_directoryprotection`, `update_directoryprotection`, `delete_directoryprotection`, #123)
 - [x] `softwareinstalls list` / `softwareinstalls get <software-id>` (`get_softwareinstall`, with `software_id` filter)
 - [ ] Software install write path (`add_softwareinstall`, #124 — the KAS API exposes only the `add` action, no `update`/`delete`)
 - [ ] Filesystem & SSL helpers (`add_symlink`, `update_chown`, `update_ssl`, #125)
