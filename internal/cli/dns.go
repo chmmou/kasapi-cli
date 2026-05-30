@@ -11,7 +11,7 @@ import (
 )
 
 // NewDNSCmd returns the "kasapi-cli dns" subcommand tree:
-// list --domain <d> [--nameserver <ns>] (get_dns_settings).
+// list --domain <d> [--record-id <id>] (get_dns_settings).
 func NewDNSCmd(opts *RootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dns",
@@ -22,7 +22,7 @@ func NewDNSCmd(opts *RootOptions) *cobra.Command {
 }
 
 func newDNSListCmd(opts *RootOptions) *cobra.Command {
-	var domainName, nameserver string
+	var domainName, recordID string
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List DNS records for a zone (get_dns_settings)",
@@ -39,11 +39,11 @@ func newDNSListCmd(opts *RootOptions) *cobra.Command {
 			return nil
 		},
 		RunE: runListE(opts, "get_dns_settings", func(c *api.Client, ctx context.Context) (dns.RecordList, error) {
-			return dns.NewClient(c).Settings(ctx, domainName, nameserver)
+			return dns.NewClient(c).Settings(ctx, domainName, recordID)
 		}),
 	}
 	cmd.Flags().StringVar(&domainName, "domain", "", "zone host (required, e.g. example.com)")
-	cmd.Flags().StringVar(&nameserver, "nameserver", "",
-		"authoritative nameserver to query; empty uses the KAS default")
+	cmd.Flags().StringVar(&recordID, "record-id", "",
+		"resource record ID to narrow the result to a single record; empty lists every record")
 	return cmd
 }

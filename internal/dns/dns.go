@@ -43,16 +43,16 @@ func NewClient(c Caller) *Client { return &Client{API: c} }
 
 // Settings calls get_dns_settings for the given zone host and decodes
 // the response into a RecordList. zoneHost is required (the zone the
-// records belong to, e.g. "example.com"). nameserver is optional and
-// pinpoints which authoritative NS to query when the zone is served
-// by more than one — leave it empty to use the KAS default.
-func (c *Client) Settings(ctx context.Context, zoneHost, nameserver string) (RecordList, error) {
+// records belong to, e.g. "example.com"). recordID is optional and
+// narrows the result to the single resource record with that ID —
+// leave it empty to list every record in the zone.
+func (c *Client) Settings(ctx context.Context, zoneHost, recordID string) (RecordList, error) {
 	if zoneHost == "" {
 		return nil, fmt.Errorf("dns: zone_host is required")
 	}
 	params := map[string]any{"zone_host": zoneHost}
-	if nameserver != "" {
-		params["nameserver"] = nameserver
+	if recordID != "" {
+		params["record_id"] = recordID
 	}
 	resp, err := c.API.Call(ctx, "get_dns_settings", params)
 	if err != nil {

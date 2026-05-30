@@ -63,23 +63,29 @@ func TestClientSettings(t *testing.T) {
 	if zh, _ := fc.GotParams["zone_host"].(string); zh != "example.com" {
 		t.Errorf("params[zone_host] = %v, want example.com", fc.GotParams["zone_host"])
 	}
-	if _, ok := fc.GotParams["nameserver"]; ok {
-		t.Errorf("params[nameserver] set but nameserver was empty: %v", fc.GotParams)
+	if _, ok := fc.GotParams["record_id"]; ok {
+		t.Errorf("params[record_id] set but recordID was empty: %v", fc.GotParams)
 	}
 	if len(list) == 0 {
 		t.Errorf("len = %d, want a non-empty list", len(list))
 	}
 }
 
-func TestClientSettingsWithNameserver(t *testing.T) {
+// With a record_id the request narrows to a single record; the
+// zone_host+record_id fixture returns a one-element ReturnInfo array.
+func TestClientSettingsWithRecordID(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "dns/get_dns_settings_response_success.xml")
+	resp := testutil.DecodeFixture(t, "dns/get_dns_settings_zone_host_and_record_id_response_success.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
-	if _, err := dns.NewClient(fc).Settings(context.Background(), "example.com", "ns.example.com"); err != nil {
+	list, err := dns.NewClient(fc).Settings(context.Background(), "example.com", "110118416")
+	if err != nil {
 		t.Fatalf("Settings: %v", err)
 	}
-	if ns, _ := fc.GotParams["nameserver"].(string); ns != "ns.example.com" {
-		t.Errorf("params[nameserver] = %v, want ns.example.com", fc.GotParams["nameserver"])
+	if id, _ := fc.GotParams["record_id"].(string); id != "110118416" {
+		t.Errorf("params[record_id] = %v, want 110118416", fc.GotParams["record_id"])
+	}
+	if len(list) != 1 || list[0].ID != "110118416" {
+		t.Errorf("list = %+v, want a single record with ID 110118416", list)
 	}
 }
 

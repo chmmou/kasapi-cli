@@ -127,6 +127,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   working. No behaviour change; the wrapped error message is now uniform
   (`kaswrite: …`).
 
+### Fixed
+
+- `dns list` now exposes the documented optional `record_id` filter
+  instead of a non-existent `nameserver` parameter: the flag is renamed
+  `--nameserver` → `--record-id` and the wire parameter
+  `nameserver` → `record_id`, matching the KAS `get_dns_settings`
+  contract (`zone_host` required, `record_id` optional) and the captured
+  request fixtures. `nameserver` is a real KAS key, but for
+  `reset_dns_settings`, not `get_dns_settings`; the read slice had
+  carried it over by mistake.
+
 ### Added
 
 - Directory protection write endpoints (#123, #13 write slice):

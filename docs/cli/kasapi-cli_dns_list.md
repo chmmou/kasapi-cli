@@ -9,9 +9,9 @@ kasapi-cli dns list [flags]
 ### Options
 
 ```
-      --domain string       zone host (required, e.g. example.com)
-  -h, --help                help for list
-      --nameserver string   authoritative nameserver to query; empty uses the KAS default
+      --domain string      zone host (required, e.g. example.com)
+  -h, --help               help for list
+      --record-id string   resource record ID to narrow the result to a single record; empty lists every record
 ```
 
 ### Options inherited from parent commands

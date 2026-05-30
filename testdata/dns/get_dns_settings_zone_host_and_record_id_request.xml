@@ -5,7 +5,8 @@
             <Params>
             {
                 "KasRequestParams": {
-                    "zone_host": "example.com"
+                    "zone_host": "example.com",
+                    "record_id": "110118416"
                 },
                 "kas_action": "get_dns_settings",
                 "kas_auth_data": "REDACTED",

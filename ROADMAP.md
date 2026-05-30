@@ -45,7 +45,7 @@ Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API
 - [x] `domains list` / `domains get <name>` (`get_domains`, with `domain_name` filter)
 - [x] `subdomains list` / `subdomains get <name>` (`get_subdomains`, with `subdomain_name` filter)
 - [x] `tlds list` (`get_topleveldomains`)
-- [x] `dns list --domain <d> [--nameserver <ns>]` (`get_dns_settings`)
+- [x] `dns list --domain <d> [--record-id <id>]` (`get_dns_settings`)
 - [ ] DNS write paths (`add_dns_settings`, `update_dns_settings`, `delete_dns_settings`, `reset_dns_settings`, #113)
 - [ ] Domain write paths (`add_domain`, `update_domain`, `delete_domain`, `move_domain`, #111)
 - [ ] Subdomain write paths (`add_subdomain`, `update_subdomain`, `move_subdomain`, `delete_subdomain`, #112)
