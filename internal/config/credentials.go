@@ -1,10 +1,21 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 )
+
+// ErrUnknownProfile is returned by Resolve when the requested profile
+// (via --profile or default_profile) does not exist in the config file.
+// Callers branch with errors.Is instead of string-matching.
+var ErrUnknownProfile = errors.New("config: profile not defined")
+
+// ErrMissingCredentials is returned by Resolve when the flag > env >
+// config precedence still leaves login, auth_data, or auth_type empty.
+// Callers branch with errors.Is instead of string-matching.
+var ErrMissingCredentials = errors.New("config: missing credentials")
 
 // Credentials are the resolved values for a single KAS API call.
 type Credentials struct {
@@ -61,7 +72,7 @@ func (c *Config) Resolve(env Env, ov Override) (Credentials, error) {
 		if name != "" {
 			p, ok := c.Profiles[name]
 			if !ok {
-				return Credentials{}, fmt.Errorf("config: profile %q not defined", name)
+				return Credentials{}, fmt.Errorf("%w: %q", ErrUnknownProfile, name)
 			}
 			prof = p
 		}
@@ -98,7 +109,7 @@ func (c Credentials) validate() error {
 		missing = append(missing, "auth_type (--auth-type or KAS_AUTHTYPE)")
 	}
 	if len(missing) > 0 {
-		return fmt.Errorf("config: missing credentials: %s", strings.Join(missing, ", "))
+		return fmt.Errorf("%w: %s", ErrMissingCredentials, strings.Join(missing, ", "))
 	}
 	if c.AuthType != AuthPlain && c.AuthType != AuthSession {
 		return fmt.Errorf("config: auth_type %q must be %q or %q", c.AuthType, AuthPlain, AuthSession)

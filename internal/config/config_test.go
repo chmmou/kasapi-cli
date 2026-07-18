@@ -163,6 +163,9 @@ func TestResolveUnknownProfile(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "missing") {
 		t.Fatalf("expected unknown-profile error, got %v", err)
 	}
+	if !errors.Is(err, config.ErrUnknownProfile) {
+		t.Errorf("err = %v, want errors.Is ErrUnknownProfile", err)
+	}
 }
 
 func TestResolveMissingCredentials(t *testing.T) {
@@ -175,6 +178,9 @@ func TestResolveMissingCredentials(t *testing.T) {
 	_, err := cfg.Resolve(config.Env{}, config.Override{})
 	if err == nil {
 		t.Fatal("expected error for missing credentials")
+	}
+	if !errors.Is(err, config.ErrMissingCredentials) {
+		t.Errorf("err = %v, want errors.Is ErrMissingCredentials", err)
 	}
 	for _, want := range []string{"auth_data", "auth_type"} {
 		if !strings.Contains(err.Error(), want) {
