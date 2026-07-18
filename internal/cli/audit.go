@@ -66,6 +66,12 @@ var auditSecretParams = map[string]struct{}{
 
 const auditRedacted = "<redacted>"
 
+// maxAuditValueLen caps how long a single parameter value may be before
+// RedactParams elides it. Normal write parameters (names, hosts, Y/N
+// toggles) are far shorter; only wholesale blobs like the mailing-list
+// config exceed it.
+const maxAuditValueLen = 256
+
 // redactParam reports whether the value of parameter key must be
 // redacted before it is logged.
 func redactParam(key string) bool {
@@ -87,8 +93,12 @@ func redactParam(key string) bool {
 
 // RedactParams converts a KAS request/response parameter map into the
 // string map stored on AuditRecord.Fields, replacing every secret value
-// (see redactParam) with auditRedacted. Non-string values are rendered
-// with %v. A nil/empty map yields nil so the field is omitted.
+// (see redactParam) with auditRedacted. Multi-line or oversized values
+// (mailing-list config / subscriber blobs sent wholesale by
+// update_mailinglist) are elided to a "<elided N bytes>" marker: the
+// list config can carry the list password in cleartext, so the blob
+// content must never reach either audit sink. Non-string values are
+// rendered with %v. A nil/empty map yields nil so the field is omitted.
 func RedactParams(params map[string]any) map[string]string {
 	if len(params) == 0 {
 		return nil
@@ -99,7 +109,11 @@ func RedactParams(params map[string]any) map[string]string {
 			out[k] = auditRedacted
 			continue
 		}
-		out[k] = fmt.Sprintf("%v", v)
+		s := fmt.Sprintf("%v", v)
+		if strings.ContainsAny(s, "\n\r") || len(s) > maxAuditValueLen {
+			s = fmt.Sprintf("<elided %d bytes>", len(s))
+		}
+		out[k] = s
 	}
 	return out
 }
@@ -137,9 +151,9 @@ func (r AuditRecord) logfmt() string {
 // whitespace, a quote, or '=' so the logfmt line stays unambiguous to
 // split on. Backslash and quote are escaped; a newline or carriage
 // return is escaped to the two-character \n / \r so a single field
-// value can never split the record across physical lines (multi-line
-// values reach here via e.g. update_mailinglist --subscriber /
-// --config-file).
+// value can never split the record across physical lines. RedactParams
+// already elides multi-line blobs, so this escaping is defense-in-depth
+// for values that reach Fields through another path.
 func quoteIfNeeded(v string) string {
 	if v == "" {
 		return `""`

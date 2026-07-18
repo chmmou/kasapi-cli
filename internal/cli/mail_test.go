@@ -570,7 +570,10 @@ func TestMailListsDestructiveRefuseNonTTY(t *testing.T) {
 // cobra Changed), --active maps to is_active Y/N, and --subscriber /
 // --restrict-post repeats join with a newline. --dry-run renders the
 // exact KAS params it would dispatch as JSON, so this asserts the
-// assembly end to end without a network call.
+// assembly end to end without a network call. Multi-line values are
+// elided by RedactParams before they reach the preview, so the
+// newline-join is pinned via the elided byte count (two 6-byte
+// addresses + one separator byte = 13).
 func TestMailListsUpdateDryRunFieldAssembly(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
@@ -594,7 +597,7 @@ func TestMailListsUpdateDryRunFieldAssembly(t *testing.T) {
 		{
 			"subscriber repeats join with newline",
 			[]string{"mail", "lists", "update", "L", "--subscriber", "a@x.de", "--subscriber", "b@x.de"},
-			map[string]string{"mailinglist_name": "L", "subscriber": "a@x.de\nb@x.de"},
+			map[string]string{"mailinglist_name": "L", "subscriber": "<elided 13 bytes>"},
 			[]string{"is_active"},
 		},
 	}

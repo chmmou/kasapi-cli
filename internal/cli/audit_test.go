@@ -54,6 +54,37 @@ func TestRedactParams(t *testing.T) {
 	}
 }
 
+// Multi-line or oversized parameter values (the wholesale mailing-list
+// config / subscriber blobs of update_mailinglist) must never reach the
+// audit sinks verbatim: the list config can carry the list password in
+// cleartext.
+func TestRedactParamsElidesBlobs(t *testing.T) {
+	t.Parallel()
+	got := cli.RedactParams(map[string]any{
+		"config":     "line1\npassword secret123\n",
+		"subscriber": "a@x.de\rb@x.de",
+		"long":       strings.Repeat("x", 300),
+		"comment":    "short stays",
+	})
+	if got["config"] != "<elided 25 bytes>" {
+		t.Errorf("config = %q, want <elided 25 bytes>", got["config"])
+	}
+	if got["subscriber"] != "<elided 13 bytes>" {
+		t.Errorf("subscriber = %q, want <elided 13 bytes>", got["subscriber"])
+	}
+	if got["long"] != "<elided 300 bytes>" {
+		t.Errorf("long = %q, want <elided 300 bytes>", got["long"])
+	}
+	if got["comment"] != "short stays" {
+		t.Errorf("comment = %q, want kept verbatim", got["comment"])
+	}
+	for k, v := range got {
+		if strings.Contains(v, "secret123") {
+			t.Errorf("blob content leaked via %q = %q", k, v)
+		}
+	}
+}
+
 func TestOutcomeFor(t *testing.T) {
 	t.Parallel()
 	if got := cli.OutcomeFor(nil); got != "success" {
@@ -108,11 +139,12 @@ func TestAuditRecordLogfmt(t *testing.T) {
 	}
 }
 
-// A field value containing a newline (e.g. update_mailinglist
-// --subscriber a@x --subscriber b@x, or --config-file content) must not
-// split the stderr audit record across physical lines: the embedded
-// newline is escaped to the two-character \n inside a quoted value, so
-// the record stays a single logfmt line.
+// A field value containing a newline must not split the stderr audit
+// record across physical lines: the embedded newline is escaped to the
+// two-character \n inside a quoted value, so the record stays a single
+// logfmt line. RedactParams elides multi-line blobs before they reach
+// Fields, so the map is built directly here — the escaping is
+// defense-in-depth for values arriving through another path.
 func TestAuditRecordLogfmtEscapesNewlines(t *testing.T) {
 	t.Parallel()
 	var stderr bytes.Buffer
@@ -122,7 +154,7 @@ func TestAuditRecordLogfmtEscapesNewlines(t *testing.T) {
 		Action:  "update_mailinglist",
 		Target:  "announce-example-com",
 		Outcome: "success",
-		Fields:  cli.RedactParams(map[string]any{"subscriber": "a@x.de\nb@x.de"}),
+		Fields:  map[string]string{"subscriber": "a@x.de\nb@x.de"},
 	}
 	if err := cli.WriteAudit(&stderr, nil, rec); err != nil {
 		t.Fatalf("WriteAudit: %v", err)
