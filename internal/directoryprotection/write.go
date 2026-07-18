@@ -74,7 +74,7 @@ func (cl *Client) Add(ctx context.Context, s Spec) (string, error) {
 	case s.Password == "":
 		return "", errors.New("directoryprotection: add_directoryprotection requires a non-empty directory password")
 	}
-	resp, err := kaswrite.Call(ctx, cl.API, "directoryprotection", addAction, AddParams(s))
+	resp, err := kaswrite.Call(ctx, cl.c, "directoryprotection", addAction, AddParams(s))
 	if err != nil {
 		return "", err
 	}
@@ -111,7 +111,7 @@ func (cl *Client) Update(ctx context.Context, path, user string, fields map[stri
 	if len(fields) == 0 {
 		return errors.New("directoryprotection: update_directoryprotection requires at least one field to change")
 	}
-	_, err := kaswrite.Call(ctx, cl.API, "directoryprotection", updateAction, UpdateParams(path, user, fields))
+	_, err := kaswrite.Call(ctx, cl.c, "directoryprotection", updateAction, UpdateParams(path, user, fields))
 	return err
 }
 
@@ -142,7 +142,7 @@ func (cl *Client) Delete(ctx context.Context, path, user string) error {
 	case user == "":
 		return errors.New("directoryprotection: delete_directoryprotection requires a non-empty directory user")
 	}
-	_, err := kaswrite.Call(ctx, cl.API, "directoryprotection", deleteAction, DeleteParams(path, user))
+	_, err := kaswrite.Call(ctx, cl.c, "directoryprotection", deleteAction, DeleteParams(path, user))
 	return err
 }
 

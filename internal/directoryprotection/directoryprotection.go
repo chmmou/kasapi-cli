@@ -38,22 +38,22 @@ type DirectoryProtectionList []DirectoryProtection
 // even when no filter is set), so this module exposes one List
 // method that takes an optional path.
 type Client struct {
-	API Caller
+	c Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client { return &Client{c: c} }
 
 // List calls get_directoryprotection and decodes the response into a
 // DirectoryProtectionList. An empty path returns every protected
 // directory; a non-empty path filters to that directory's user
 // entries (still a list, since multiple users per path are possible).
-func (c *Client) List(ctx context.Context, path string) (DirectoryProtectionList, error) {
+func (cl *Client) List(ctx context.Context, path string) (DirectoryProtectionList, error) {
 	var params map[string]any
 	if path != "" {
 		params = map[string]any{"directory_path": path}
 	}
-	resp, err := c.API.Call(ctx, "get_directoryprotection", params)
+	resp, err := cl.c.Call(ctx, "get_directoryprotection", params)
 	if err != nil {
 		return nil, err
 	}

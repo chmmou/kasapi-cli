@@ -19,6 +19,10 @@ const (
 	deleteAction = "delete_cronjob"
 )
 
+// FieldID is the cronjob_id identifier key shared by the get filter,
+// update_cronjob, and delete_cronjob.
+const FieldID = "cronjob_id"
+
 // The Field-prefixed constants are the KAS request keys update_cronjob
 // accepts besides the cronjob_id identifier; AddParams uses the same
 // keys. Each is an optional wholesale replacement on update: only the
@@ -148,7 +152,7 @@ func (cl *Client) Update(ctx context.Context, id string, fields map[string]strin
 // (single source of truth, see AddParams): the cronjob_id identifier
 // plus every caller-supplied mutable field verbatim.
 func UpdateParams(id string, fields map[string]string) map[string]any {
-	params := map[string]any{"cronjob_id": id}
+	params := map[string]any{FieldID: id}
 	for k, v := range fields {
 		params[k] = v
 	}
@@ -169,5 +173,5 @@ func (cl *Client) Delete(ctx context.Context, id string) error {
 // DeleteParams builds the delete_cronjob KAS request parameter map
 // (single source of truth, see AddParams).
 func DeleteParams(id string) map[string]any {
-	return map[string]any{"cronjob_id": id}
+	return map[string]any{FieldID: id}
 }

@@ -98,7 +98,7 @@ func NewClient(c Caller) *Client {
 			Action:    "get_cronjobs",
 			Label:     "cronjob",
 			ArgName:   "id",
-			FilterKey: "cronjob_id",
+			FilterKey: FieldID,
 			Decoder:   DecodeCronjobs,
 		},
 		c: c,

@@ -35,18 +35,18 @@ type RecordList []Record
 
 // Client groups the read endpoints scoped to DNS settings.
 type Client struct {
-	API Caller
+	c Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client { return &Client{c: c} }
 
 // Settings calls get_dns_settings for the given zone host and decodes
 // the response into a RecordList. zoneHost is required (the zone the
 // records belong to, e.g. "example.com"). recordID is optional and
 // narrows the result to the single resource record with that ID —
 // leave it empty to list every record in the zone.
-func (c *Client) Settings(ctx context.Context, zoneHost, recordID string) (RecordList, error) {
+func (cl *Client) Settings(ctx context.Context, zoneHost, recordID string) (RecordList, error) {
 	if zoneHost == "" {
 		return nil, fmt.Errorf("dns: zone_host is required")
 	}
@@ -54,7 +54,7 @@ func (c *Client) Settings(ctx context.Context, zoneHost, recordID string) (Recor
 	if recordID != "" {
 		params["record_id"] = recordID
 	}
-	resp, err := c.API.Call(ctx, "get_dns_settings", params)
+	resp, err := cl.c.Call(ctx, "get_dns_settings", params)
 	if err != nil {
 		return nil, err
 	}

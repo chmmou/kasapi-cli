@@ -32,15 +32,15 @@ type ServiceList []Service
 
 // Client groups the read endpoints scoped to the host server.
 type Client struct {
-	API Caller
+	c Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client { return &Client{c: c} }
 
 // Information calls get_server_information and decodes the response.
-func (c *Client) Information(ctx context.Context) (ServiceList, error) {
-	resp, err := c.API.Call(ctx, "get_server_information", nil)
+func (cl *Client) Information(ctx context.Context) (ServiceList, error) {
+	resp, err := cl.c.Call(ctx, "get_server_information", nil)
 	if err != nil {
 		return nil, err
 	}

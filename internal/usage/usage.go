@@ -83,19 +83,19 @@ type TrafficList []Traffic
 // Client groups the read endpoints scoped to webspace + traffic
 // counters: get_space, get_space_usage, get_traffic.
 type Client struct {
-	API Caller
+	c Caller
 }
 
 // NewClient returns a Client backed by the given Caller.
-func NewClient(c Caller) *Client { return &Client{API: c} }
+func NewClient(c Caller) *Client { return &Client{c: c} }
 
 // Space calls get_space and decodes the response into SpaceList.
 //
 // The KAS API accepts optional show_subaccounts and show_details
 // parameters; both default to "Y" server-side. We omit them — callers
 // that need a different scope can call (*api.Client).Call directly.
-func (c *Client) Space(ctx context.Context) (SpaceList, error) {
-	resp, err := c.API.Call(ctx, "get_space", nil)
+func (cl *Client) Space(ctx context.Context) (SpaceList, error) {
+	resp, err := cl.c.Call(ctx, "get_space", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -108,12 +108,12 @@ func (c *Client) Space(ctx context.Context) (SpaceList, error) {
 
 // SpaceUsage calls get_space_usage for the given directory and decodes
 // the response. An empty directory queries the document-root level.
-func (c *Client) SpaceUsage(ctx context.Context, directory string) (SpaceUsageList, error) {
+func (cl *Client) SpaceUsage(ctx context.Context, directory string) (SpaceUsageList, error) {
 	var params map[string]any
 	if directory != "" {
 		params = map[string]any{"directory": directory}
 	}
-	resp, err := c.API.Call(ctx, "get_space_usage", params)
+	resp, err := cl.c.Call(ctx, "get_space_usage", params)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (c *Client) SpaceUsage(ctx context.Context, directory string) (SpaceUsageLi
 // are optional; pass 0/0 to query the current month. month is encoded
 // as a zero-padded string ("01".."12") because KAS rejects "1" with a
 // syntax error.
-func (c *Client) Traffic(ctx context.Context, year, month int) (TrafficList, error) {
+func (cl *Client) Traffic(ctx context.Context, year, month int) (TrafficList, error) {
 	var params map[string]any
 	if year != 0 || month != 0 {
 		params = make(map[string]any, 2)
@@ -139,7 +139,7 @@ func (c *Client) Traffic(ctx context.Context, year, month int) (TrafficList, err
 			params["month"] = fmt.Sprintf("%02d", month)
 		}
 	}
-	resp, err := c.API.Call(ctx, "get_traffic", params)
+	resp, err := cl.c.Call(ctx, "get_traffic", params)
 	if err != nil {
 		return nil, err
 	}
