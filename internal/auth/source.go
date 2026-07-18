@@ -152,7 +152,11 @@ func (s *SessionTokenSource) Credentials(ctx context.Context) (string, string, s
 // context.Background so a successful invalidation cannot be lost just
 // because the user pressed Ctrl-C between the API failure and the
 // cleanup. The in-memory clear happens unconditionally either way.
-func (s *SessionTokenSource) Invalidate() {
+//
+// Invalidate always returns true: a session source can re-run the
+// KasAuth flow on the next Credentials call, so an auth-failure retry
+// with fresh credentials is worthwhile.
+func (s *SessionTokenSource) Invalidate() bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.token = ""
@@ -167,6 +171,7 @@ func (s *SessionTokenSource) Invalidate() {
 			s.logger().Warn("auth: session store delete failed; in-memory cache cleared", "err", err)
 		}
 	}
+	return true
 }
 
 // Heartbeat extends the cached expiry by Lifetime when UpdateLifetime

@@ -208,6 +208,27 @@ func TestCallRetriesOnSessionInvalid(t *testing.T) {
 	}
 }
 
+// A static credential cannot refresh itself, so an auth failure with a
+// StaticTokenSource is terminal: retrying with identical credentials
+// would only double the failing request against the flood gate.
+func TestCallNoRetryOnAuthFailureWithStaticTokens(t *testing.T) {
+	body := loadFixture(t, "response_failed_no_auth.xml")
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	c := newAPIClient(srv, staticTokens())
+	if _, err := c.Call(context.Background(), "get_accounts", nil); err == nil {
+		t.Fatal("expected auth-failure error")
+	}
+	if calls.Load() != 1 {
+		t.Errorf("server calls = %d, want 1 (no retry with non-refreshable credentials)", calls.Load())
+	}
+}
+
 func TestCallNoRetryOnNonAuthFault(t *testing.T) {
 	body := loadFixture(t, "account/add_account_response_failed_max_account_reached.xml")
 	var calls atomic.Int32
@@ -285,9 +306,10 @@ func (c *countingTokens) Credentials(_ context.Context) (string, string, soap.Au
 	return c.login, c.data, c.typ, nil
 }
 
-func (c *countingTokens) Invalidate() {
+func (c *countingTokens) Invalidate() bool {
 	c.invalidations++
 	c.data = c.refresh
+	return true
 }
 
 // beatingTokens implements TokenSource + Heartbeater to verify the
@@ -302,5 +324,5 @@ type beatingTokens struct {
 func (b *beatingTokens) Credentials(_ context.Context) (string, string, soap.AuthType, error) {
 	return b.login, b.data, b.typ, nil
 }
-func (b *beatingTokens) Invalidate()                 {}
+func (b *beatingTokens) Invalidate() bool            { return true }
 func (b *beatingTokens) Heartbeat(_ context.Context) { b.heartbeats++ }

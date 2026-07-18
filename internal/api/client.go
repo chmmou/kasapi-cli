@@ -25,10 +25,14 @@ const floodFallback = 2 * time.Second
 // Plain auth returns the password as AuthData; session auth returns a
 // short-lived 40-char token. After an authentication failure, Client
 // calls Invalidate so the next Credentials call may obtain a fresh
-// token (e.g. by re-running the KasAuth flow).
+// token (e.g. by re-running the KasAuth flow). Invalidate reports
+// whether that next call can actually produce fresh credentials:
+// a session source discards its cached token and returns true, while a
+// static credential cannot refresh and returns false — Client then
+// skips the pointless retry with identical credentials.
 type TokenSource interface {
 	Credentials(ctx context.Context) (login, authData string, authType soap.AuthType, err error)
-	Invalidate()
+	Invalidate() bool
 }
 
 // Heartbeater is an optional TokenSource extension. After every
@@ -60,8 +64,9 @@ func (s *StaticTokenSource) Credentials(_ context.Context) (string, string, soap
 }
 
 // Invalidate is a no-op for the static source. A static credential
-// cannot refresh itself; an auth failure is therefore terminal.
-func (s *StaticTokenSource) Invalidate() {}
+// cannot refresh itself; an auth failure is therefore terminal and
+// the returned false suppresses the Client's auth-failure retry.
+func (s *StaticTokenSource) Invalidate() bool { return false }
 
 // Client posts KasApi calls through the transport, refreshes session
 // tokens on auth failures, and feeds the server-reported KasFloodDelay
@@ -118,9 +123,12 @@ func (c *Client) Call(ctx context.Context, action string, params map[string]any)
 	c.logger().Info("api: call", "action", action)
 	resp, err := c.callOnce(ctx, action, params)
 	if err != nil && IsAuthFailure(err) {
-		c.logger().Info("api: auth failure, refreshing token and retrying", "action", action)
-		c.Tokens.Invalidate()
-		resp, err = c.callOnce(ctx, action, params)
+		if c.Tokens.Invalidate() {
+			c.logger().Info("api: auth failure, refreshing token and retrying", "action", action)
+			resp, err = c.callOnce(ctx, action, params)
+		} else {
+			c.logger().Info("api: auth failure with non-refreshable credentials, not retrying", "action", action)
+		}
 	}
 	if err == nil {
 		if hb, ok := c.Tokens.(Heartbeater); ok {
