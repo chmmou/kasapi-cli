@@ -575,6 +575,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Whole-codebase re-review follow-up (second pass, Med + Low findings):
+  - Bad user input now consistently exits 1: cobra positional-args
+    failures (e.g. a missing required argument) and an unknown root
+    subcommand were falling through to the API-error exit 2. The
+    command tree wraps every `Args` validator via
+    `cli.MarkArgErrorsAsUserErrors` and the root command classifies
+    unknown subcommands itself.
+  - `transport.Client.Do` no longer blindly retries a 5xx response
+    whose body carries a SOAP fault: the body is passed through to the
+    decoder so the typed-fault path (auth refresh, flood fallback,
+    exit-code classification) applies. Fault-free 5xx bodies stay
+    retryable.
+  - `testutil.AssertFaultFixtures` fails on `want` entries that match
+    no fixture file on disk, so a renamed or deleted fixture cannot
+    leave a dead pin behind; the shared top-level
+    `response_failed_*.xml` set is now anchored by a dedicated test in
+    `internal/api` pinning each fixture to its `api.Code*` constant.
+  - `config.Resolve` with a nil config and `--profile` wraps
+    `ErrUnknownProfile` instead of returning a string-only error.
+  - `session.Store.Load` treats an entry without `expires_at` (only
+    producible by hand-editing sessions.toml) as expired instead of
+    never-expiring.
+  - `cronjobs update` / `ftpusers update` bind their own flag sets
+    instead of sharing the add flags, so `--help` no longer advertises
+    add defaults (`https`, `*`, `default`) or "required for add" texts
+    — matching the database/mailaccount/ddnsuser/mailinglist split.
+  - The `--dry-run` help text says "write command" instead of
+    "destructive command" — the flag covers non-gated `add` writes too.
+  - `testdata/domain/get_topleveldomains_request.xml` carried
+    `kas_action: get_subdomains` (mis-captured copy); corrected to the
+    action the filename and the response fixture encode.
+  - Fixture names aligned with the documented convention:
+    `dns/get_dns_settings_{request,response_success}_zone_host_and_record_id.xml`
+    (variant after kind) and
+    `cronjob/add_cronjob_response_success_warning.xml` (a success
+    variant, not a distinct status).
+  - `internal/{ftpuser,cronjob,mailaccount}/doc.go` no longer name
+    non-existent singular get actions; the stale ftpuser "verify
+    against the live API" note now records the #119 verification
+    result. The `internal/ddns` `in_progress` comment no longer claims
+    fixture backing the captured fixtures do not contain.
+  - Docs refreshed to the shipped state: README status/CI/what-it-does
+    (write slices are live, not "pending"), the destructive-writes
+    prompt example (single line, `permanently delete` verb, stderr
+    note), the audit-trace scope (the `sessions delete` / `config
+    use-profile` session logout is explicitly outside the pipeline),
+    `ROADMAP.md` (`mail lists get`, `<ddns-login>` placeholder), and
+    the CLAUDE.md repository-state paragraph.
+
 - Whole-codebase review follow-up (Low findings):
   - `api.TokenSource.Invalidate` now reports whether the next
     Credentials call can produce fresh credentials; `api.Client` skips
