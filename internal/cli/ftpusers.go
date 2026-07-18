@@ -103,16 +103,19 @@ func newFTPUsersAddCmd(opts *RootOptions) *cobra.Command {
 				return writeSpec{}, fmt.Errorf("--comment is required")
 			}
 			s := f.spec()
+			var createdID string
 			return writeSpec{
 				action:      "add_ftpuser",
 				destructive: false,
 				confirm:     ConfirmAction{Verb: "create", Resource: "ftp user", ID: f.comment},
 				params:      ftpuser.AddParams(s),
+				createdID:   &createdID,
 				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
 					login, derr := ftpuser.NewClient(c).Add(ctx, s)
 					if derr != nil {
 						return "", derr
 					}
+					createdID = login
 					return "created ftp user " + login, nil
 				},
 			}, nil

@@ -2,6 +2,10 @@
 
 Inspect and manage mail standard filters (get/add/delete_mailstandardfilter)
 
+```
+kasapi-cli mail filters [flags]
+```
+
 ### Options
 
 ```

@@ -9,10 +9,10 @@ kasapi-cli sambausers update <samba-login> [password/path flags] [flags]
 ### Options
 
 ```
-      --comment string    user comment / label (required for add)
+      --comment string    replacement user comment / label
   -h, --help              help for update
-      --password string   Samba password (required for add; new password for update)
-      --path string       share path the user is granted (samba_path; required for add)
+      --password string   replacement Samba password (sent as samba_new_password)
+      --path string       replacement share path the user is granted (samba_path)
 ```
 
 ### Options inherited from parent commands

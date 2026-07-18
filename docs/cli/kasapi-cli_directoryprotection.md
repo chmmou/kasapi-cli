@@ -2,6 +2,10 @@
 
 Inspect and manage directory (htaccess) protections (get/add/update/delete_directoryprotection)
 
+```
+kasapi-cli directoryprotection [flags]
+```
+
 ### Options
 
 ```

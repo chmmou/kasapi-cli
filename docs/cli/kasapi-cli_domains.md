@@ -2,6 +2,10 @@
 
 Inspect domains owned by the authenticated account
 
+```
+kasapi-cli domains [flags]
+```
+
 ### Options
 
 ```

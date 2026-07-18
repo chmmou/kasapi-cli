@@ -2,6 +2,10 @@
 
 Inspect mail accounts and filters; inspect and manage forwards and mailing lists
 
+```
+kasapi-cli mail [flags]
+```
+
 ### Options
 
 ```

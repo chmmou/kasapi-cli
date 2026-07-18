@@ -56,7 +56,7 @@ func TestClientList(t *testing.T) {
 
 func TestDecodeSambaUserSingular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "sambauser/get_sambauser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "sambauser/get_sambausers_response_success_single.xml")
 	got, err := sambauser.DecodeSambaUsers(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeSambaUsers: %v", err)
@@ -75,7 +75,7 @@ func TestDecodeSambaUserSingular(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "sambauser/get_sambauser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "sambauser/get_sambausers_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	u, err := sambauser.NewClient(fc).Get(context.Background(), "s0000000")
 	if err != nil {
@@ -123,7 +123,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestSambaUserTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "sambauser/get_sambauser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "sambauser/get_sambausers_response_success_single.xml")
 	list, _ := sambauser.DecodeSambaUsers(resp.Body.ReturnInfo)
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))

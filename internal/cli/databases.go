@@ -108,16 +108,19 @@ access.`,
 				return writeSpec{}, fmt.Errorf("--comment is required")
 			}
 			s := f.spec()
+			var createdID string
 			return writeSpec{
 				action:      "add_database",
 				destructive: false,
 				confirm:     ConfirmAction{Verb: "create", Resource: "database", ID: f.comment},
 				params:      database.AddParams(s),
+				createdID:   &createdID,
 				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
 					login, derr := database.NewClient(c).Add(ctx, s)
 					if derr != nil {
 						return "", derr
 					}
+					createdID = login
 					return "created database " + login, nil
 				},
 			}, nil

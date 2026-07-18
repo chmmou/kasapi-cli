@@ -130,6 +130,70 @@ func TestRootUnknownCommandExitsUserError(t *testing.T) {
 	}
 }
 
+// TestGroupUnknownSubcommandExitsUserError pins the exit-code contract
+// for a typo'd subcommand under a group command: cobra alone treats it
+// as a bare help call and exits 0, so Finalize must reject it as a
+// user error (exit 1).
+func TestGroupUnknownSubcommandExitsUserError(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewMailCmd(opts))
+	cli.Finalize(root)
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{"mail", "frobnicate"})
+	err := root.Execute()
+	if err == nil {
+		t.Fatal("Execute mail frobnicate: want error, got nil")
+	}
+	if cli.CodeFor(err) != cli.ExitUserError {
+		t.Errorf("unknown subcommand should map to ExitUserError, got %d", cli.CodeFor(err))
+	}
+	if !strings.Contains(err.Error(), `unknown command "frobnicate"`) {
+		t.Errorf("error message: %q", err.Error())
+	}
+}
+
+// A bare group invocation stays a help call with exit 0 after Finalize.
+func TestGroupBareInvocationPrintsHelp(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewMailCmd(opts))
+	cli.Finalize(root)
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{"mail"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("Execute mail: %v", err)
+	}
+	if !strings.Contains(out.String(), "accounts") {
+		t.Errorf("group help output missing subcommands:\n%s", out.String())
+	}
+}
+
+// TestCompletionArgErrorsExitUserError pins that the lazily-registered
+// completion command is covered too: Finalize registers it before the
+// walkers run, so its args-validation failures exit 1, not 2.
+func TestCompletionArgErrorsExitUserError(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewDomainsCmd(opts))
+	cli.Finalize(root)
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{"completion", "bash", "extra"})
+	err := root.Execute()
+	if err == nil {
+		t.Fatal("Execute completion bash extra: want error, got nil")
+	}
+	if cli.CodeFor(err) != cli.ExitUserError {
+		t.Errorf("completion args error should map to ExitUserError, got %d", cli.CodeFor(err))
+	}
+}
+
 // TestMarkArgErrorsAsUserErrors pins the exit-code contract for a
 // positional-args validation failure (e.g. a missing required argument
 // on an ExactArgs(1) subcommand) after the cmd/kasapi-cli wiring has

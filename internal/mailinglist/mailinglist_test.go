@@ -43,7 +43,7 @@ func TestDecodeMailingLists(t *testing.T) {
 
 func TestDecodeMailingListSingular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglist_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglists_response_success_single.xml")
 	got, err := mailinglist.DecodeMailingLists(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeMailingLists: %v", err)
@@ -102,7 +102,7 @@ func TestClientListEmpty(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglist_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglists_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	m, err := mailinglist.NewClient(fc).Get(context.Background(), "announce-example-com")
 	if err != nil {
@@ -173,7 +173,7 @@ func TestMailingListListTabular(t *testing.T) {
 
 func TestMailingListSingularTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglist_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailinglist/get_mailinglists_response_success_single.xml")
 	list, _ := mailinglist.DecodeMailingLists(resp.Body.ReturnInfo)
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))

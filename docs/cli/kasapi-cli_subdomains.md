@@ -2,6 +2,10 @@
 
 Inspect subdomains owned by the authenticated account
 
+```
+kasapi-cli subdomains [flags]
+```
+
 ### Options
 
 ```

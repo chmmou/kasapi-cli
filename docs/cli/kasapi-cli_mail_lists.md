@@ -2,6 +2,10 @@
 
 Inspect and manage mailing lists (get/add/update/delete_mailinglist)
 
+```
+kasapi-cli mail lists [flags]
+```
+
 ### Options
 
 ```

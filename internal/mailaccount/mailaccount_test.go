@@ -43,7 +43,7 @@ func TestDecodeMailAccounts(t *testing.T) {
 
 func TestDecodeMailAccountSingular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "mailaccount/get_mailaccount_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailaccount/get_mailaccounts_response_success_single.xml")
 	got, err := mailaccount.DecodeMailAccounts(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeMailAccounts: %v", err)
@@ -84,7 +84,7 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "mailaccount/get_mailaccount_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailaccount/get_mailaccounts_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	a, err := mailaccount.NewClient(fc).Get(context.Background(), "m0000001")
 	if err != nil {
@@ -148,7 +148,7 @@ func TestMailAccountListTabular(t *testing.T) {
 
 func TestMailAccountTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "mailaccount/get_mailaccount_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailaccount/get_mailaccounts_response_success_single.xml")
 	list, _ := mailaccount.DecodeMailAccounts(resp.Body.ReturnInfo)
 	rows := list[0].TableRows()
 	if len(rows) == 0 {

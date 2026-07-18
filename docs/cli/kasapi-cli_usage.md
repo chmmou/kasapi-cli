@@ -2,6 +2,10 @@
 
 Inspect webspace and traffic counters
 
+```
+kasapi-cli usage [flags]
+```
+
 ### Options
 
 ```

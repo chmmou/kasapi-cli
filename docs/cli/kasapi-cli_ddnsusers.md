@@ -2,6 +2,10 @@
 
 Inspect and manage DDNS users (get/add/update/delete_ddnsuser)
 
+```
+kasapi-cli ddnsusers [flags]
+```
+
 ### Options
 
 ```

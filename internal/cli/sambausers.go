@@ -52,13 +52,12 @@ func newSambaUsersGetCmd(opts *RootOptions) *cobra.Command {
 	}
 }
 
-// sambauserWriteFlags binds the shared add_sambauser / update_sambauser
-// request fields to a command. The same flag set serves both: add
-// reads every value, update sends only the flags the user explicitly
-// changed (see sambauserChangedFields). The password flag maps to a
-// different KAS key per action (add_sambauser: samba_password,
-// update_sambauser: samba_new_password) — see spec() and
-// sambauserChangedFields.
+// sambauserWriteFlags binds the add_sambauser request fields to the
+// add command. update uses the disjoint sambauserUpdateFlags below —
+// the same split the cronjob/ftpuser slices use — so update's --help
+// does not describe add requirements. The password flag maps to
+// add_sambauser's samba_password key (update sends
+// samba_new_password) — see spec() and sambauserChangedFields.
 type sambauserWriteFlags struct {
 	password string
 	comment  string
@@ -67,9 +66,9 @@ type sambauserWriteFlags struct {
 
 func (f *sambauserWriteFlags) bind(cmd *cobra.Command) {
 	fl := cmd.Flags()
-	fl.StringVar(&f.password, "password", "", "Samba password (required for add; new password for update)")
-	fl.StringVar(&f.comment, "comment", "", "user comment / label (required for add)")
-	fl.StringVar(&f.path, "path", "", "share path the user is granted (samba_path; required for add)")
+	fl.StringVar(&f.password, "password", "", "Samba password (required)")
+	fl.StringVar(&f.comment, "comment", "", "user comment / label (required)")
+	fl.StringVar(&f.path, "path", "", "share path the user is granted (samba_path; required)")
 }
 
 func (f *sambauserWriteFlags) spec() sambauser.Spec {
@@ -97,16 +96,19 @@ func newSambaUsersAddCmd(opts *RootOptions) *cobra.Command {
 				return writeSpec{}, fmt.Errorf("--path is required")
 			}
 			s := f.spec()
+			var createdID string
 			return writeSpec{
 				action:      "add_sambauser",
 				destructive: false,
 				confirm:     ConfirmAction{Verb: "create", Resource: "samba user", ID: f.comment},
 				params:      sambauser.AddParams(s),
+				createdID:   &createdID,
 				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
 					login, derr := sambauser.NewClient(c).Add(ctx, s)
 					if derr != nil {
 						return "", derr
 					}
+					createdID = login
 					return "created samba user " + login, nil
 				},
 			}, nil
@@ -114,6 +116,23 @@ func newSambaUsersAddCmd(opts *RootOptions) *cobra.Command {
 	}
 	f.bind(cmd)
 	return cmd
+}
+
+// sambauserUpdateFlags binds the update_sambauser mutable surface.
+// Disjoint from sambauserWriteFlags so update's --help describes the
+// flags as replacements instead of add requirements — the same split
+// the cronjob/ftpuser slices use.
+type sambauserUpdateFlags struct {
+	password string
+	comment  string
+	path     string
+}
+
+func (f *sambauserUpdateFlags) bind(cmd *cobra.Command) {
+	fl := cmd.Flags()
+	fl.StringVar(&f.password, "password", "", "replacement Samba password (sent as samba_new_password)")
+	fl.StringVar(&f.comment, "comment", "", "replacement user comment / label")
+	fl.StringVar(&f.path, "path", "", "replacement share path the user is granted (samba_path)")
 }
 
 // sambauserChangedFields collects only the write flags the user
@@ -124,7 +143,7 @@ func newSambaUsersAddCmd(opts *RootOptions) *cobra.Command {
 // ftpuser update uses. The password flag maps to samba_new_password
 // here (update_sambauser's key) rather than the add-only
 // samba_password.
-func sambauserChangedFields(cmd *cobra.Command, f *sambauserWriteFlags) map[string]string {
+func sambauserChangedFields(cmd *cobra.Command, f *sambauserUpdateFlags) map[string]string {
 	fields := map[string]string{}
 	if cmd.Flags().Changed("password") {
 		fields[sambauser.FieldNewPassword] = f.password
@@ -139,7 +158,7 @@ func sambauserChangedFields(cmd *cobra.Command, f *sambauserWriteFlags) map[stri
 }
 
 func newSambaUsersUpdateCmd(opts *RootOptions) *cobra.Command {
-	f := &sambauserWriteFlags{}
+	f := &sambauserUpdateFlags{}
 	cmd := &cobra.Command{
 		Use:   "update <samba-login> [password/path flags]",
 		Short: "Replace mutable fields of a Samba user (update_sambauser)",

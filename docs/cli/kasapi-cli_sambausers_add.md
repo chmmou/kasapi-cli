@@ -9,10 +9,10 @@ kasapi-cli sambausers add --password <pw> --comment <text> --path <p> [flags]
 ### Options
 
 ```
-      --comment string    user comment / label (required for add)
+      --comment string    user comment / label (required)
   -h, --help              help for add
-      --password string   Samba password (required for add; new password for update)
-      --path string       share path the user is granted (samba_path; required for add)
+      --password string   Samba password (required)
+      --path string       share path the user is granted (samba_path; required)
 ```
 
 ### Options inherited from parent commands

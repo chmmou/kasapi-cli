@@ -142,6 +142,42 @@ func TestCallReturnsTypedFault(t *testing.T) {
 	}
 }
 
+// TestCallReturnsTypedFaultOnHTTP500 pins the end-to-end contract
+// behind the transport 5xx fault pass-through: a KAS fault delivered
+// with HTTP 500 (PHP SOAP servers do this) must reach the decoder and
+// surface as the same typed *api.Error a 200-wrapped fault produces,
+// instead of being burned in blind transport retries.
+func TestCallReturnsTypedFaultOnHTTP500(t *testing.T) {
+	body := loadFixture(t, "account/add_account_response_failed_max_account_reached.xml")
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	tr := transport.New()
+	tr.HTTPClient = srv.Client()
+	tr.MaxRetries = 2
+	tr.Now = time.Now
+	tr.Sleep = func(_ context.Context, _ time.Duration) error { return nil }
+	c := api.New(tr, staticTokens())
+	c.Endpoint = srv.URL
+
+	_, err := c.Call(context.Background(), "add_account", nil)
+	apiErr := api.AsError(err)
+	if apiErr == nil {
+		t.Fatalf("expected *api.Error, got %T: %v", err, err)
+	}
+	if apiErr.Code != "max_account_reached" {
+		t.Errorf("Code = %q, want max_account_reached", apiErr.Code)
+	}
+	if calls.Load() != 1 {
+		t.Errorf("calls = %d, want 1 (500-wrapped fault must not be retried)", calls.Load())
+	}
+}
+
 func TestCallRetriesOnAuthFailure(t *testing.T) {
 	authBody := loadFixture(t, "response_failed_no_auth.xml")
 	okBody := loadFixture(t, "account/get_accounts_response_success.xml")

@@ -8,6 +8,10 @@ Generate the autocompletion script for kasapi-cli for the specified shell.
 See each sub-command's help for details on how to use the generated script.
 
 
+```
+kasapi-cli completion [flags]
+```
+
 ### Options
 
 ```

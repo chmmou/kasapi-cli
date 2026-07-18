@@ -88,6 +88,14 @@ type writeSpec struct {
 	confirm     ConfirmAction
 	params      map[string]any
 	dispatch    func(c *api.Client, ctx context.Context) (string, error)
+
+	// createdID, when non-nil, points at a variable the dispatch closure
+	// fills with the server-generated identifier of a create action
+	// (add_ftpuser, add_database, ...). A non-empty value is added to
+	// the success audit record's Fields under "created_id" so the trace
+	// correlates the create with the identifier later update/delete
+	// records carry as their Target. Nil for every other action.
+	createdID *string
 }
 
 // runWriteE is the write-subcommand counterpart of runListE/runGetE and
@@ -171,6 +179,12 @@ func runWriteE(opts *RootOptions, build func(args []string) (writeSpec, error)) 
 			Outcome: OutcomeFor(derr),
 			Fields:  RedactParams(spec.params),
 		}
+		if derr == nil && spec.createdID != nil && *spec.createdID != "" {
+			if rec.Fields == nil {
+				rec.Fields = map[string]string{}
+			}
+			rec.Fields["created_id"] = *spec.createdID
+		}
 		werr := WriteAudit(stderr, auditFile, rec)
 		if derr != nil {
 			// The dispatch outcome outranks an audit-write failure: a KAS
@@ -199,14 +213,17 @@ func runWriteE(opts *RootOptions, build func(args []string) (writeSpec, error)) 
 
 // refusalOutcome maps a WriteResolver refusal error to its audit
 // outcome: "declined" for an interactive no, "refused" for the
-// non-TTY-without---yes abort. Any other error (or nil, the --dry-run
-// case, which writes its own record) yields "" — no record.
+// non-TTY-without---yes abort, "aborted" for a prompt I/O failure.
+// Any other error (or nil, the --dry-run case, which writes its own
+// record) yields "" — no record.
 func refusalOutcome(err error) string {
 	switch {
 	case errors.Is(err, ErrConfirmationDeclined):
 		return AuditOutcomeDeclined
 	case errors.Is(err, ErrConfirmationRequired):
 		return AuditOutcomeRefused
+	case errors.Is(err, ErrConfirmationAborted):
+		return AuditOutcomeAborted
 	default:
 		return ""
 	}

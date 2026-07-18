@@ -37,7 +37,7 @@ func TestDecodeMailForwards(t *testing.T) {
 
 func TestDecodeMailForwardSingular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "mailforward/get_mailforward_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailforward/get_mailforwards_response_success_single.xml")
 	got, err := mailforward.DecodeMailForwards(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeMailForwards: %v", err)
@@ -71,7 +71,7 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "mailforward/get_mailforward_response_success.xml")
+	resp := testutil.DecodeFixture(t, "mailforward/get_mailforwards_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	f, err := mailforward.NewClient(fc).Get(context.Background(), "from@example.de")
 	if err != nil {

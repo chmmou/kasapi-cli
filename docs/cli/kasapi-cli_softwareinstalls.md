@@ -2,6 +2,10 @@
 
 Inspect installable software templates (get_softwareinstall)
 
+```
+kasapi-cli softwareinstalls [flags]
+```
+
 ### Options
 
 ```

@@ -2,6 +2,10 @@
 
 Inspect and bootstrap the kasapi-cli configuration
 
+```
+kasapi-cli config [flags]
+```
+
 ### Options
 
 ```

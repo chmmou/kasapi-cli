@@ -2,6 +2,10 @@
 
 Inspect and manage mail forwards (get/add/update/delete_mailforward)
 
+```
+kasapi-cli mail forwards [flags]
+```
+
 ### Options
 
 ```

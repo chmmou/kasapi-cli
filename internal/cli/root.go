@@ -67,16 +67,7 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 		// rejection, but as a UserError so `kasapi-cli nonsense` exits 1
 		// (bad user input) instead of falling through CodeFor to the
 		// API-error exit 2.
-		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return nil
-			}
-			msg := fmt.Sprintf("unknown command %q for %q", args[0], cmd.CommandPath())
-			if s := cmd.SuggestionsFor(args[0]); len(s) > 0 {
-				msg += fmt.Sprintf("\n\nDid you mean this?\n\t%s\n", strings.Join(s, "\n\t"))
-			}
-			return UserError(errors.New(msg), "")
-		},
+		Args: unknownSubcommandArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return cmd.Help()
 		},
@@ -128,6 +119,51 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 
 func joinFormats() string {
 	return strings.Join(formatNames, "|")
+}
+
+// unknownSubcommandArgs is the positional-args validator shared by the
+// root command and every group command: any positional argument is a
+// subcommand name that did not resolve, so it is rejected as a
+// UserError (exit 1) with cobra's own "Did you mean this?" suggestions.
+func unknownSubcommandArgs(cmd *cobra.Command, args []string) error {
+	if len(args) == 0 {
+		return nil
+	}
+	msg := fmt.Sprintf("unknown command %q for %q", args[0], cmd.CommandPath())
+	if s := cmd.SuggestionsFor(args[0]); len(s) > 0 {
+		msg += fmt.Sprintf("\n\nDid you mean this?\n\t%s\n", strings.Join(s, "\n\t"))
+	}
+	return UserError(errors.New(msg), "")
+}
+
+// Finalize prepares the fully-assembled command tree for Execute. It
+// registers cobra's lazily-added completion command up front (so the
+// walkers below see it), rejects unknown subcommands on group commands,
+// and marks args-validation failures as user errors. Lives in cli, not
+// cmd/kasapi-cli, so tests exercise exactly the wiring the binary runs.
+func Finalize(root *cobra.Command) {
+	root.InitDefaultCompletionCmd()
+	RejectUnknownSubcommands(root)
+	MarkArgErrorsAsUserErrors(root)
+}
+
+// RejectUnknownSubcommands walks the command tree and gives every
+// non-runnable group command (mail, accounts, config, ...) an explicit
+// unknown-subcommand rejection. Without it cobra treats a group invoked
+// with an unresolved name as a bare help call and exits 0 — a typo'd
+// subcommand would read as success to scripts (cobra's legacyArgs only
+// rejects unknown names at the root). A bare group invocation keeps
+// printing help and exiting 0, matching the root command's behaviour.
+func RejectUnknownSubcommands(cmd *cobra.Command) {
+	if cmd.HasSubCommands() && !cmd.Runnable() {
+		cmd.Args = unknownSubcommandArgs
+		cmd.RunE = func(c *cobra.Command, _ []string) error {
+			return c.Help()
+		}
+	}
+	for _, sub := range cmd.Commands() {
+		RejectUnknownSubcommands(sub)
+	}
 }
 
 // MarkArgErrorsAsUserErrors walks the command tree and wraps every

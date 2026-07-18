@@ -2,6 +2,10 @@
 
 Inspect and manage cronjobs (get/add/update/delete_cronjob)
 
+```
+kasapi-cli cronjobs [flags]
+```
+
 ### Options
 
 ```

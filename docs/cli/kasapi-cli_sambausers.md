@@ -2,6 +2,10 @@
 
 Inspect and manage Samba/CIFS users (get/add/update/delete_sambauser)
 
+```
+kasapi-cli sambausers [flags]
+```
+
 ### Options
 
 ```

@@ -2,6 +2,10 @@
 
 Inspect the catalog of registrable top-level domains
 
+```
+kasapi-cli tlds [flags]
+```
+
 ### Options
 
 ```

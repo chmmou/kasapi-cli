@@ -62,16 +62,19 @@ func newMailListsAddCmd(opts *RootOptions) *cobra.Command {
 			if password == "" {
 				return writeSpec{}, fmt.Errorf("--password is required")
 			}
+			var createdID string
 			return writeSpec{
 				action:      "add_mailinglist",
 				destructive: false,
 				confirm:     ConfirmAction{Verb: "create", Resource: "mailing list", ID: name},
 				params:      mailinglist.AddParams(name, domain, password),
+				createdID:   &createdID,
 				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
 					id, derr := mailinglist.NewClient(c).Add(ctx, name, domain, password)
 					if derr != nil {
 						return "", derr
 					}
+					createdID = id
 					return "created mailing list " + id, nil
 				},
 			}, nil
@@ -411,16 +414,19 @@ complete create; override any field with its flag.`,
 				return writeSpec{}, fmt.Errorf("--password is required")
 			}
 			s := f.spec(local, domain)
+			var createdID string
 			return writeSpec{
 				action:      "add_mailaccount",
 				destructive: false,
 				confirm:     ConfirmAction{Verb: "create", Resource: "mail account", ID: args[0]},
 				params:      mailaccount.AddParams(s),
+				createdID:   &createdID,
 				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
 					login, derr := mailaccount.NewClient(c).Add(ctx, s)
 					if derr != nil {
 						return "", derr
 					}
+					createdID = login
 					return "created mail account " + login, nil
 				},
 			}, nil
@@ -619,16 +625,19 @@ func newMailForwardsAddCmd(opts *RootOptions) *cobra.Command {
 			if len(targets) == 0 {
 				return writeSpec{}, fmt.Errorf("at least one --target is required")
 			}
+			var createdID string
 			return writeSpec{
 				action:      "add_mailforward",
 				destructive: false,
 				confirm:     ConfirmAction{Verb: "create", Resource: "mail forward", ID: args[0]},
 				params:      mailforward.AddParams(local, domain, targets),
+				createdID:   &createdID,
 				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
 					addr, derr := mailforward.NewClient(c).Add(ctx, local, domain, targets)
 					if derr != nil {
 						return "", derr
 					}
+					createdID = addr
 					return "created mail forward " + addr, nil
 				},
 			}, nil

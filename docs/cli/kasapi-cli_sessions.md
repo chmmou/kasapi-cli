@@ -8,6 +8,10 @@ Manage KAS session tokens.
 
 add_session is not a separate endpoint — it is the KasAuth credential-token flow driven transparently by auth_type=session (see `config init`). Only delete_session is exposed here, as the explicit counterpart to the implicit logout in `config use-profile`.
 
+```
+kasapi-cli sessions [flags]
+```
+
 ### Options
 
 ```

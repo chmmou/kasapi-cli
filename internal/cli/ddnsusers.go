@@ -130,16 +130,19 @@ flag) so the follow-up update can set both ipv4 and ipv6 targets — see
 				return writeSpec{}, fmt.Errorf("--comment is required")
 			}
 			s := f.spec()
+			var createdID string
 			return writeSpec{
 				action:      "add_ddnsuser",
 				destructive: false,
 				confirm:     ConfirmAction{Verb: "create", Resource: "ddns user", ID: f.comment},
 				params:      ddns.AddParams(s),
+				createdID:   &createdID,
 				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
 					login, derr := ddns.NewClient(c).Add(ctx, s)
 					if derr != nil {
 						return "", derr
 					}
+					createdID = login
 					return "created ddns user " + login, nil
 				},
 			}, nil

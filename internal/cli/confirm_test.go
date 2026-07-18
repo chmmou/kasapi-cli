@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"testing/iotest"
 
 	"github.com/chmmou/kasapi-cli/internal/cli"
 )
@@ -82,5 +83,21 @@ func TestGateDestructive(t *testing.T) {
 				t.Errorf("prompt shown = %v, want %v; out=%q", hasPrompt, tt.wantPrompt, out.String())
 			}
 		})
+	}
+}
+
+// A prompt I/O failure (neither a yes nor a no was read) is an aborted
+// attempt: ErrConfirmationAborted, exit 1, so the write runner can
+// audit it as outcome=aborted.
+func TestGateDestructiveAbortsOnPromptIOError(t *testing.T) {
+	t.Parallel()
+	var out bytes.Buffer
+	action := cli.ConfirmAction{Verb: "delete", Resource: "mail account", ID: "m0000001"}
+	err := cli.GateDestructive(iotest.ErrReader(errors.New("tty gone")), &out, true, false, action)
+	if !errors.Is(err, cli.ErrConfirmationAborted) {
+		t.Errorf("err = %v, want wrapped ErrConfirmationAborted", err)
+	}
+	if got := cli.CodeFor(err); got != cli.ExitUserError {
+		t.Errorf("CodeFor = %d, want ExitUserError (%d)", got, cli.ExitUserError)
 	}
 }

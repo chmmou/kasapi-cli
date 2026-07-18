@@ -2,6 +2,10 @@
 
 Inspect and manage FTP users (get/add/update/delete_ftpuser)
 
+```
+kasapi-cli ftpusers [flags]
+```
+
 ### Options
 
 ```

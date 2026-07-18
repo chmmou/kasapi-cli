@@ -133,16 +133,19 @@ func newCronjobsAddCmd(opts *RootOptions) *cobra.Command {
 				return writeSpec{}, fmt.Errorf("--minute and --hour are required")
 			}
 			s := f.spec()
+			var createdID string
 			return writeSpec{
 				action:      "add_cronjob",
 				destructive: false,
 				confirm:     ConfirmAction{Verb: "create", Resource: "cronjob", ID: f.comment},
 				params:      cronjob.AddParams(s),
+				createdID:   &createdID,
 				dispatch: func(c *api.Client, ctx context.Context) (string, error) {
 					id, derr := cronjob.NewClient(c).Add(ctx, s)
 					if derr != nil {
 						return "", derr
 					}
+					createdID = id
 					return "created cronjob " + id, nil
 				},
 			}, nil

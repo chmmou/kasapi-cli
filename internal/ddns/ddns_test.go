@@ -53,7 +53,7 @@ func TestDecodeDDNSUsers(t *testing.T) {
 
 func TestDecodeDDNSUserSingular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "ddns/get_ddnsuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ddns/get_ddnsusers_response_success_single.xml")
 	got, err := ddns.DecodeDDNSUsers(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDDNSUsers: %v", err)
@@ -121,7 +121,7 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "ddns/get_ddnsuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ddns/get_ddnsusers_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	u, err := ddns.NewClient(fc).Get(context.Background(), "dyn0000002")
 	if err != nil {
@@ -160,7 +160,7 @@ func TestClientGetEmptyLogin(t *testing.T) {
 // array stripped down to zero entries.
 func TestClientGetNotFound(t *testing.T) {
 	t.Parallel()
-	emptyResp := testutil.DecodeFixture(t, "ddns/get_ddnsuser_response_success.xml")
+	emptyResp := testutil.DecodeFixture(t, "ddns/get_ddnsusers_response_success_single.xml")
 	emptyResp.Body.ReturnInfo.Array = nil
 	c := ddns.NewClient(&testutil.FakeCaller{Resp: emptyResp})
 	_, err := c.Get(context.Background(), "ghost")
@@ -206,7 +206,7 @@ func TestDDNSUserListTabular(t *testing.T) {
 
 func TestDDNSUserTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "ddns/get_ddnsuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ddns/get_ddnsusers_response_success_single.xml")
 	list, _ := ddns.DecodeDDNSUsers(resp.Body.ReturnInfo)
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))

@@ -41,7 +41,7 @@ func TestDecodeFTPUsers(t *testing.T) {
 
 func TestDecodeFTPUserSingular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpusers_response_success_single.xml")
 	got, err := ftpuser.DecodeFTPUsers(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeFTPUsers: %v", err)
@@ -68,7 +68,7 @@ func TestDecodeFTPUserSingular(t *testing.T) {
 
 func TestDecodeFTPUsersEmptyList(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success_empty_list.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpusers_response_success_empty_list.xml")
 	got, err := ftpuser.DecodeFTPUsers(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeFTPUsers: %v", err)
@@ -99,7 +99,7 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpusers_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	u, err := ftpuser.NewClient(fc).Get(context.Background(), "f0000001")
 	if err != nil {
@@ -126,7 +126,7 @@ func TestClientGetEmptyLogin(t *testing.T) {
 
 func TestClientGetNotFound(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success_empty_list.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpusers_response_success_empty_list.xml")
 	c := ftpuser.NewClient(&testutil.FakeCaller{Resp: resp})
 	if _, err := c.Get(context.Background(), "missing"); err == nil {
 		t.Errorf("Get on empty result err = nil, want not-found")
@@ -164,7 +164,7 @@ func TestFTPUserListTabular(t *testing.T) {
 
 func TestFTPUserTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpuser_response_success.xml")
+	resp := testutil.DecodeFixture(t, "ftpuser/get_ftpusers_response_success_single.xml")
 	list, _ := ftpuser.DecodeFTPUsers(resp.Body.ReturnInfo)
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))

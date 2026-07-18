@@ -2,6 +2,10 @@
 
 Inspect the host server kasapi-cli is talking to
 
+```
+kasapi-cli server [flags]
+```
+
 ### Options
 
 ```

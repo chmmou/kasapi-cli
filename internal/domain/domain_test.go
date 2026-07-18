@@ -44,7 +44,7 @@ func TestDecodeDomains(t *testing.T) {
 
 func TestDecodeDomainSingular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "domain/get_domain_response_success.xml")
+	resp := testutil.DecodeFixture(t, "domain/get_domains_response_success_single.xml")
 	got, err := domain.DecodeDomains(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDomains: %v", err)
@@ -126,7 +126,7 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "domain/get_domain_response_success.xml")
+	resp := testutil.DecodeFixture(t, "domain/get_domains_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	d, err := domain.NewClient(fc).Get(context.Background(), "example.com")
 	if err != nil {
@@ -221,7 +221,7 @@ func TestTLDListTabular(t *testing.T) {
 
 func TestDomainTabularSummarisesPEM(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "domain/get_domain_response_success.xml")
+	resp := testutil.DecodeFixture(t, "domain/get_domains_response_success_single.xml")
 	list, _ := domain.DecodeDomains(resp.Body.ReturnInfo)
 	rows := list[0].TableRows()
 	for _, row := range rows {

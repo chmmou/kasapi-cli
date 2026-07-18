@@ -2,6 +2,10 @@
 
 Inspect DNS records for a zone
 
+```
+kasapi-cli dns [flags]
+```
+
 ### Options
 
 ```

@@ -33,15 +33,17 @@ type AuditRecord struct {
 // from a real success or failure.
 const AuditOutcomeDryRun = "dry-run"
 
-// AuditOutcomeDeclined and AuditOutcomeRefused are the Outcome values
-// for destructive attempts that never dispatched: "declined" when the
-// user answered the [y/N] prompt with no, "refused" when stdin was not
-// a TTY and --yes was not given. Auditing the attempt keeps the trace
-// complete — a blocked destructive action is still an action someone
-// tried to run.
+// AuditOutcomeDeclined, AuditOutcomeRefused and AuditOutcomeAborted are
+// the Outcome values for destructive attempts that never dispatched:
+// "declined" when the user answered the [y/N] prompt with no, "refused"
+// when stdin was not a TTY and --yes was not given, "aborted" when the
+// interactive prompt failed with an I/O error before an answer was
+// read. Auditing the attempt keeps the trace complete — a blocked
+// destructive action is still an action someone tried to run.
 const (
 	AuditOutcomeDeclined = "declined"
 	AuditOutcomeRefused  = "refused"
+	AuditOutcomeAborted  = "aborted"
 )
 
 // OutcomeFor maps a write call's error to the audit outcome string:

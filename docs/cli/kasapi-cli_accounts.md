@@ -2,6 +2,10 @@
 
 Inspect KAS accounts owned by the authenticated login
 
+```
+kasapi-cli accounts [flags]
+```
+
 ### Options
 
 ```

@@ -60,7 +60,7 @@ func TestDecodeCronjobs(t *testing.T) {
 
 func TestDecodeCronjobSingular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "cronjob/get_cronjob_response_success.xml")
+	resp := testutil.DecodeFixture(t, "cronjob/get_cronjobs_response_success_single.xml")
 	got, err := cronjob.DecodeCronjobs(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeCronjobs: %v", err)
@@ -135,7 +135,7 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "cronjob/get_cronjob_response_success.xml")
+	resp := testutil.DecodeFixture(t, "cronjob/get_cronjobs_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	c, err := cronjob.NewClient(fc).Get(context.Background(), "325208")
 	if err != nil {
@@ -206,7 +206,7 @@ func TestCronjobListTabular(t *testing.T) {
 
 func TestCronjobTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "cronjob/get_cronjob_response_success.xml")
+	resp := testutil.DecodeFixture(t, "cronjob/get_cronjobs_response_success_single.xml")
 	list, _ := cronjob.DecodeCronjobs(resp.Body.ReturnInfo)
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))

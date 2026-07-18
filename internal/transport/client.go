@@ -199,10 +199,14 @@ func (c *Client) doOnce(ctx context.Context, endpoint string, body []byte) ([]by
 		// a body must reach the decoder so the typed-fault path (auth
 		// refresh, flood fallback, exit-code classification) applies
 		// instead of three blind retries that discard the fault. The
-		// sniff matches any namespace prefix (SOAP-ENV:Fault, soap:Fault);
-		// only fault-free 5xx bodies (gateway/proxy errors) stay
-		// retryable.
-		if bytes.Contains(respBody, []byte(":Fault")) {
+		// sniff matches the Fault element with any namespace prefix
+		// (SOAP-ENV:Fault, soap:Fault) and the prefix-less
+		// default-namespace form. It is a byte-level heuristic: a
+		// non-SOAP 5xx body that happens to contain a marker is handed
+		// to the decoder and fails there as a non-retryable decode error
+		// — accepted, because real gateway/proxy error pages carry
+		// neither marker and so stay retryable.
+		if bytes.Contains(respBody, []byte(":Fault")) || bytes.Contains(respBody, []byte("<Fault")) {
 			return respBody, nil
 		}
 		return nil, &retryableError{err: fmt.Errorf("transport: %s returned %s", endpoint, resp.Status)}

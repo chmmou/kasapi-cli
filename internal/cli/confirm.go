@@ -56,6 +56,13 @@ var ErrConfirmationDeclined = errors.New("cli: destructive operation cancelled b
 // interactively or pass --yes to proceed non-interactively.
 var ErrConfirmationRequired = errors.New("cli: refusing destructive operation: stdin is not a TTY and --yes was not given")
 
+// ErrConfirmationAborted is returned by GateDestructive when the
+// interactive [y/N] prompt failed with an I/O error before an answer
+// was read. Like a decline it means the destructive attempt never
+// dispatched, so the write runner still records it in the audit trace
+// (outcome "aborted").
+var ErrConfirmationAborted = errors.New("cli: destructive operation aborted: confirmation prompt failed")
+
 // ConfirmAction is the one-line description of a pending destructive
 // change, shown to the user before the [y/N] prompt: "About to <Verb>
 // <Resource> \"<ID>\". This cannot be undone."
@@ -93,7 +100,7 @@ func GateDestructive(in io.Reader, out io.Writer, isTTY, yes bool, a ConfirmActi
 	}
 	ok, err := Confirm(in, out, a.Summary())
 	if err != nil {
-		return UserError(err, "confirm")
+		return UserError(fmt.Errorf("%w: %w", ErrConfirmationAborted, err), "")
 	}
 	if !ok {
 		return UserError(ErrConfirmationDeclined, "")

@@ -2,6 +2,10 @@
 
 Inspect and manage databases (get/add/update/delete_database)
 
+```
+kasapi-cli databases [flags]
+```
+
 ### Options
 
 ```

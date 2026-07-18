@@ -2,6 +2,10 @@
 
 Inspect and manage mail accounts (get/add/update/delete_mailaccount)
 
+```
+kasapi-cli mail accounts [flags]
+```
+
 ### Options
 
 ```
