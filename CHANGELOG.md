@@ -7,6 +7,112 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Directory protection write endpoints (#123, #13 write slice):
+  `kasapi-cli directoryprotection add <path> <user> --password <pw>
+  [--authname <name>]`, `… update <path> <user> [--password <pw>]
+  [--authname <name>]` and `… delete <path> <user>` wire
+  `add_directoryprotection` / `update_directoryprotection` /
+  `delete_directoryprotection`. A protection entry is identified by the
+  `(path, user)` pair taken as two positional arguments (a single path
+  can protect several users). `update` and `delete` are gated by the
+  #109 confirmation prompt — `update` replaces the access password (the
+  previous one is unrecoverable) and `delete` revokes access, so both
+  can lock users out; `add` is reversible and not prompted. All three
+  honour `--dry-run` (#132) and emit a #131 audit record;
+  `directory_password` is redacted in both sinks. There is **no**
+  `_new_password` split — `update` sends the replacement under the same
+  `directory_password` key `add` uses — and `update` sends only the
+  explicitly-changed `--password`/`--authname` (keyed on cobra
+  `Changed`), so an omitted password keeps the current one. KAS also
+  accepts parallel `directory_user`/`directory_password` arrays to
+  create several protected users in one call (hence the
+  `directory_user_count_neq_passcount` fault); the captured request
+  fixtures only exercise the scalar single-user form, and the array
+  wire-encoding is not captured, so this slice deliberately models one
+  `(path, user)` protection per call rather than inventing the array
+  shape.
+
+- Mail standard filter write endpoints (#116, #13 write slice):
+  `kasapi-cli mail filters add <mail-login> --filter <item> [--filter
+  <item>...]` and `… delete <mail-login>` wire
+  `add_mailstandardfilter` / `delete_mailstandardfilter`. Both are
+  gated by the #109 confirmation prompt: the KAS API has no
+  `update_mailstandardfilter` action, so `add` *replaces* the configured
+  filter chain wholesale (items previously set but missing from the new
+  `--filter` list are dropped), which is destructive to recover from
+  without a stored copy. Both honour `--dry-run` (#132) and emit a #131
+  audit record. Repeatable `--filter` items are joined with `;` on the
+  wire (the format the captured `add_mailstandardfilter` request
+  fixture uses); each item is either a bare filter id (e.g. `pdw`) or
+  `<filter-id>:<option>=<value>` (e.g. `spamc_move:move=Spam`). Items
+  must be non-empty and must not contain `;` themselves. `delete` takes
+  only `<mail-login>` and removes the whole chain in one shot — the KAS
+  API exposes no per-item delete — so its prompt verb is "remove all
+  standard filters of mail account" rather than the bare "delete" used
+  elsewhere, to make the all-at-once effect explicit. **Known API
+  quirk**: `delete_mailstandardfilter` sometimes surfaces an
+  envelope-level SOAP fault (an internal `sizeof()` PHP error) even
+  when the chain was in fact removed on the server; the fault is
+  surfaced verbatim, and `docs/usage/destructive-writes.md` documents
+  the verification path (`mail accounts get <login>` → `mail_spamfilter`).
+
+- A new shared envelope-level fault fixture
+  `testdata/response_failed_internal_server_error.xml` captures the
+  generic PHP `sizeof()` runtime error wrapped in a SOAP-ENV:Server
+  fault. It is exercised by the soap fixture walker and by
+  `mailfilter.Client.Delete`'s "fault surfaced verbatim" test.
+
+- Mail account write endpoints (#114, #13 write slice):
+  `kasapi-cli mail accounts add <address> --password <pw> [field flags]`,
+  `… update <mail-login> [field flags]` and
+  `… delete <mail-login>` wire `add_mailaccount` / `update_mailaccount`
+  / `delete_mailaccount`. `update` and `delete` are gated by the #109
+  confirmation prompt; `add` is reversible and not prompted. All three
+  honour `--dry-run` (#132) and emit a #131 audit record; the password
+  is redacted in both. `add` splits the address on the last `@` into
+  the `local_part` / `domain_part` KAS expects and takes no
+  `mail_login` — KAS generates the login (e.g. `m0000001`) and echoes
+  it in `ReturnInfo`, which the command prints. The Y/N/text toggles
+  and XLIST folder names default to the KAS API's own defaults, so a
+  bare `add <address> --password <pw>` is a complete create. `update`
+  sends only the explicitly-set flags (keyed on cobra `Changed`), adds
+  the `--active` (`is_active`) toggle, and its `--password` maps to
+  `mail_new_password` (the `_new_password` split the
+  database/ftpuser/sambauser slices carry) rather than the add-only
+  `mail_password`. `responder` is passed through verbatim ("N", "Y" or
+  a `<start>|<end>` timestamp range). `delete_mailaccount`'s prompt
+  uses the louder verb "permanently delete" — it drops the mailbox and
+  every message in it (the same data-loss emphasis as
+  `delete_database`).
+
+- `database.InProgressFalse` / `database.InProgressTrue` package
+  constants for the literal `"FALSE"` / `"TRUE"` strings the KAS API
+  uses to encode the async-write flag, so mapping code and tests
+  share one source of truth rather than re-typing literals.
+
+- Database write endpoints (#122, #13 write slice):
+  `kasapi-cli databases add --password <pw> --comment <text>
+  --allowed-hosts <hosts>`,
+  `… update <database-login> [flags]` and
+  `… delete <database-login>` wire `add_database` /
+  `update_database` / `delete_database`. `update` and `delete` are
+  gated by the #109 confirmation prompt; `add` is reversible and not
+  prompted. All three honour `--dry-run` (#132) and emit a #131 audit
+  record; the password is redacted in both. `update` sends only the
+  explicitly-set flags (keyed on cobra `Changed`), so an empty value
+  is a deliberate "clear". `add_database` takes no `database_login`
+  — KAS generates it (the login equals the database name on creation,
+  e.g. `d0123460`) and echoes it in `ReturnInfo`, which the command
+  prints. The password key is split between actions: `--password`
+  maps to `database_password` on `add` and to `database_new_password`
+  on `update` (the same `_new_password` split the ftpuser/sambauser
+  slices carry). `delete_database`'s confirmation prompt uses the
+  louder verb "permanently delete" because the action drops the
+  database and every row it contains — the loudest data-loss surface
+  of the v0.2.0 write phase.
+
 ### Changed
 
 - `testdata/cronjob/{add_cronjob_response_success,add_cronjob_response_warning,update_cronjob_response_success}.xml`
@@ -127,124 +233,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   working. No behaviour change; the wrapped error message is now uniform
   (`kaswrite: …`).
 
-### Fixed
-
-- `dns list` now exposes the documented optional `record_id` filter
-  instead of a non-existent `nameserver` parameter: the flag is renamed
-  `--nameserver` → `--record-id` and the wire parameter
-  `nameserver` → `record_id`, matching the KAS `get_dns_settings`
-  contract (`zone_host` required, `record_id` optional) and the captured
-  request fixtures. `nameserver` is a real KAS key, but for
-  `reset_dns_settings`, not `get_dns_settings`; the read slice had
-  carried it over by mistake.
-
-### Added
-
-- Directory protection write endpoints (#123, #13 write slice):
-  `kasapi-cli directoryprotection add <path> <user> --password <pw>
-  [--authname <name>]`, `… update <path> <user> [--password <pw>]
-  [--authname <name>]` and `… delete <path> <user>` wire
-  `add_directoryprotection` / `update_directoryprotection` /
-  `delete_directoryprotection`. A protection entry is identified by the
-  `(path, user)` pair taken as two positional arguments (a single path
-  can protect several users). `update` and `delete` are gated by the
-  #109 confirmation prompt — `update` replaces the access password (the
-  previous one is unrecoverable) and `delete` revokes access, so both
-  can lock users out; `add` is reversible and not prompted. All three
-  honour `--dry-run` (#132) and emit a #131 audit record;
-  `directory_password` is redacted in both sinks. There is **no**
-  `_new_password` split — `update` sends the replacement under the same
-  `directory_password` key `add` uses — and `update` sends only the
-  explicitly-changed `--password`/`--authname` (keyed on cobra
-  `Changed`), so an omitted password keeps the current one. KAS also
-  accepts parallel `directory_user`/`directory_password` arrays to
-  create several protected users in one call (hence the
-  `directory_user_count_neq_passcount` fault); the captured request
-  fixtures only exercise the scalar single-user form, and the array
-  wire-encoding is not captured, so this slice deliberately models one
-  `(path, user)` protection per call rather than inventing the array
-  shape.
-
-- Mail standard filter write endpoints (#116, #13 write slice):
-  `kasapi-cli mail filters add <mail-login> --filter <item> [--filter
-  <item>...]` and `… delete <mail-login>` wire
-  `add_mailstandardfilter` / `delete_mailstandardfilter`. Both are
-  gated by the #109 confirmation prompt: the KAS API has no
-  `update_mailstandardfilter` action, so `add` *replaces* the configured
-  filter chain wholesale (items previously set but missing from the new
-  `--filter` list are dropped), which is destructive to recover from
-  without a stored copy. Both honour `--dry-run` (#132) and emit a #131
-  audit record. Repeatable `--filter` items are joined with `;` on the
-  wire (the format the captured `add_mailstandardfilter` request
-  fixture uses); each item is either a bare filter id (e.g. `pdw`) or
-  `<filter-id>:<option>=<value>` (e.g. `spamc_move:move=Spam`). Items
-  must be non-empty and must not contain `;` themselves. `delete` takes
-  only `<mail-login>` and removes the whole chain in one shot — the KAS
-  API exposes no per-item delete — so its prompt verb is "remove all
-  standard filters of mail account" rather than the bare "delete" used
-  elsewhere, to make the all-at-once effect explicit. **Known API
-  quirk**: `delete_mailstandardfilter` sometimes surfaces an
-  envelope-level SOAP fault (an internal `sizeof()` PHP error) even
-  when the chain was in fact removed on the server; the fault is
-  surfaced verbatim, and `docs/usage/destructive-writes.md` documents
-  the verification path (`mail accounts get <login>` → `mail_spamfilter`).
-
-- A new shared envelope-level fault fixture
-  `testdata/response_failed_internal_server_error.xml` captures the
-  generic PHP `sizeof()` runtime error wrapped in a SOAP-ENV:Server
-  fault. It is exercised by the soap fixture walker and by
-  `mailfilter.Client.Delete`'s "fault surfaced verbatim" test.
-
-- Mail account write endpoints (#114, #13 write slice):
-  `kasapi-cli mail accounts add <address> --password <pw> [field flags]`,
-  `… update <mail-login> [field flags]` and
-  `… delete <mail-login>` wire `add_mailaccount` / `update_mailaccount`
-  / `delete_mailaccount`. `update` and `delete` are gated by the #109
-  confirmation prompt; `add` is reversible and not prompted. All three
-  honour `--dry-run` (#132) and emit a #131 audit record; the password
-  is redacted in both. `add` splits the address on the last `@` into
-  the `local_part` / `domain_part` KAS expects and takes no
-  `mail_login` — KAS generates the login (e.g. `m0000001`) and echoes
-  it in `ReturnInfo`, which the command prints. The Y/N/text toggles
-  and XLIST folder names default to the KAS API's own defaults, so a
-  bare `add <address> --password <pw>` is a complete create. `update`
-  sends only the explicitly-set flags (keyed on cobra `Changed`), adds
-  the `--active` (`is_active`) toggle, and its `--password` maps to
-  `mail_new_password` (the `_new_password` split the
-  database/ftpuser/sambauser slices carry) rather than the add-only
-  `mail_password`. `responder` is passed through verbatim ("N", "Y" or
-  a `<start>|<end>` timestamp range). `delete_mailaccount`'s prompt
-  uses the louder verb "permanently delete" — it drops the mailbox and
-  every message in it (the same data-loss emphasis as
-  `delete_database`).
-
-- `database.InProgressFalse` / `database.InProgressTrue` package
-  constants for the literal `"FALSE"` / `"TRUE"` strings the KAS API
-  uses to encode the async-write flag, so mapping code and tests
-  share one source of truth rather than re-typing literals.
-
-- Database write endpoints (#122, #13 write slice):
-  `kasapi-cli databases add --password <pw> --comment <text>
-  --allowed-hosts <hosts>`,
-  `… update <database-login> [flags]` and
-  `… delete <database-login>` wire `add_database` /
-  `update_database` / `delete_database`. `update` and `delete` are
-  gated by the #109 confirmation prompt; `add` is reversible and not
-  prompted. All three honour `--dry-run` (#132) and emit a #131 audit
-  record; the password is redacted in both. `update` sends only the
-  explicitly-set flags (keyed on cobra `Changed`), so an empty value
-  is a deliberate "clear". `add_database` takes no `database_login`
-  — KAS generates it (the login equals the database name on creation,
-  e.g. `d0123460`) and echoes it in `ReturnInfo`, which the command
-  prints. The password key is split between actions: `--password`
-  maps to `database_password` on `add` and to `database_new_password`
-  on `update` (the same `_new_password` split the ftpuser/sambauser
-  slices carry). `delete_database`'s confirmation prompt uses the
-  louder verb "permanently delete" because the action drops the
-  database and every row it contains — the loudest data-loss surface
-  of the v0.2.0 write phase.
-
-### Changed
 
 - `kasapi-cli databases list`/`databases get` now decode the
   `in_progress` flag the KAS API surfaces on every `get_databases`
@@ -437,7 +425,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   one line per profile, marks the default with `* `, and never writes
   `auth_data`. Closes #39.
 
-### Changed
 
 - The global `--no-color` and `--yes` flags are now hidden from
   `--help` and the generated CLI docs (review follow-up). They were
@@ -587,6 +574,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `IsOTPPinIncorrect`, `IsCode`, and `AsError` sentinel helpers.
 
 ### Fixed
+
+- Whole-codebase review follow-up (Med findings):
+  - `transport.Client` now enforces the 16-MB `soap.MaxResponseBytes`
+    cap at the HTTP body read. Previously the cap lived only in the
+    soap decoders, which run on an already fully-buffered body — the
+    memory-exhaustion guard was dead code on the live path. An
+    oversized response fails immediately and is not retried.
+  - Write-command success output now honours `--output`: the success
+    line renders through the shared pipeline, so `--output=json` /
+    `--output=yaml` emit a `{"message": ...}` object scripts can parse
+    while the default table output stays the bare line.
+  - `cli.RedactParams` elides multi-line or oversized parameter values
+    (`<elided N bytes>`). The `update_mailinglist` config / subscriber
+    blobs previously reached the stderr logfmt line, the `--audit-log`
+    JSON sink, and the `--dry-run` preview verbatim — and the list
+    config can carry the list password in cleartext.
+  - `SessionTokenSource.Heartbeat` persists via the new
+    `session.Store.Refresh`, which extends an entry only while the
+    on-disk token still matches. Previously a heartbeat blindly
+    re-saved its process's token and could clobber a newer token
+    another process had persisted in the meantime.
+  - `internal/mailinglist/write_test.go` fault-map key
+    `add_mailinglist_response_failed_mailinglist_mailinglist_domain_doesnt_exist.xml`
+    had a doubled prefix and matched no fixture, so the
+    `mailinglist_domain_doesnt_exist` code pin silently never ran.
+  - `get_server_information` fixtures moved from `testdata/account/`
+    to their own `testdata/server/` (one-subdir-per-module
+    convention), and the `server` and `usage` modules gained the
+    missing fault-fixture leg (`*_response_failed_no_auth.xml`, the
+    action-independent captured auth fault) plus
+    `testutil.AssertFaultFixtures` coverage.
+  - `ROADMAP.md` listed `server get`; the shipped command is
+    `server info`.
+  - `CHANGELOG.md` `[Unreleased]` had duplicated, unordered
+    subsections (`### Changed` ×3, `### Fixed` ×2); consolidated into
+    one block per type in canonical Keep-a-Changelog order.
+
+- `dns list` now exposes the documented optional `record_id` filter
+  instead of a non-existent `nameserver` parameter: the flag is renamed
+  `--nameserver` → `--record-id` and the wire parameter
+  `nameserver` → `record_id`, matching the KAS `get_dns_settings`
+  contract (`zone_host` required, `record_id` optional) and the captured
+  request fixtures. `nameserver` is a real KAS key, but for
+  `reset_dns_settings`, not `get_dns_settings`; the read slice had
+  carried it over by mistake.
+
 
 - Audit redaction now also catches the German "passwort" spelling.
   `redactParam` matched only the English `password`/`passwd` substrings,

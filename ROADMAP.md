@@ -32,7 +32,7 @@ Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API
 - [x] `accounts list` / `accounts get <account-login>` (`get_accounts`, with `account_login` filter)
 - [x] `accounts settings` / `accounts resources` (`get_accountsettings`, `get_accountresources`)
 - [ ] Account write paths (`add_account`, `update_account`, `delete_account`, `update_accountsettings`, `update_superusersettings`, #110)
-- [x] `server get` (`get_server_information`)
+- [x] `server info` (`get_server_information`)
 
 ## Usage
 
