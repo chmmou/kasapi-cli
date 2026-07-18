@@ -167,10 +167,13 @@ func (c *Client) doOnce(ctx context.Context, endpoint string, body []byte) ([]by
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		// A cancelled or timed-out context is the caller's decision to
-		// stop, not a transient server condition — retrying would only
-		// burn a backoff sleep before failing on the same ctx again.
-		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		// The caller's cancelled/expired ctx is a decision to stop, not
+		// a transient server condition — retrying would only burn a
+		// backoff sleep before failing on the same ctx again. The check
+		// is on ctx.Err(), not errors.Is(err, context.DeadlineExceeded):
+		// a per-attempt HTTPClient.Timeout error also matches the
+		// latter, and that one IS a transient condition worth retrying.
+		if ctx.Err() != nil {
 			return nil, fmt.Errorf("transport: post %s: %w", endpoint, err)
 		}
 		return nil, &retryableError{err: fmt.Errorf("transport: post %s: %w", endpoint, err)}
@@ -182,6 +185,9 @@ func (c *Client) doOnce(ctx context.Context, endpoint string, body []byte) ([]by
 	// so the memory-exhaustion guard must be enforced at this read.
 	respBody, err := io.ReadAll(io.LimitReader(resp.Body, soap.MaxResponseBytes+1))
 	if err != nil {
+		if ctx.Err() != nil {
+			return nil, fmt.Errorf("transport: read body: %w", err)
+		}
 		return nil, &retryableError{err: fmt.Errorf("transport: read body: %w", err)}
 	}
 	if len(respBody) > soap.MaxResponseBytes {

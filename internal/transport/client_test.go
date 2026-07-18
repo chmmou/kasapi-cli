@@ -427,3 +427,34 @@ func TestDoRejectsOversizedResponse(t *testing.T) {
 		t.Errorf("requests = %d, want 1 (oversize must not be retried)", hits.Load())
 	}
 }
+
+// A per-attempt HTTPClient.Timeout error matches
+// errors.Is(err, context.DeadlineExceeded) even though the caller's ctx
+// is still alive; it is a transient slow-server condition and must stay
+// retryable — only the caller's own cancellation suppresses the retry.
+func TestDoRetriesOnClientTimeout(t *testing.T) {
+	var hits atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		if hits.Add(1) == 1 {
+			// Outlast the 100ms client timeout, then return so
+			// srv.Close does not wait on a stuck handler.
+			time.Sleep(500 * time.Millisecond)
+			return
+		}
+		_, _ = io.WriteString(w, "<ok/>")
+	}))
+	defer srv.Close()
+
+	c := newClient(srv, newFakeClock())
+	c.HTTPClient.Timeout = 100 * time.Millisecond
+	resp, err := c.Do(context.Background(), srv.URL, []byte(sampleEnvelope))
+	if err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+	if string(resp) != "<ok/>" {
+		t.Errorf("body = %q, want <ok/>", resp)
+	}
+	if hits.Load() != 2 {
+		t.Errorf("requests = %d, want 2 (client-timeout attempt retried once)", hits.Load())
+	}
+}

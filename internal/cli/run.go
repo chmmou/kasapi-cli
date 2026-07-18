@@ -150,7 +150,9 @@ func runWriteE(opts *RootOptions, build func(args []string) (writeSpec, error)) 
 					Outcome: outcome,
 					Fields:  RedactParams(spec.params),
 				}
-				_ = WriteAudit(stderr, auditFile, rec)
+				if werr := WriteAudit(stderr, auditFile, rec); werr != nil {
+					_, _ = fmt.Fprintf(stderr, "warning: audit record not fully written: %v\n", werr)
+				}
 			}
 			return err
 		}
@@ -180,6 +182,9 @@ func runWriteE(opts *RootOptions, build func(args []string) (writeSpec, error)) 
 			return APIError(derr, spec.action)
 		}
 		if rerr := Render(out, opts.Output, writeResult{Message: result}); rerr != nil {
+			if werr != nil {
+				_, _ = fmt.Fprintf(stderr, "warning: audit record not fully written: %v\n", werr)
+			}
 			return UserError(rerr, "render")
 		}
 		if werr != nil {
