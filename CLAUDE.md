@@ -31,7 +31,7 @@ Filename convention:
 - One file per `(kas_action, kind)` pair: `<kas_action>_<kind>[_<variant>].xml`, where `kind` is `request` or `response_<status>`, and `status` is `success` or `failed`. Examples:
     - `get_accounts_response_success.xml`
     - `add_account_response_failed_account_kas_password_syntax_incorrect.xml`
-    - `get_ftpuser_response_success_empty_list.xml` (variant of the success shape)
+    - `get_ftpusers_response_success_empty_list.xml` (variant of the success shape; the `<kas_action>` prefix is always the real — plural — action the file embeds, never a singular alias)
 
 Add a new fixture whenever a new KAS call is wired up; redact secrets before committing.
 

@@ -115,7 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `testdata/cronjob/{add_cronjob_response_success,add_cronjob_response_warning,update_cronjob_response_success}.xml`
+- `testdata/cronjob/{add_cronjob_response_success,add_cronjob_response_success_warning,update_cronjob_response_success}.xml`
   carry a top-of-file XML comment documenting that KAS itself echoes
   the notification address under `mail_address` (double d) in the
   `KasRequestParams` echo block, while the documented request key is
@@ -574,6 +574,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `IsOTPPinIncorrect`, `IsCode`, and `AsError` sentinel helpers.
 
 ### Fixed
+
+- Whole-codebase re-review follow-up (third pass, High + Med + Low
+  findings):
+  - Group commands (`mail`, `accounts`, `config`, ...) invoked with an
+    unknown subcommand no longer print help and exit 0 — a typo'd
+    subcommand read as success to scripts. `cli.Finalize` now gives
+    every non-runnable group an explicit unknown-subcommand rejection
+    (exit 1, with cobra's "Did you mean this?" suggestions); a bare
+    group invocation keeps printing help with exit 0.
+  - The lazily-registered `completion` command is registered before the
+    exit-code walkers run, so its args-validation failures exit 1 (user
+    error) instead of 2.
+  - The success audit record of create actions whose identifier KAS
+    generates server-side (`add_ftpuser`, `add_database`,
+    `add_sambauser`, `add_ddnsuser`, `add_cronjob`, `add_mailaccount`,
+    `add_mailforward`, `add_mailinglist`) now carries the assigned
+    identifier as `created_id`, so the create correlates with the
+    identifier later update/delete records carry as their target.
+  - A confirmation-prompt I/O failure (neither a yes nor a no was read)
+    now leaves an audit record with the new outcome `aborted` instead
+    of silently skipping the trace of a blocked destructive attempt.
+  - The transport 5xx fault sniff also recognises a prefix-less
+    default-namespace `<Fault>` element, matching what the SOAP decoder
+    accepts; an end-to-end api-layer test pins that a fault delivered
+    with HTTP 500 surfaces as the same typed `*api.Error` a 200-wrapped
+    fault produces.
+  - `sambausers update` binds its own replacement-flag set instead of
+    sharing `add`'s (whose `--help` texts claimed "required for add") —
+    the same add/update split the cronjob/ftpuser slices got in the
+    second pass.
+  - The remaining `get_<singular>` fixtures whose filename encoded a
+    non-existent singular KAS action while embedding the plural one
+    were renamed to `<real_action>_<kind>_<variant>.xml` across
+    `testdata/{cronjob,ddns,domain,ftpuser,mailaccount,mailforward,mailinglist,sambauser}/`
+    (e.g. `get_ftpuser_response_success.xml` →
+    `get_ftpusers_response_success_single.xml`), and the convention
+    example in `CLAUDE.md` now uses a conforming name.
 
 - Whole-codebase re-review follow-up (second pass, Med + Low findings):
   - Bad user input now consistently exits 1: cobra positional-args

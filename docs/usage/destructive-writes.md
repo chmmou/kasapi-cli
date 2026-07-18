@@ -111,7 +111,14 @@ ts=2026-05-16T12:00:00Z login=w0000001 action=delete_dns_settings target="record
 bare `failure` for a transport/decode error. A destructive attempt that
 never dispatched is also recorded: `declined` when the `[y/N]` prompt
 was answered with no, `refused` when stdin was not a TTY and `--yes`
-was not given.
+was not given, `aborted` when the interactive prompt failed with an
+I/O error before an answer was read.
+
+For the `add` actions whose identifier KAS generates server-side (the
+slices listed in the baseline above), the success record additionally
+carries the assigned identifier as `created_id=<login>`, so the create
+can be correlated with the identifier later `update`/`delete` records
+carry as their `target`.
 
 Passing `--audit-log <path>` (or setting `KAS_AUDIT_LOG`; the flag wins)
 additionally appends the same record as one JSON object per line
