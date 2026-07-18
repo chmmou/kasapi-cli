@@ -5,7 +5,7 @@
             <Params>
             {
                 "KasRequestParams": {},
-                "kas_action": "get_subdomains",
+                "kas_action": "get_topleveldomains",
                 "kas_auth_data": "REDACTED",
                 "kas_auth_type": "session",
                 "kas_login": "w0000000"

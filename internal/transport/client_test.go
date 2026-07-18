@@ -169,6 +169,31 @@ func TestDoRetriesOn5xx(t *testing.T) {
 	}
 }
 
+func TestDoPassesThroughSoapFaultOn5xx(t *testing.T) {
+	const faultBody = `<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">` +
+		`<SOAP-ENV:Body><SOAP-ENV:Fault><faultcode>SOAP-ENV:Server</faultcode>` +
+		`<faultstring>flood_protection</faultstring></SOAP-ENV:Fault></SOAP-ENV:Body></SOAP-ENV:Envelope>`
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = io.WriteString(w, faultBody)
+	}))
+	defer srv.Close()
+
+	c := newClient(srv, newFakeClock())
+	body, err := c.Do(context.Background(), srv.URL, []byte(sampleEnvelope))
+	if err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+	if string(body) != faultBody {
+		t.Errorf("body = %q, want the fault body passed through", body)
+	}
+	if calls.Load() != 1 {
+		t.Errorf("calls = %d, want 1 (fault body must not be retried)", calls.Load())
+	}
+}
+
 func TestDoStopsRetryAfterMax(t *testing.T) {
 	var calls atomic.Int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

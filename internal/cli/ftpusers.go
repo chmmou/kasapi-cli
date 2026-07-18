@@ -52,13 +52,10 @@ func newFTPUsersGetCmd(opts *RootOptions) *cobra.Command {
 	}
 }
 
-// ftpuserWriteFlags binds the shared add_ftpuser / update_ftpuser
-// request fields to a command. The same flag set serves both: add
-// reads every value (defaults included), update sends only the flags
-// the user explicitly changed (see ftpuserChangedFields). The password
-// flag maps to a different KAS key per action (add_ftpuser:
-// ftp_password, update_ftpuser: ftp_new_password) — see spec() and
-// ftpuserChangedFields.
+// ftpuserWriteFlags binds the add_ftpuser request fields to a command.
+// The password flag maps to the add-only ftp_password key — the update
+// subcommand binds its own ftpuserUpdateFlags so its --help does not
+// advertise add defaults or "required for add" texts.
 type ftpuserWriteFlags struct {
 	password  string
 	comment   string
@@ -71,8 +68,8 @@ type ftpuserWriteFlags struct {
 
 func (f *ftpuserWriteFlags) bind(cmd *cobra.Command) {
 	fl := cmd.Flags()
-	fl.StringVar(&f.password, "password", "", "FTP password (required for add; new password for update)")
-	fl.StringVar(&f.comment, "comment", "", "user comment / label (required for add)")
+	fl.StringVar(&f.password, "password", "", "FTP password (required)")
+	fl.StringVar(&f.comment, "comment", "", "user comment / label (required)")
 	fl.StringVar(&f.path, "path", "/", "home directory the user is jailed to (ftp_path)")
 	fl.BoolVar(&f.permRead, "permission-read", true, "grant read access; pass --permission-read=false to deny")
 	fl.BoolVar(&f.permWrite, "permission-write", true, "grant write access; pass --permission-write=false to deny")
@@ -125,6 +122,36 @@ func newFTPUsersAddCmd(opts *RootOptions) *cobra.Command {
 	return cmd
 }
 
+// ftpuserUpdateFlags binds the update_ftpuser mutable surface.
+// Disjoint from ftpuserWriteFlags so update's --help describes the
+// flags as replacements (not "required for add") and does not
+// advertise add defaults that update never sends — the same split the
+// database/mailaccount/ddnsuser/mailinglist slices use.
+//
+// The password flag maps to ftp_new_password on this subcommand (the
+// update_ftpuser key) rather than the add-only ftp_password — see
+// ftpuserChangedFields.
+type ftpuserUpdateFlags struct {
+	password  string
+	comment   string
+	path      string
+	permRead  bool
+	permWrite bool
+	permList  bool
+	virusClam bool
+}
+
+func (f *ftpuserUpdateFlags) bind(cmd *cobra.Command) {
+	fl := cmd.Flags()
+	fl.StringVar(&f.password, "password", "", "replacement FTP password (sent as ftp_new_password)")
+	fl.StringVar(&f.comment, "comment", "", "replacement user comment / label")
+	fl.StringVar(&f.path, "path", "", "replacement home directory the user is jailed to (ftp_path)")
+	fl.BoolVar(&f.permRead, "permission-read", true, "replacement read access; pass --permission-read=false to deny")
+	fl.BoolVar(&f.permWrite, "permission-write", true, "replacement write access; pass --permission-write=false to deny")
+	fl.BoolVar(&f.permList, "permission-list", true, "replacement directory-list access; pass --permission-list=false to deny")
+	fl.BoolVar(&f.virusClam, "virus-clamav", true, "replacement ClamAV scanning; pass --virus-clamav=false to disable")
+}
+
 // ftpuserChangedFields collects only the write flags the user
 // explicitly set into the update_ftpuser field map (keyed on the
 // ftpuser.Field* constants). Each field is a wholesale replacement and
@@ -132,7 +159,7 @@ func newFTPUsersAddCmd(opts *RootOptions) *cobra.Command {
 // Changed, not on the value being non-empty — the same pattern the
 // cronjob update uses. The password flag maps to ftp_new_password here
 // (update_ftpuser's key) rather than the add-only ftp_password.
-func ftpuserChangedFields(cmd *cobra.Command, f *ftpuserWriteFlags) map[string]string {
+func ftpuserChangedFields(cmd *cobra.Command, f *ftpuserUpdateFlags) map[string]string {
 	fields := map[string]string{}
 	if cmd.Flags().Changed("password") {
 		fields[ftpuser.FieldNewPassword] = f.password
@@ -158,7 +185,7 @@ func ftpuserChangedFields(cmd *cobra.Command, f *ftpuserWriteFlags) map[string]s
 }
 
 func newFTPUsersUpdateCmd(opts *RootOptions) *cobra.Command {
-	f := &ftpuserWriteFlags{}
+	f := &ftpuserUpdateFlags{}
 	cmd := &cobra.Command{
 		Use:   "update <ftp-login> [password/permission flags]",
 		Short: "Replace mutable fields of an FTP user (update_ftpuser)",

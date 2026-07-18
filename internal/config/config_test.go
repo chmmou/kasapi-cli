@@ -168,6 +168,20 @@ func TestResolveUnknownProfile(t *testing.T) {
 	}
 }
 
+// TestResolveProfileWithoutConfigIsUnknownProfile pins the sentinel on
+// the nil-Config + --profile path so callers can errors.Is-branch on it
+// like on the profile-not-in-file case.
+func TestResolveProfileWithoutConfigIsUnknownProfile(t *testing.T) {
+	var cfg *config.Config
+	_, err := cfg.Resolve(config.Env{}, config.Override{Profile: "prod"})
+	if err == nil || !strings.Contains(err.Error(), "no config file loaded") {
+		t.Fatalf("expected no-config profile error, got %v", err)
+	}
+	if !errors.Is(err, config.ErrUnknownProfile) {
+		t.Errorf("err = %v, want errors.Is ErrUnknownProfile", err)
+	}
+}
+
 func TestResolveMissingCredentials(t *testing.T) {
 	cfg := &config.Config{
 		Profiles: map[string]config.Profile{

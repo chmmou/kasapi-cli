@@ -9,21 +9,21 @@ kasapi-cli cronjobs update <cronjob-id> [schedule/mail flags] [flags]
 ### Options
 
 ```
-      --active                  whether the cronjob is active; pass --active=false to disable (default true)
-      --comment string          cronjob comment / label (required for add)
-      --day-of-month string     schedule day-of-month field (default "*")
-      --day-of-week string      schedule day-of-week field (0-7, Sun=0|7) (default "*")
+      --active                  replacement active state; pass --active=false to disable (default true)
+      --comment string          replacement cronjob comment / label
+      --day-of-month string     replacement schedule day-of-month field
+      --day-of-week string      replacement schedule day-of-week field (0-7, Sun=0|7)
   -h, --help                    help for update
-      --hour string             schedule hour field (required for add)
-      --http-password string    HTTP basic-auth password for the call
-      --http-user string        HTTP basic-auth user for the call
-      --mail-address string     notification mail address (mail_adress)
-      --mail-condition string   when to send the notification mail
-      --mail-subject string     notification mail subject (default|comment) (default "default")
-      --minute string           schedule minute field (required for add)
-      --month string            schedule month field (default "*")
-      --protocol string         request protocol (http|https) (default "https")
-      --url string              URL to call (http_url; required for add)
+      --hour string             replacement schedule hour field
+      --http-password string    replacement HTTP basic-auth password for the call
+      --http-user string        replacement HTTP basic-auth user for the call
+      --mail-address string     replacement notification mail address (mail_adress)
+      --mail-condition string   replacement notification-mail condition
+      --mail-subject string     replacement notification mail subject (default|comment)
+      --minute string           replacement schedule minute field
+      --month string            replacement schedule month field
+      --protocol string         replacement request protocol (http|https)
+      --url string              replacement URL to call (http_url)
 ```
 
 ### Options inherited from parent commands
@@ -33,7 +33,7 @@ kasapi-cli cronjobs update <cronjob-id> [schedule/mail flags] [flags]
       --auth-data string                 KAS auth data (overrides config and KAS_AUTHDATA)
       --auth-type string                 KAS auth strategy: 'plain' = send password on each KasApi call (no KasAuth, no 2FA support); 'session' = bootstrap via KasAuth and reuse the credential token. Overrides config and KAS_AUTHTYPE.
       --config string                    path to the kasapi-cli config file (overrides the default location)
-      --dry-run                          preview a destructive command's KAS request (action + redacted parameters) and exit 0 without dispatching or prompting; honours --output
+      --dry-run                          preview a write command's KAS request (action + redacted parameters) and exit 0 without dispatching or prompting; honours --output
       --login string                     KAS login (overrides config and KAS_LOGIN)
       --otp string                       2FA one-time PIN — sent to KasAuth as session_2fa during the credential-token bootstrap. Requires auth_type=session; the KAS API does not document 2FA on direct kas_auth_type=plain calls.
   -o, --output string                    output format: json|yaml|table (default table)

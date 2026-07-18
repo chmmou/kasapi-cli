@@ -64,12 +64,14 @@ func DecodeFixture(t *testing.T, relPath string) *soap.Response {
 // KAS contract: every testdata/<module>/*_response_failed_*.xml must
 // decode to a *soap.FaultError with a non-empty Fault.String, and each
 // entry in want (fixture filename -> expected fault code) must match
-// exactly. It is the fixture<->contract anchor every module reuses so a
-// captured fault fixture cannot silently drift from its documented KAS
-// code. module is the testdata/ subdirectory (e.g. "ftpuser"); the
-// empty string scans the shared top-level response_failed_*.xml set.
-// want may be nil to assert only the universal invariant; pin a few
-// representative documented codes there to also catch a code drift.
+// exactly. A want key that matches no file on disk fails too, so a
+// renamed or deleted fixture cannot leave a dead pin behind. It is the
+// fixture<->contract anchor every module reuses so a captured fault
+// fixture cannot silently drift from its documented KAS code. module
+// is the testdata/ subdirectory (e.g. "ftpuser"); the empty string
+// scans the shared top-level response_failed_*.xml set. want may be
+// nil to assert only the universal invariant; pin a few representative
+// documented codes there to also catch a code drift.
 func AssertFaultFixtures(t *testing.T, module string, want map[string]string) {
 	t.Helper()
 	dir := filepath.Join(RepoRoot(t), "testdata", module)
@@ -78,6 +80,7 @@ func AssertFaultFixtures(t *testing.T, module string, want map[string]string) {
 		t.Fatalf("read fixture dir %s: %v", dir, err)
 	}
 	seen := 0
+	matched := map[string]bool{}
 	for _, e := range entries {
 		if e.IsDir() {
 			continue
@@ -90,6 +93,9 @@ func AssertFaultFixtures(t *testing.T, module string, want map[string]string) {
 			continue
 		}
 		seen++
+		if _, ok := want[name]; ok {
+			matched[name] = true
+		}
 		//nolint:gosec // G304: fixture path is rooted at the repo testdata/ dir.
 		f, oerr := os.Open(filepath.Join(dir, name))
 		if oerr != nil {
@@ -111,6 +117,11 @@ func AssertFaultFixtures(t *testing.T, module string, want map[string]string) {
 	}
 	if seen == 0 {
 		t.Fatalf("no fault fixtures found for module %q", module)
+	}
+	for name := range want {
+		if !matched[name] {
+			t.Errorf("want entry %s matches no fault fixture on disk (renamed or deleted?)", name)
+		}
 	}
 }
 

@@ -8,7 +8,8 @@ import (
 )
 
 // ErrUnknownProfile is returned by Resolve when the requested profile
-// (via --profile or default_profile) does not exist in the config file.
+// (via --profile or default_profile) does not exist in the config file,
+// or when --profile was given without any config file loaded.
 // Callers branch with errors.Is instead of string-matching.
 var ErrUnknownProfile = errors.New("config: profile not defined")
 
@@ -77,7 +78,7 @@ func (c *Config) Resolve(env Env, ov Override) (Credentials, error) {
 			prof = p
 		}
 	} else if ov.Profile != "" {
-		return Credentials{}, fmt.Errorf("config: --profile %q given but no config file loaded", ov.Profile)
+		return Credentials{}, fmt.Errorf("%w: --profile %q given but no config file loaded", ErrUnknownProfile, ov.Profile)
 	}
 
 	cred := Credentials{

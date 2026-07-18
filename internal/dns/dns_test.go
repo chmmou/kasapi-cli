@@ -75,7 +75,7 @@ func TestClientSettings(t *testing.T) {
 // zone_host+record_id fixture returns a one-element ReturnInfo array.
 func TestClientSettingsWithRecordID(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "dns/get_dns_settings_zone_host_and_record_id_response_success.xml")
+	resp := testutil.DecodeFixture(t, "dns/get_dns_settings_response_success_zone_host_and_record_id.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := dns.NewClient(fc).Settings(context.Background(), "example.com", "110118416")
 	if err != nil {

@@ -52,10 +52,9 @@ func newCronjobsGetCmd(opts *RootOptions) *cobra.Command {
 	}
 }
 
-// cronjobWriteFlags binds the shared add_cronjob / update_cronjob
-// request fields to a command. The same flag set serves both: add
-// reads every value (defaults included), update sends only the flags
-// the user explicitly changed (see cronjobChangedFields).
+// cronjobWriteFlags binds the add_cronjob request fields to a command.
+// The update subcommand binds its own cronjobUpdateFlags so its --help
+// does not advertise add defaults or "required for add" texts.
 type cronjobWriteFlags struct {
 	protocol      string
 	url           string
@@ -76,10 +75,10 @@ type cronjobWriteFlags struct {
 func (f *cronjobWriteFlags) bind(cmd *cobra.Command) {
 	fl := cmd.Flags()
 	fl.StringVar(&f.protocol, "protocol", "https", "request protocol (http|https)")
-	fl.StringVar(&f.url, "url", "", "URL to call (http_url; required for add)")
-	fl.StringVar(&f.comment, "comment", "", "cronjob comment / label (required for add)")
-	fl.StringVar(&f.minute, "minute", "", "schedule minute field (required for add)")
-	fl.StringVar(&f.hour, "hour", "", "schedule hour field (required for add)")
+	fl.StringVar(&f.url, "url", "", "URL to call (http_url; required)")
+	fl.StringVar(&f.comment, "comment", "", "cronjob comment / label (required)")
+	fl.StringVar(&f.minute, "minute", "", "schedule minute field (required)")
+	fl.StringVar(&f.hour, "hour", "", "schedule hour field (required)")
 	fl.StringVar(&f.dayOfMonth, "day-of-month", "*", "schedule day-of-month field")
 	fl.StringVar(&f.month, "month", "*", "schedule month field")
 	fl.StringVar(&f.dayOfWeek, "day-of-week", "*", "schedule day-of-week field (0-7, Sun=0|7)")
@@ -153,13 +152,53 @@ func newCronjobsAddCmd(opts *RootOptions) *cobra.Command {
 	return cmd
 }
 
+// cronjobUpdateFlags binds the update_cronjob mutable surface.
+// Disjoint from cronjobWriteFlags so update's --help describes the
+// flags as replacements without the add defaults ("https", "*",
+// "default") that update never sends unless explicitly set — the same
+// split the database/mailaccount/ddnsuser/mailinglist slices use.
+type cronjobUpdateFlags struct {
+	protocol      string
+	url           string
+	comment       string
+	minute        string
+	hour          string
+	dayOfMonth    string
+	month         string
+	dayOfWeek     string
+	httpUser      string
+	httpPassword  string
+	mailAddress   string
+	mailCondition string
+	mailSubject   string
+	active        bool
+}
+
+func (f *cronjobUpdateFlags) bind(cmd *cobra.Command) {
+	fl := cmd.Flags()
+	fl.StringVar(&f.protocol, "protocol", "", "replacement request protocol (http|https)")
+	fl.StringVar(&f.url, "url", "", "replacement URL to call (http_url)")
+	fl.StringVar(&f.comment, "comment", "", "replacement cronjob comment / label")
+	fl.StringVar(&f.minute, "minute", "", "replacement schedule minute field")
+	fl.StringVar(&f.hour, "hour", "", "replacement schedule hour field")
+	fl.StringVar(&f.dayOfMonth, "day-of-month", "", "replacement schedule day-of-month field")
+	fl.StringVar(&f.month, "month", "", "replacement schedule month field")
+	fl.StringVar(&f.dayOfWeek, "day-of-week", "", "replacement schedule day-of-week field (0-7, Sun=0|7)")
+	fl.StringVar(&f.httpUser, "http-user", "", "replacement HTTP basic-auth user for the call")
+	fl.StringVar(&f.httpPassword, "http-password", "", "replacement HTTP basic-auth password for the call")
+	fl.StringVar(&f.mailAddress, "mail-address", "", "replacement notification mail address (mail_adress)")
+	fl.StringVar(&f.mailCondition, "mail-condition", "", "replacement notification-mail condition")
+	fl.StringVar(&f.mailSubject, "mail-subject", "", "replacement notification mail subject (default|comment)")
+	fl.BoolVar(&f.active, "active", true, "replacement active state; pass --active=false to disable")
+}
+
 // cronjobChangedFields collects only the write flags the user
 // explicitly set into the update_cronjob field map (keyed on the
 // cronjob.Field* constants). Each field is a wholesale replacement and
 // an empty value is a meaningful set, so presence is keyed on cobra
 // Changed, not on the value being non-empty — the same pattern the
 // mailing-list update uses.
-func cronjobChangedFields(cmd *cobra.Command, f *cronjobWriteFlags) map[string]string {
+func cronjobChangedFields(cmd *cobra.Command, f *cronjobUpdateFlags) map[string]string {
 	fields := map[string]string{}
 	// flag name -> {KAS request key, current flag value}.
 	for flag, kv := range map[string][2]string{
@@ -188,7 +227,7 @@ func cronjobChangedFields(cmd *cobra.Command, f *cronjobWriteFlags) map[string]s
 }
 
 func newCronjobsUpdateCmd(opts *RootOptions) *cobra.Command {
-	f := &cronjobWriteFlags{}
+	f := &cronjobUpdateFlags{}
 	cmd := &cobra.Command{
 		Use:   "update <cronjob-id> [schedule/mail flags]",
 		Short: "Replace mutable fields of a cronjob (update_cronjob)",

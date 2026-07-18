@@ -10,20 +10,20 @@ kasapi-cli cronjobs add --url <url> --comment <text> --minute <m> --hour <h> [fl
 
 ```
       --active                  whether the cronjob is active; pass --active=false to disable (default true)
-      --comment string          cronjob comment / label (required for add)
+      --comment string          cronjob comment / label (required)
       --day-of-month string     schedule day-of-month field (default "*")
       --day-of-week string      schedule day-of-week field (0-7, Sun=0|7) (default "*")
   -h, --help                    help for add
-      --hour string             schedule hour field (required for add)
+      --hour string             schedule hour field (required)
       --http-password string    HTTP basic-auth password for the call
       --http-user string        HTTP basic-auth user for the call
       --mail-address string     notification mail address (mail_adress)
       --mail-condition string   when to send the notification mail
       --mail-subject string     notification mail subject (default|comment) (default "default")
-      --minute string           schedule minute field (required for add)
+      --minute string           schedule minute field (required)
       --month string            schedule month field (default "*")
       --protocol string         request protocol (http|https) (default "https")
-      --url string              URL to call (http_url; required for add)
+      --url string              URL to call (http_url; required)
 ```
 
 ### Options inherited from parent commands
@@ -33,7 +33,7 @@ kasapi-cli cronjobs add --url <url> --comment <text> --minute <m> --hour <h> [fl
       --auth-data string                 KAS auth data (overrides config and KAS_AUTHDATA)
       --auth-type string                 KAS auth strategy: 'plain' = send password on each KasApi call (no KasAuth, no 2FA support); 'session' = bootstrap via KasAuth and reuse the credential token. Overrides config and KAS_AUTHTYPE.
       --config string                    path to the kasapi-cli config file (overrides the default location)
-      --dry-run                          preview a destructive command's KAS request (action + redacted parameters) and exit 0 without dispatching or prompting; honours --output
+      --dry-run                          preview a write command's KAS request (action + redacted parameters) and exit 0 without dispatching or prompting; honours --output
       --login string                     KAS login (overrides config and KAS_LOGIN)
       --otp string                       2FA one-time PIN — sent to KasAuth as session_2fa during the credential-token bootstrap. Requires auth_type=session; the KAS API does not document 2FA on direct kas_auth_type=plain calls.
   -o, --output string                    output format: json|yaml|table (default table)

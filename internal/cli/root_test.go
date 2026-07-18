@@ -108,6 +108,50 @@ func TestRootRejectsUnknownFlag(t *testing.T) {
 	}
 }
 
+// TestRootUnknownCommandExitsUserError pins the exit-code contract for
+// a mistyped subcommand: bad user input must map to exit 1, not fall
+// through CodeFor to the API-error exit 2.
+func TestRootUnknownCommandExitsUserError(t *testing.T) {
+	t.Parallel()
+	root, _ := cli.NewRootCmd()
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{"frobnicate"})
+	err := root.Execute()
+	if err == nil {
+		t.Fatal("Execute frobnicate: want error, got nil")
+	}
+	if cli.CodeFor(err) != cli.ExitUserError {
+		t.Errorf("unknown command should map to ExitUserError, got %d", cli.CodeFor(err))
+	}
+	if !strings.Contains(err.Error(), `unknown command "frobnicate"`) {
+		t.Errorf("error message: %q", err.Error())
+	}
+}
+
+// TestMarkArgErrorsAsUserErrors pins the exit-code contract for a
+// positional-args validation failure (e.g. a missing required argument
+// on an ExactArgs(1) subcommand) after the cmd/kasapi-cli wiring has
+// applied the tree-wide wrapper.
+func TestMarkArgErrorsAsUserErrors(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewDomainsCmd(opts))
+	cli.MarkArgErrorsAsUserErrors(root)
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{"domains", "get"})
+	err := root.Execute()
+	if err == nil {
+		t.Fatal("Execute domains get (missing arg): want error, got nil")
+	}
+	if cli.CodeFor(err) != cli.ExitUserError {
+		t.Errorf("missing positional arg should map to ExitUserError, got %d", cli.CodeFor(err))
+	}
+}
+
 // TestConfigInitDoesNotShadowRootProfile guards against the local
 // --profile flag on `config init` reappearing and silently overriding
 // the persistent root --profile. The local flag is now --name; the

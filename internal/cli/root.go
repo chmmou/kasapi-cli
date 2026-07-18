@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -62,6 +63,20 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 			opts.Output = f
 			return nil
 		},
+		// Replicates cobra's root-level legacyArgs "unknown command"
+		// rejection, but as a UserError so `kasapi-cli nonsense` exits 1
+		// (bad user input) instead of falling through CodeFor to the
+		// API-error exit 2.
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return nil
+			}
+			msg := fmt.Sprintf("unknown command %q for %q", args[0], cmd.CommandPath())
+			if s := cmd.SuggestionsFor(args[0]); len(s) > 0 {
+				msg += fmt.Sprintf("\n\nDid you mean this?\n\t%s\n", strings.Join(s, "\n\t"))
+			}
+			return UserError(errors.New(msg), "")
+		},
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return cmd.Help()
 		},
@@ -97,7 +112,7 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 		"append a JSON-Lines audit record for each write action to this file "+
 			"(also KAS_AUDIT_LOG); a logfmt line always goes to stderr regardless")
 	pf.BoolVar(&opts.DryRun, "dry-run", false,
-		"preview a destructive command's KAS request (action + redacted parameters) "+
+		"preview a write command's KAS request (action + redacted parameters) "+
 			"and exit 0 without dispatching or prompting; honours --output")
 
 	// --yes is wired: it is honoured by the destructive-write
@@ -113,4 +128,28 @@ func NewRootCmd() (*cobra.Command, *RootOptions) {
 
 func joinFormats() string {
 	return strings.Join(formatNames, "|")
+}
+
+// MarkArgErrorsAsUserErrors walks the command tree and wraps every
+// positional-args validator (cobra.ExactArgs, cobra.NoArgs, ...) so a
+// validation failure carries ExitUserError. Without it those errors
+// surface raw from Execute and CodeFor maps them to the API-error exit
+// 2, contradicting the documented "1 = user error" contract. Called by
+// cmd/kasapi-cli after all subcommands are registered.
+func MarkArgErrorsAsUserErrors(cmd *cobra.Command) {
+	if validate := cmd.Args; validate != nil {
+		cmd.Args = func(c *cobra.Command, args []string) error {
+			if err := validate(c, args); err != nil {
+				var ee *ExitError
+				if errors.As(err, &ee) {
+					return err
+				}
+				return UserError(err, "")
+			}
+			return nil
+		}
+	}
+	for _, sub := range cmd.Commands() {
+		MarkArgErrorsAsUserErrors(sub)
+	}
 }

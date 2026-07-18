@@ -1,6 +1,7 @@
 package session_test
 
 import (
+	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -122,6 +123,29 @@ func TestLoadDropsExpiredEntry(t *testing.T) {
 	// File should be gone since it had only one entry.
 	if _, err := s.Load(t.Context(), "w0"); err != nil {
 		t.Errorf("second Load on cleaned file: %v", err)
+	}
+}
+
+// TestLoadDropsZeroExpiryEntry pins that a hand-edited entry without
+// expires_at (Save/Refresh always fill it) is treated as expired, not
+// as never-expiring — otherwise the token would be locally immortal.
+func TestLoadDropsZeroExpiryEntry(t *testing.T) {
+	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	path := filepath.Join(t.TempDir(), "sessions.toml")
+	if err := os.WriteFile(path, []byte("[sessions.w0]\ntoken = \"t\"\n"), 0o600); err != nil {
+		t.Fatalf("write sessions.toml: %v", err)
+	}
+	s, err := session.New(path)
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	s.Now = func() time.Time { return now }
+	got, err := s.Load(t.Context(), "w0")
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if got != nil {
+		t.Errorf("expected zero-expiry entry to be dropped, got %+v", got)
 	}
 }
 

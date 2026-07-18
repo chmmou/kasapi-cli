@@ -34,6 +34,7 @@ func main() {
 		cli.NewConfigCmd(opts),
 		cli.NewGenDocsCmd(),
 	)
+	cli.MarkArgErrorsAsUserErrors(root)
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, "kasapi-cli:", err)
 		os.Exit(cli.CodeFor(err))

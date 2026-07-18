@@ -55,7 +55,7 @@ func TestClientAdd(t *testing.T) {
 // return the new id rather than wrapping ErrUnexpectedReturnString.
 func TestClientAddWarningStillSucceeds(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "cronjob/add_cronjob_response_warning.xml")
+	resp := testutil.DecodeFixture(t, "cronjob/add_cronjob_response_success_warning.xml")
 	id, err := cronjob.NewClient(&testutil.FakeCaller{Resp: resp}).Add(context.Background(), sampleSpec())
 	if err != nil {
 		t.Fatalf("Add (warning): %v", err)

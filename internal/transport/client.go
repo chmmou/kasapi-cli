@@ -195,6 +195,16 @@ func (c *Client) doOnce(ctx context.Context, endpoint string, body []byte) ([]by
 	}
 
 	if resp.StatusCode >= 500 {
+		// A PHP SOAP server may deliver a SOAP fault with HTTP 500. Such
+		// a body must reach the decoder so the typed-fault path (auth
+		// refresh, flood fallback, exit-code classification) applies
+		// instead of three blind retries that discard the fault. The
+		// sniff matches any namespace prefix (SOAP-ENV:Fault, soap:Fault);
+		// only fault-free 5xx bodies (gateway/proxy errors) stay
+		// retryable.
+		if bytes.Contains(respBody, []byte(":Fault")) {
+			return respBody, nil
+		}
 		return nil, &retryableError{err: fmt.Errorf("transport: %s returned %s", endpoint, resp.Status)}
 	}
 	if resp.StatusCode >= 400 {

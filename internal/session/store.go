@@ -155,7 +155,10 @@ func (s *Store) Load(ctx context.Context, login string) (*Entry, error) {
 		if !ok {
 			return nil
 		}
-		if !e.ExpiresAt.IsZero() && !s.now().Before(e.ExpiresAt) {
+		// A zero expires_at can only come from a hand-edited file — Save
+		// and Refresh always fill it. Treating it as never-expiring would
+		// make the token locally immortal, so it is expired instead.
+		if e.ExpiresAt.IsZero() || !s.now().Before(e.ExpiresAt) {
 			return s.deleteLocked(login)
 		}
 		out = &e

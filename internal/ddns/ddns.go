@@ -33,8 +33,9 @@ type Caller = kasread.Caller
 //
 // `in_progress` is no longer omitempty for parity with the majority
 // of read modules (account, mailaccount, mailinglist, sambauser,
-// ftpuser, database): every captured fixture row carries it and a
-// stray empty-string on an older account is harmless.
+// ftpuser, database). The captured ddns fixtures do not carry the key
+// at all, so it decodes to an empty string — emitting that "" is
+// harmless and matches what the other modules show on older accounts.
 type DDNSUser struct {
 	Login    string `json:"dyndns_login" yaml:"dyndns_login"`
 	Password string `json:"dyndns_password,omitempty" yaml:"dyndns_password,omitempty"`
