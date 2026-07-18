@@ -575,6 +575,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Whole-codebase review follow-up (Low findings):
+  - `api.TokenSource.Invalidate` now reports whether the next
+    Credentials call can produce fresh credentials; `api.Client` skips
+    the auth-failure retry for a `StaticTokenSource` instead of
+    doubling the failing request with identical credentials.
+  - `transport.Client` no longer classifies `context.Canceled` /
+    `DeadlineExceeded` as retryable — the caller's cancellation is not
+    a transient server condition.
+  - The destructive-write `[y/N]` prompt goes to **stderr** so a
+    redirected stdout cannot swallow the question.
+  - A dispatched write whose audit sink fails keeps its true exit
+    classification: a KAS fault stays exit 2 (audit failure reported as
+    a warning), and a successful write renders its result before the
+    audit error surfaces as exit 1.
+  - Refused (`outcome=refused`, non-TTY without `--yes`) and declined
+    (`outcome=declined`, prompt answered no) destructive attempts now
+    leave an audit record; previously only dispatched writes and
+    dry-runs were traced. Documented in
+    `docs/usage/destructive-writes.md`.
+  - `auth.DecodeResponse` validates the credential token shape (40
+    alphanumeric characters) before it is cached and persisted; the
+    error reports only the length, never the content.
+  - `auth.EncodeRequest` range-checks `Lifetime` against the documented
+    1..30000 session_lifetime bound (0 = server default).
+  - New `config.ErrUnknownProfile` / `config.ErrMissingCredentials`
+    sentinels; `Resolve` failures are `errors.Is`-able instead of
+    string-matchable only.
+  - `dns` / `directoryprotection` / `server` / `usage` now keep their
+    `Caller` unexported (`c`), matching the other ten modules; the
+    exported `API` field was construction surface no caller used.
+  - `cronjob.FieldID` replaces three hardcoded `"cronjob_id"` literals.
+  - `internal/{softwareinstall,directoryprotection,database}/doc.go`
+    no longer name non-existent KAS actions (`get_softwareinstalls`,
+    `get_directoryprotections`, `get_database`); fixtures encoding
+    those non-actions in their filenames were renamed to the real
+    action plus a variant suffix
+    (`get_databases_{request,response_success}_single.xml`,
+    `get_directoryprotection_{request,response_success}_all.xml`,
+    `get_softwareinstall_{request,response_success}_all.xml`).
+  - The captured `testdata/{chown,ssl,symlink}/` fault fixtures (#125
+    placeholders) are now anchored by one-line
+    `testutil.AssertFaultFixtures` tests instead of sitting
+    unreferenced.
+  - Fixture values `info@example1.org` and `/example-new.com/` replaced
+    with RFC 2606-reserved names (`example.org`, `example.net`).
+
 - Whole-codebase review follow-up (Med findings):
   - `transport.Client` now enforces the 16-MB `soap.MaxResponseBytes`
     cap at the HTTP body read. Previously the cap lived only in the
