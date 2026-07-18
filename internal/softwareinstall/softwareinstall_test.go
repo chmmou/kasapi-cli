@@ -12,7 +12,7 @@ import (
 
 func TestDecodeSoftwareInstalls(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "softwareinstall/get_softwareinstalls_response_success.xml")
+	resp := testutil.DecodeFixture(t, "softwareinstall/get_softwareinstall_response_success_all.xml")
 	got, err := softwareinstall.DecodeSoftwareInstalls(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeSoftwareInstalls: %v", err)
@@ -75,7 +75,7 @@ func TestDecodeSoftwareInstallSingular(t *testing.T) {
 
 func TestClientList(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "softwareinstall/get_softwareinstalls_response_success.xml")
+	resp := testutil.DecodeFixture(t, "softwareinstall/get_softwareinstall_response_success_all.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := softwareinstall.NewClient(fc).List(context.Background())
 	if err != nil {
@@ -142,7 +142,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestSoftwareInstallListTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "softwareinstall/get_softwareinstalls_response_success.xml")
+	resp := testutil.DecodeFixture(t, "softwareinstall/get_softwareinstall_response_success_all.xml")
 	list, _ := softwareinstall.DecodeSoftwareInstalls(resp.Body.ReturnInfo)
 	headers := list.TableHeaders()
 	if headers[0] != "ID" {

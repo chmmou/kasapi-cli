@@ -48,7 +48,7 @@ func TestDecodeDatabases(t *testing.T) {
 
 func TestDecodeDatabaseSingular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "database/get_database_response_success.xml")
+	resp := testutil.DecodeFixture(t, "database/get_databases_response_success_single.xml")
 	got, err := database.DecodeDatabases(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDatabases: %v", err)
@@ -86,7 +86,7 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "database/get_database_response_success.xml")
+	resp := testutil.DecodeFixture(t, "database/get_databases_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	d, err := database.NewClient(fc).Get(context.Background(), "d0123460")
 	if err != nil {
@@ -151,7 +151,7 @@ func TestDatabaseListTabular(t *testing.T) {
 
 func TestDatabaseTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "database/get_database_response_success.xml")
+	resp := testutil.DecodeFixture(t, "database/get_databases_response_success_single.xml")
 	list, _ := database.DecodeDatabases(resp.Body.ReturnInfo)
 	if len(list) != 1 {
 		t.Fatalf("len = %d, want 1", len(list))

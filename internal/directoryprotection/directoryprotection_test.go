@@ -11,7 +11,7 @@ import (
 
 func TestDecodeDirectoryProtections(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotections_response_success.xml")
+	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotection_response_success_all.xml")
 	got, err := directoryprotection.DecodeDirectoryProtections(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeDirectoryProtections: %v", err)
@@ -57,7 +57,7 @@ func TestDecodeDirectoryProtectionSingular(t *testing.T) {
 
 func TestClientListNoFilter(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotections_response_success.xml")
+	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotection_response_success_all.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	list, err := directoryprotection.NewClient(fc).List(context.Background(), "")
 	if err != nil {
@@ -107,7 +107,7 @@ func TestClientPropagatesError(t *testing.T) {
 
 func TestDirectoryProtectionListTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotections_response_success.xml")
+	resp := testutil.DecodeFixture(t, "directoryprotection/get_directoryprotection_response_success_all.xml")
 	list, _ := directoryprotection.DecodeDirectoryProtections(resp.Body.ReturnInfo)
 	headers := list.TableHeaders()
 	if headers[0] != "PATH" {
