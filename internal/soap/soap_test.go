@@ -121,7 +121,7 @@ func TestDecodeGetAccountsShape(t *testing.T) {
 // TestDecodeGetServerInformationShape exercises the array-of-maps shape
 // where ReturnInfo lists installed services.
 func TestDecodeGetServerInformationShape(t *testing.T) {
-	resp, err := decodeFile(t, filepath.Join(testutil.RepoRoot(t), "testdata/account/get_server_information_response_success.xml"))
+	resp, err := decodeFile(t, filepath.Join(testutil.RepoRoot(t), "testdata/server/get_server_information_response_success.xml"))
 	if err != nil {
 		t.Fatalf("Decode: %v", err)
 	}

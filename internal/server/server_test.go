@@ -11,7 +11,7 @@ import (
 
 func TestDecodeServices(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "account/get_server_information_response_success.xml")
+	resp := testutil.DecodeFixture(t, "server/get_server_information_response_success.xml")
 	got, err := server.DecodeServices(resp.Body.ReturnInfo)
 	if err != nil {
 		t.Fatalf("DecodeServices: %v", err)
@@ -33,7 +33,7 @@ func TestDecodeServices(t *testing.T) {
 
 func TestClientInformation(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "account/get_server_information_response_success.xml")
+	resp := testutil.DecodeFixture(t, "server/get_server_information_response_success.xml")
 	c := server.NewClient(&testutil.FakeCaller{Resp: resp})
 	list, err := c.Information(context.Background())
 	if err != nil {
@@ -53,9 +53,19 @@ func TestClientInformationPropagatesError(t *testing.T) {
 	}
 }
 
+// TestFaultFixturesDecodeToDocumentedCodes binds the captured
+// *_response_failed_*.xml fixtures to the KAS contract via the shared
+// testutil.AssertFaultFixtures anchor.
+func TestFaultFixturesDecodeToDocumentedCodes(t *testing.T) {
+	t.Parallel()
+	testutil.AssertFaultFixtures(t, "server", map[string]string{
+		"get_server_information_response_failed_no_auth.xml": "no_auth",
+	})
+}
+
 func TestServiceListTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "account/get_server_information_response_success.xml")
+	resp := testutil.DecodeFixture(t, "server/get_server_information_response_success.xml")
 	list, _ := server.DecodeServices(resp.Body.ReturnInfo)
 	rows := list.TableRows()
 	if len(rows) != 8 {

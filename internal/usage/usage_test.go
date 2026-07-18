@@ -133,6 +133,18 @@ func TestDecodeTrafficRejectsMalformedYear(t *testing.T) {
 	}
 }
 
+// TestFaultFixturesDecodeToDocumentedCodes binds the captured
+// *_response_failed_*.xml fixtures to the KAS contract via the shared
+// testutil.AssertFaultFixtures anchor.
+func TestFaultFixturesDecodeToDocumentedCodes(t *testing.T) {
+	t.Parallel()
+	testutil.AssertFaultFixtures(t, "usage", map[string]string{
+		"get_space_response_failed_no_auth.xml":       "no_auth",
+		"get_space_usage_response_failed_no_auth.xml": "no_auth",
+		"get_traffic_response_failed_no_auth.xml":     "no_auth",
+	})
+}
+
 func TestClientSpace(t *testing.T) {
 	t.Parallel()
 	resp := testutil.DecodeFixture(t, "usage/get_space_response_success.xml")
