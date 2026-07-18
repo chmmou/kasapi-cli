@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/chmmou/kasapi-cli/internal/soap"
 	"github.com/chmmou/kasapi-cli/internal/version"
 )
 
@@ -170,9 +171,15 @@ func (c *Client) doOnce(ctx context.Context, endpoint string, body []byte) ([]by
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	respBody, err := io.ReadAll(resp.Body)
+	// The soap decoders cap their input at soap.MaxResponseBytes, but by
+	// the time they run the whole body has already been buffered here —
+	// so the memory-exhaustion guard must be enforced at this read.
+	respBody, err := io.ReadAll(io.LimitReader(resp.Body, soap.MaxResponseBytes+1))
 	if err != nil {
 		return nil, &retryableError{err: fmt.Errorf("transport: read body: %w", err)}
+	}
+	if len(respBody) > soap.MaxResponseBytes {
+		return nil, fmt.Errorf("transport: response from %s exceeds %d bytes", endpoint, soap.MaxResponseBytes)
 	}
 
 	if resp.StatusCode >= 500 {

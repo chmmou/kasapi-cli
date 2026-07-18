@@ -388,3 +388,33 @@ func TestDoRespectsContextDeadlineDuringRequest(t *testing.T) {
 		t.Fatal("expected error on cancelled context")
 	}
 }
+
+// The 16-MB soap.MaxResponseBytes cap must bite at the transport read:
+// the api/auth clients buffer the whole body here before the capped
+// soap decoders ever run, so this is the only place the guard can
+// actually prevent memory exhaustion. Oversize is not retryable.
+func TestDoRejectsOversizedResponse(t *testing.T) {
+	var hits atomic.Int32
+	chunk := bytes.Repeat([]byte("x"), 1<<20)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		hits.Add(1)
+		for i := 0; i < 17; i++ {
+			if _, err := w.Write(chunk); err != nil {
+				return
+			}
+		}
+	}))
+	defer srv.Close()
+
+	c := newClient(srv, newFakeClock())
+	_, err := c.Do(context.Background(), srv.URL, []byte(sampleEnvelope))
+	if err == nil {
+		t.Fatal("Do: want oversize error, got nil")
+	}
+	if !strings.Contains(err.Error(), "exceeds") {
+		t.Errorf("err = %v, want a response-size error", err)
+	}
+	if hits.Load() != 1 {
+		t.Errorf("requests = %d, want 1 (oversize must not be retried)", hits.Load())
+	}
+}
