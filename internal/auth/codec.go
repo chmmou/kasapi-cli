@@ -23,6 +23,16 @@ type Request struct {
 	OTP            string
 }
 
+// maxSessionLifetime is the documented upper bound of the KasAuth
+// session_lifetime parameter (seconds); the documented range is
+// 1..30000, with an unset value (0 here) leaving the server default.
+const maxSessionLifetime = 30000
+
+// credentialTokenLength is the length of the credential token a
+// successful KasAuth call returns (see doc.go): 40 alphanumeric
+// characters.
+const credentialTokenLength = 40
+
 const requestTemplate = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="https://kasserver.com/">
     <soapenv:Body>
@@ -42,6 +52,9 @@ func EncodeRequest(w io.Writer, r Request) error {
 	}
 	if r.AuthData == "" {
 		return errors.New("auth: Request.AuthData is required")
+	}
+	if r.Lifetime < 0 || r.Lifetime > maxSessionLifetime {
+		return fmt.Errorf("auth: Request.Lifetime %d out of range 1..%d (0 = server default)", r.Lifetime, maxSessionLifetime)
 	}
 	payload := map[string]any{
 		"kas_login":     r.Login,
@@ -126,6 +139,22 @@ func decodeBody(d *xml.Decoder, parent xml.StartElement) (string, error) {
 	}
 }
 
+// validToken reports whether s has the shape of a KasAuth credential
+// token: exactly credentialTokenLength alphanumeric characters.
+func validToken(s string) bool {
+	if len(s) != credentialTokenLength {
+		return false
+	}
+	for _, r := range s {
+		switch {
+		case r >= '0' && r <= '9', r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z':
+		default:
+			return false
+		}
+	}
+	return true
+}
+
 func decodeKasAuthResponse(d *xml.Decoder, parent xml.StartElement) (string, error) {
 	for {
 		tok, err := d.Token()
@@ -141,6 +170,12 @@ func decodeKasAuthResponse(d *xml.Decoder, parent xml.StartElement) (string, err
 				}
 				if s == "" {
 					return "", errors.New("auth: empty <return> element")
+				}
+				// Guard the token shape before it gets cached and
+				// persisted; only the length is reported so a partial
+				// secret can never leak into an error message.
+				if !validToken(s) {
+					return "", fmt.Errorf("auth: malformed credential token: got %d bytes, want %d alphanumeric characters", len(s), credentialTokenLength)
 				}
 				return s, nil
 			}

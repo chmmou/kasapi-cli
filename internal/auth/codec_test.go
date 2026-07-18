@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -118,5 +119,51 @@ func TestDecodeResponseFaultFixture(t *testing.T) {
 func TestDecodeResponseEmptyDocument(t *testing.T) {
 	if _, err := auth.DecodeResponse(strings.NewReader("")); err == nil {
 		t.Fatal("expected error")
+	}
+}
+
+// The credential token contract is 40 alphanumeric characters; anything
+// else must be rejected before it gets cached and persisted. The error
+// must not echo the token content — only its length.
+func TestDecodeResponseRejectsMalformedToken(t *testing.T) {
+	const envelope = `<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Body>
+        <ns1:KasAuthResponse xmlns:ns1="https://kasserver.com/">
+            <return xsi:type="xsd:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">%s</return>
+        </ns1:KasAuthResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>`
+	for _, tok := range []string{
+		"short",
+		strings.Repeat("a", 41),
+		strings.Repeat("a", 39) + "!",
+	} {
+		_, err := auth.DecodeResponse(strings.NewReader(fmt.Sprintf(envelope, tok)))
+		if err == nil {
+			t.Errorf("token %q: expected malformed-token error, got nil", tok)
+			continue
+		}
+		if strings.Contains(err.Error(), tok) {
+			t.Errorf("token content leaked into error: %v", err)
+		}
+	}
+}
+
+// session_lifetime is documented as 1..30000 seconds; 0 means "leave
+// the server default". Out-of-range values must fail at encode time so
+// the local expiry mirror cannot silently diverge from the server.
+func TestEncodeRequestRejectsOutOfRangeLifetime(t *testing.T) {
+	for _, lifetime := range []int{-1, 30001} {
+		var buf bytes.Buffer
+		err := auth.EncodeRequest(&buf, auth.Request{
+			Login:    "w0",
+			AuthType: soap.AuthPlain,
+			AuthData: "pw",
+			Lifetime: lifetime,
+		})
+		if err == nil {
+			t.Errorf("Lifetime %d: expected range error, got nil", lifetime)
+		}
 	}
 }
