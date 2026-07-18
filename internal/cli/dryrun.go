@@ -124,7 +124,10 @@ func ResolveDestructive(
 	if handled, herr := previewAndAudit(opts, out, stderr, auditFile, login, kasAction, confirm, params); handled {
 		return false, herr
 	}
-	if gerr := GateDestructive(in, out, isTTY, opts != nil && opts.Yes, confirm); gerr != nil {
+	// The prompt goes to stderr, not out: stdout carries the command's
+	// machine-readable result, and a redirected `cmd > file` must not
+	// swallow the [y/N] question the user is expected to answer.
+	if gerr := GateDestructive(in, stderr, isTTY, opts != nil && opts.Yes, confirm); gerr != nil {
 		return false, gerr
 	}
 	return true, nil

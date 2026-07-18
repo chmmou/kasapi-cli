@@ -166,6 +166,10 @@ func TestDirectoryProtectionDestructiveRefuseNonTTY(t *testing.T) {
 			if !errors.Is(err, cli.ErrConfirmationRequired) {
 				t.Errorf("err = %v, want ErrConfirmationRequired", err)
 			}
+			// The blocked attempt still leaves an audit trace.
+			if !strings.Contains(buf.String(), "outcome=refused") {
+				t.Errorf("audit line with outcome=refused missing; output: %s", buf.String())
+			}
 		})
 	}
 }

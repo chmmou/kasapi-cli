@@ -159,8 +159,11 @@ func TestResolveDestructiveDelegatesToGate(t *testing.T) {
 		if proceed || !errors.Is(err, cli.ErrConfirmationDeclined) {
 			t.Fatalf("proceed=%v err=%v, want false/ErrConfirmationDeclined", proceed, err)
 		}
-		if !strings.Contains(out.String(), "[y/N]") {
-			t.Errorf("expected a prompt; out=%q", out.String())
+		if !strings.Contains(stderr.String(), "[y/N]") {
+			t.Errorf("expected the prompt on stderr; stderr=%q", stderr.String())
+		}
+		if strings.Contains(out.String(), "[y/N]") {
+			t.Errorf("prompt must not pollute stdout; out=%q", out.String())
 		}
 	})
 

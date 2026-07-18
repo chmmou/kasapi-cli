@@ -100,7 +100,10 @@ ts=2026-05-16T12:00:00Z login=w0000001 action=delete_dns_settings target="record
 ```
 
 `outcome` is `success`, `failure:<kas_code>` for a typed KAS fault, or a
-bare `failure` for a transport/decode error.
+bare `failure` for a transport/decode error. A destructive attempt that
+never dispatched is also recorded: `declined` when the `[y/N]` prompt
+was answered with no, `refused` when stdin was not a TTY and `--yes`
+was not given.
 
 Passing `--audit-log <path>` (or setting `KAS_AUDIT_LOG`; the flag wins)
 additionally appends the same record as one JSON object per line
@@ -108,7 +111,10 @@ additionally appends the same record as one JSON object per line
 
 Secret request parameters (`auth_data`, `*password`, `*token`,
 `*secret`, …) are replaced with `<redacted>` in **both** sinks and never
-written. Read commands produce no audit record.
+written. Multi-line or oversized values (e.g. the `mail lists update`
+`--config-file` / `--subscriber` blobs, which can contain the list
+password) are elided to `<elided N bytes>`. Read commands produce no
+audit record.
 
 ## `--dry-run`: preview without dispatching
 

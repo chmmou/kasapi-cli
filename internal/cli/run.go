@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"time"
 
@@ -135,6 +137,21 @@ func runWriteE(opts *RootOptions, build func(args []string) (writeSpec, error)) 
 			creds.Login, spec.action, spec.confirm, spec.params)
 		if !proceed {
 			// --dry-run → (false, nil): exit 0; declined/refused → (false, err).
+			// A gate refusal still leaves an audit trace: the attempt to run
+			// a destructive action is at least as interesting to an auditor
+			// as a dispatched one. An audit-write failure stays secondary —
+			// the refusal error is what the user must see.
+			if outcome := refusalOutcome(err); outcome != "" {
+				rec := AuditRecord{
+					Time:    time.Now().UTC(),
+					Login:   creds.Login,
+					Action:  spec.action,
+					Target:  spec.confirm.ID,
+					Outcome: outcome,
+					Fields:  RedactParams(spec.params),
+				}
+				_ = WriteAudit(stderr, auditFile, rec)
+			}
 			return err
 		}
 
@@ -152,17 +169,41 @@ func runWriteE(opts *RootOptions, build func(args []string) (writeSpec, error)) 
 			Outcome: OutcomeFor(derr),
 			Fields:  RedactParams(spec.params),
 		}
-		if werr := WriteAudit(stderr, auditFile, rec); werr != nil {
-			return UserError(werr, "audit")
-		}
-
+		werr := WriteAudit(stderr, auditFile, rec)
 		if derr != nil {
+			// The dispatch outcome outranks an audit-write failure: a KAS
+			// fault must keep its APIError classification (exit 2) even
+			// when the audit sink also broke.
+			if werr != nil {
+				_, _ = fmt.Fprintf(stderr, "warning: audit record not fully written: %v\n", werr)
+			}
 			return APIError(derr, spec.action)
 		}
 		if rerr := Render(out, opts.Output, writeResult{Message: result}); rerr != nil {
 			return UserError(rerr, "render")
 		}
+		if werr != nil {
+			// The write itself succeeded (result already rendered above);
+			// a broken audit sink still exits non-zero because the trace
+			// contract could not be honoured.
+			return UserError(werr, "audit")
+		}
 		return nil
+	}
+}
+
+// refusalOutcome maps a WriteResolver refusal error to its audit
+// outcome: "declined" for an interactive no, "refused" for the
+// non-TTY-without---yes abort. Any other error (or nil, the --dry-run
+// case, which writes its own record) yields "" — no record.
+func refusalOutcome(err error) string {
+	switch {
+	case errors.Is(err, ErrConfirmationDeclined):
+		return AuditOutcomeDeclined
+	case errors.Is(err, ErrConfirmationRequired):
+		return AuditOutcomeRefused
+	default:
+		return ""
 	}
 }
 
