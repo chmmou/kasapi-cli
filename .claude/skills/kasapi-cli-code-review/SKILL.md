@@ -1,6 +1,6 @@
 ---
 name: kasapi-cli-code-review
-description: Code-review loop for kasapi-cli — kasapi-cli-specific review anchors (fixture ↔ mapping alignment, clean-architecture layering, vertical-slice completeness, stable error identifiers), classification of findings (Blocker/Should/Nice-to-have), and the re-review cycle that ends only when no Blocker or Should-finding remains. Supports running the loop as dedicated fresh-eyes sub-agents (Reviewer → Fixer → Re-Reviewer) so no agent reviews its own work. TRIGGER when the user asks for a code-review pass, asks what to look for in a diff, before any larger new step, or after corrections have been merged. The git/PR mechanics (branch naming, signed FF-push, PR shape) live in the companion skill `kasapi-cli-git-workflow`.
+description: Code-review loop for kasapi-cli — kasapi-cli-specific review anchors (fixture ↔ mapping alignment, clean-architecture layering, vertical-slice completeness, stable error identifiers), classification of findings (Blocker/Should/Nice-to-have), the batched fix pass that lands all agreed findings of one review pass as one commit on one fix/* branch (with a pre-commit fresh-eyes diff review), and the re-review cycle that ends only when no Blocker or Should-finding remains. Supports running the loop as dedicated fresh-eyes sub-agents (Reviewer → Fixer → Re-Reviewer) so no agent reviews its own work. TRIGGER when the user asks for a code-review pass, asks what to look for in a diff, when executing the agreed findings of a review pass, before any larger new step, or after corrections have been merged. The git/PR mechanics (branch naming, signed FF-push, PR shape) live in the companion skill `kasapi-cli-git-workflow`.
 ---
 
 # kasapi-cli Code-Review Loop
@@ -46,6 +46,21 @@ Then ask the user which items to address now versus file as follow-ups. Do not s
 
 Corrections land on a dedicated `fix/<topic>` branch via a separate PR — see `kasapi-cli-git-workflow` for the branch/PR/merge mechanics. After the corrections merge, **re-review** the touched area, because fixes can introduce regressions. The loop ends only when no Blocker or Should-finding remains; Nice-to-haves are captured as a single grouped issue attached to the project board and explicitly out of scope for the current loop.
 
+## Batched Fix Pass (executing the agreed findings)
+
+Once the user has chosen which findings to address, execute them as **one batched fix pass** — the shape used for the second/third/fourth whole-codebase passes:
+
+- **One branch, one commit round.** All agreed Blocker/Should (and explicitly approved Med/Low) findings of a pass land together on a single `fix/<topic>` branch and are squashed into **one** signed commit — no per-finding commits. Nice-to-haves are never fixed in the pass; they go to the grouped follow-up issue (below).
+- **Order of operations:**
+  1. Branch from the current `main`; read every affected file before editing.
+  2. While implementing, re-verify each finding against its source of truth (KAS API documentation for request shapes, `testdata/` fixtures for response shapes) — a review finding can itself be wrong.
+  3. Implement each fix together with a test that pins the fixed behavior; update any doc whose claim the fix changes (`docs/usage/`, `CLAUDE.md`, CHANGELOG).
+  4. Full local gate: `go fmt` / `go vet` / `golangci-lint run` / `go test ./...`, plus `make docs` whenever a command, flag, or help text changed.
+  5. **Binary verification** for CLI-behavior findings: build the binary into a scratch directory (never the repo root) and probe the changed behavior directly — exit codes, help output, rendered messages — instead of trusting unit tests alone.
+  6. **Pre-commit fresh-eyes diff review**: before the commit, spawn two parallel *read-only* reviewer sub-agents over the *uncommitted* diff — one with a correctness/regression lens (library semantics, edge cases, side effects), one with a rules/docs/convention lens (project + global rules, CHANGELOG accuracy, fixture naming, help-text conventions). The conductor independently verifies decisive claims. Blocker/Should findings are fixed before committing; trivial cosmetic points may be applied inline, everything else joins the grouped-issue comment. Reviewing *before* the single commit exists because `--amend` is forbidden in this repo — it is the only way to keep the pass at one commit.
+  7. One selective `git add` + one signed commit, push, PR, CI green, then the FF-merge and branch cleanup per `kasapi-cli-git-workflow` (the push to `main` always needs the user's per-instance authorization).
+- **CHANGELOG shape:** one umbrella bullet per pass under `[Unreleased]/Fixed` — `Whole-codebase re-review follow-up (<n>th pass, <severities>)` — with one sub-bullet per finding, inserted above the previous pass's entry (newest first).
+
 ## Delegated Multi-Agent Loop (fresh eyes)
 
 When the review surface is broad (multi-file, cross-module, a whole package or branch) or the user asks for a delegated review, run the loop as a chain of dedicated, freshly-spawned sub-agents instead of switching hats in one context. The point is structural independence: no agent ever reviews its own work.
@@ -65,9 +80,10 @@ Don't over-orchestrate: a single small diff stays an inline review — the deleg
 
 ## Follow-Up Issues
 
-When filing the Nice-to-have bundle as a GitHub issue:
+When recording the Nice-to-have bundle on GitHub:
 
-- one issue per review pass, not one per finding,
+- **reuse the existing grouped NTH issue when one is open** (e.g. #200): append one comment per review pass, prefixed with which pass and date it came from — do not open a new issue per pass; only open a new grouped issue when none exists,
 - bullet list with the same `file:line` + one-sentence-each shape used in the report,
-- attach to the active project board so the item is tracked alongside feature work,
-- label `documentation` for doc/comment-only items, otherwise leave unlabeled and let triage decide.
+- cosmetic-only findings surfaced by the pre-commit diff review of the fix branch join the same comment as a clearly-marked addendum,
+- mark items that overlap an already-tracked class in the issue as such instead of re-filing them,
+- attach a newly-created issue to the active project board so it is tracked alongside feature work; label `documentation` for doc/comment-only items, otherwise leave unlabeled and let triage decide.
