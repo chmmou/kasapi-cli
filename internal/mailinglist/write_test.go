@@ -148,18 +148,14 @@ func TestParamBuilders(t *testing.T) {
 
 // TestFaultFixturesDecodeToDocumentedCodes binds the captured
 // *_response_failed_*.xml fixtures to the KAS contract via the shared
-// testutil.AssertFaultFixtures anchor. The
-// add_mailinglist_..._mailinglist_mailinglist_domain_doesnt_exist
-// sample is pinned because its filename duplicates the mailinglist_
-// prefix while the fault code does not — a code drift the curated map
-// would catch.
+// testutil.AssertFaultFixtures anchor.
 func TestFaultFixturesDecodeToDocumentedCodes(t *testing.T) {
 	t.Parallel()
 	testutil.AssertFaultFixtures(t, "mailinglist", map[string]string{
-		"add_mailinglist_response_failed_missing_parameter.xml":                           "missing_parameter",
-		"add_mailinglist_response_failed_mailinglist_mailinglist_domain_doesnt_exist.xml": "mailinglist_domain_doesnt_exist",
-		"update_mailinglist_response_failed_nothing_to_do.xml":                            "nothing_to_do",
-		"update_mailinglist_response_failed_subscriber_email_syntax_incorrect.xml":        "subscriber_email_syntax_incorrect",
-		"delete_mailinglist_response_failed_mailinglist_not_found.xml":                    "mailinglist_not_found",
+		"add_mailinglist_response_failed_missing_parameter.xml":                    "missing_parameter",
+		"add_mailinglist_response_failed_mailinglist_domain_doesnt_exist.xml":      "mailinglist_domain_doesnt_exist",
+		"update_mailinglist_response_failed_nothing_to_do.xml":                     "nothing_to_do",
+		"update_mailinglist_response_failed_subscriber_email_syntax_incorrect.xml": "subscriber_email_syntax_incorrect",
+		"delete_mailinglist_response_failed_mailinglist_not_found.xml":             "mailinglist_not_found",
 	})
 }
