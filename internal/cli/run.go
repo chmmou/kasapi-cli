@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"time"
 
@@ -160,9 +159,23 @@ func runWriteE(opts *RootOptions, build func(args []string) (writeSpec, error)) 
 		if derr != nil {
 			return APIError(derr, spec.action)
 		}
-		if _, perr := fmt.Fprintln(out, result); perr != nil {
-			return UserError(perr, "render")
+		if rerr := Render(out, opts.Output, writeResult{Message: result}); rerr != nil {
+			return UserError(rerr, "render")
 		}
 		return nil
 	}
 }
+
+// writeResult wraps the human success line a write dispatch returns so
+// it renders through the same --output pipeline the read commands use:
+// table output stays the bare line (no header row), json/yaml emit a
+// {"message": ...} object that scripts can parse.
+type writeResult struct {
+	Message string `json:"message" yaml:"message"`
+}
+
+// TableHeaders implements Tabular; a success line needs no header row.
+func (writeResult) TableHeaders() []string { return nil }
+
+// TableRows implements Tabular.
+func (r writeResult) TableRows() [][]string { return [][]string{{r.Message}} }

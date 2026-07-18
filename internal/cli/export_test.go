@@ -34,6 +34,12 @@ var RevokeSession = revokeSession
 // temp session.Store, mirroring the `config use-profile` pattern.
 var RunSessionsDelete = runSessionsDelete
 
+// WriteResult mirrors the unexported writeResult wrapper runWriteE
+// renders its success line through, so tests can pin the --output
+// contract of write commands (table = bare line, json/yaml = message
+// object) without a network dispatch.
+type WriteResult = writeResult
+
 // DatabaseDeleteConfirm and MailAccountDeleteConfirm expose the
 // package-private helpers that build the delete ConfirmAction for their
 // slices. Tests use them to pin the "permanently delete" loudness
