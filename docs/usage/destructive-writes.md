@@ -54,9 +54,11 @@ Before a destructive call leaves the machine, the command prints a
 one-line summary of the pending change and asks for confirmation:
 
 ```
-About to delete mail account "m0000001". This cannot be undone.
-Proceed? [y/N]:
+About to permanently delete mail account "m0000001". This cannot be undone. [y/N]:
 ```
+
+The prompt is written to **stderr**, so redirecting stdout (`cmd >
+file`) cannot swallow the question the command is waiting on.
 
 - Only an explicit `y` / `yes` (case-insensitive) proceeds. Empty input
   or anything else aborts.
@@ -88,10 +90,16 @@ non-interactively.
 ## Audit log
 
 Independently of the confirmation prompt and of `--verbose`, every
-dispatched write action leaves a structured trace
+write action dispatched through a module write subcommand (the
+`add`/`update`/`delete` slices listed above) leaves a structured trace
 ([#131](https://github.com/chmmou/kasapi-cli/issues/131)). The record is
 emitted **after** the SOAP call returns, regardless of success or
 failure.
+
+The session logout dispatched by `sessions delete` and `config
+use-profile` (`delete_session`) is not part of this pipeline: it only
+invalidates the caller's own session token, is not gated, and leaves
+no audit record.
 
 A `logfmt`-style line always goes to **stderr**:
 

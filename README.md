@@ -22,13 +22,13 @@
 
 ## Status
 
-Early development. The transport, authentication, configuration, and the v0.1.0 read modules are wired up; write paths and the remaining read endpoints are still pending — see [ROADMAP.md](ROADMAP.md) for the current state. The repository also ships recorded KAS-API response fixtures under `testdata/` that drive offline parser tests.
+Early development. The transport, authentication, configuration, the v0.1.0 read modules, and most of the v0.2.0 write paths (mail accounts/forwards/filters/lists, databases, FTP/Samba users, DDNS users, cronjobs, directory protection) are wired up. The remaining write endpoints (software installs, the filesystem/SSL helpers) are still pending — see [ROADMAP.md](ROADMAP.md) for the current state. The repository also ships recorded KAS-API response fixtures under `testdata/` that drive offline parser tests.
 
-CI gates `gofmt`/`go vet`/`golangci-lint` (with `gosec`)/`go test`/`go test -race`/`go build`, plus a `govulncheck` job on every PR. Dependabot keeps `gomod` and `github-actions` versions current.
+CI gates `gofmt`/`go vet`/`golangci-lint` (with `gosec`)/`go test`/`go test -race`/`go build`, a docs-sync job (`make docs` must produce no diff against the checked-in `docs/cli/`), a `goreleaser` config check, CodeQL, plus a `govulncheck` job on every PR. Dependabot keeps `gomod` and `github-actions` versions current.
 
 ## What it does
 
-`kasapi-cli` is a command-line client for the All-Inkl KAS-API. It wraps the SOAP/`ns2:Map` wire format the API uses, handles the `KasAuth` credential-token flow (plain or session, optional 2FA), enforces the `KasFloodDelay` between calls, and exposes read operations for the resources documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>. Write paths are scheduled for v0.2.0 — see [ROADMAP.md](ROADMAP.md).
+`kasapi-cli` is a command-line client for the All-Inkl KAS-API. It wraps the SOAP/`ns2:Map` wire format the API uses, handles the `KasAuth` credential-token flow (plain or session, optional 2FA), enforces the `KasFloodDelay` between calls, and exposes read and write operations for the resources documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>. Destructive writes are gated behind a confirmation prompt, support `--dry-run`, and leave an audit trace — see [docs/usage/destructive-writes.md](docs/usage/destructive-writes.md). The remaining write endpoints are tracked in [ROADMAP.md](ROADMAP.md).
 
 ## Install
 

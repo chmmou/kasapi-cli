@@ -58,7 +58,7 @@ Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API
 - [x] `mail forwards add/update/delete` (`add_mailforward`, `update_mailforward`, `delete_mailforward`, #115)
 - [x] `mail filters list` (`get_mailstandardfilter`)
 - [x] `mail filters add/delete` (`add_mailstandardfilter`, `delete_mailstandardfilter`, #116)
-- [x] `mail lists list` (`get_mailinglists`)
+- [x] `mail lists list` / `mail lists get <mailinglist-name>` (`get_mailinglists`)
 - [x] `mail lists add/update/delete` (`add_mailinglist`, `update_mailinglist`, `delete_mailinglist`, #117)
 
 ## Hosting resources
@@ -69,7 +69,7 @@ Cross-cutting prerequisites for the v0.2.0 write phase — these are not KAS-API
 - [x] `ftpusers add/update/delete` (`add_ftpuser`, `update_ftpuser`, `delete_ftpuser`, #119)
 - [x] `sambausers list` / `sambausers get <samba-login>` (`get_sambausers`, with `samba_login` filter)
 - [x] `sambausers add/update/delete` (`add_sambauser`, `update_sambauser`, `delete_sambauser`, #120)
-- [x] `ddnsusers list` / `ddnsusers get <dyndns-login>` (`get_ddnsusers`, with `ddns_login` filter)
+- [x] `ddnsusers list` / `ddnsusers get <ddns-login>` (`get_ddnsusers`, with `ddns_login` filter)
 - [x] `ddnsusers add/update/delete` (`add_ddnsuser`, `update_ddnsuser`, `delete_ddnsuser`, #121)
 - [x] `cronjobs list` / `cronjobs get <cronjob-id>` (`get_cronjobs`, with `cronjob_id` filter)
 - [x] `cronjobs add/update/delete` (`add_cronjob`, `update_cronjob`, `delete_cronjob`, #118)

@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository State
 
-The read-phase modules are wired up (accounts, server, domains/subdomains/TLDs, DNS, mail, databases, FTP/Samba users, cronjobs, directory protection, software installs, DDNS users, usage statistics) and the standard CI gate (`lint & test` + `docs sync`) runs on every push and pull request. `main` is protected: signed commits are required, force-pushes to `main` are blocked for the GitHub UI / `gh pr merge --rebase` (signatures are stripped server-side), and merging happens via a locally-rebased fast-forward push by the maintainer (see `.claude/skills/kasapi-cli-git-workflow/SKILL.md`).
+The read-phase modules are wired up (accounts, server, domains/subdomains/TLDs, DNS, mail, databases, FTP/Samba users, cronjobs, directory protection, software installs, DDNS users, usage statistics), and so are most v0.2.0 write slices (mail accounts/forwards/filters/lists, databases, FTP/Samba users, DDNS users, cronjobs, directory protection) including the destructive-write safety contract (confirmation gate, `--dry-run`, audit records — see `docs/usage/destructive-writes.md`). The CI gate (`lint & test`, `docs sync`, `goreleaser` config check, `govulncheck`, CodeQL) runs on every push and pull request. `main` is protected: signed commits are required, force-pushes to `main` are blocked for the GitHub UI / `gh pr merge --rebase` (signatures are stripped server-side), and merging happens via a locally-rebased fast-forward push by the maintainer (see `.claude/skills/kasapi-cli-git-workflow/SKILL.md`).
 
-Write paths and the remaining read endpoints are part of the v0.2.0 backlog tracked on the *kasapi-cli v0.1.0* GitHub project; do not invent endpoints not documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>.
+The remaining write endpoints (software installs, filesystem/SSL helpers) are part of the v0.2.0 backlog tracked on the *kasapi-cli v0.1.0* GitHub project; do not invent endpoints not documented at <https://kasapi.kasserver.com/dokumentation/phpdoc/>.
 
 There is no predecessor library and no inherited backlog. Do not assume or import patterns from any other KAS client; design from the KAS API docs and the fixtures in `testdata/`.
 
