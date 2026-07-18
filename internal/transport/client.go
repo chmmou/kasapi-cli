@@ -167,6 +167,12 @@ func (c *Client) doOnce(ctx context.Context, endpoint string, body []byte) ([]by
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
+		// A cancelled or timed-out context is the caller's decision to
+		// stop, not a transient server condition — retrying would only
+		// burn a backoff sleep before failing on the same ctx again.
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			return nil, fmt.Errorf("transport: post %s: %w", endpoint, err)
+		}
 		return nil, &retryableError{err: fmt.Errorf("transport: post %s: %w", endpoint, err)}
 	}
 	defer func() { _ = resp.Body.Close() }()

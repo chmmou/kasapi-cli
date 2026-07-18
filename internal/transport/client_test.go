@@ -374,18 +374,27 @@ func TestRecordDelayExtendsWhenNewDelayIsLonger(t *testing.T) {
 }
 
 func TestDoRespectsContextDeadlineDuringRequest(t *testing.T) {
+	var hits atomic.Int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
 		<-r.Context().Done()
 	}))
 	defer srv.Close()
 
 	c := newClient(srv, newFakeClock())
-	c.MaxRetries = 0
 	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 	defer cancel()
 	_, err := c.Do(ctx, srv.URL, nil)
 	if err == nil {
 		t.Fatal("expected error on cancelled context")
+	}
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("err = %v, want context.DeadlineExceeded preserved", err)
+	}
+	// The caller's cancellation is not a transient server condition:
+	// even with MaxRetries at its default, exactly one attempt runs.
+	if hits.Load() != 1 {
+		t.Errorf("requests = %d, want 1 (no retry on context cancellation)", hits.Load())
 	}
 }
 
