@@ -575,6 +575,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Whole-codebase re-review follow-up (fourth pass, Med + Low findings):
+  - The `mail lists update` `--config-file` / `--subscriber` blobs are
+    now elided from the audit record **by key** (`config` /
+    `subscriber`), independent of the multi-line/oversized shape
+    heuristic: a single-line list config short enough to pass that
+    heuristic could previously reach both audit sinks verbatim,
+    including an embedded cleartext list password —
+    `docs/usage/destructive-writes.md` already promised these blobs
+    never do.
+  - `kasapi-cli help <nonsense>` now exits 1 like every other unknown
+    command: cobra's stock help command returns nil for an
+    unresolvable topic, so a typo'd topic read as success to scripts.
+    `help`, `help <group>`, and `help <group> <subcommand>` keep
+    printing help with exit 0.
+  - The last `get_<singular>` fixture missed by the third-pass rename
+    sweep, `testdata/account/get_account_response_success.xml`
+    (embedding the real plural action `get_accounts`), was renamed to
+    `get_accounts_response_success_single.xml`.
+  - `config show` / `config path` / `config list-profiles` and
+    `sessions delete` now document in their `--help` that their output
+    is plain text and the global `--output` format flag has no effect
+    there, instead of silently ignoring it.
+  - The `mail accounts update` and `ddnsusers update` `--help` texts
+    now describe every field flag as a replacement value (the
+    convention the cronjob/ftpuser/sambauser/database update commands
+    already follow), instead of reusing `add`'s wording on all but the
+    password flag.
+  - The white-box `runWriteE` created_id test no longer couples
+    to host state — it pins `KAS_AUDIT_LOG` and points `--config` at a
+    nonexistent temp path so it cannot read the developer's real
+    config or append to a real audit log.
+
 - Whole-codebase re-review follow-up (third pass, High + Med + Low
   findings):
   - Group commands (`mail`, `accounts`, `config`, ...) invoked with an

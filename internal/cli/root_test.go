@@ -194,6 +194,56 @@ func TestCompletionArgErrorsExitUserError(t *testing.T) {
 	}
 }
 
+// TestHelpUnknownTopicExitsUserError pins that `help <nonsense>` exits
+// 1 like every other unknown command: cobra's stock help command
+// returns nil for an unresolvable topic, which would read as success
+// to scripts.
+func TestHelpUnknownTopicExitsUserError(t *testing.T) {
+	t.Parallel()
+	root, opts := cli.NewRootCmd()
+	root.AddCommand(cli.NewMailCmd(opts))
+	cli.Finalize(root)
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{"help", "frobnicate"})
+	err := root.Execute()
+	if err == nil {
+		t.Fatal("Execute help frobnicate: want error, got nil")
+	}
+	if cli.CodeFor(err) != cli.ExitUserError {
+		t.Errorf("unknown help topic should map to ExitUserError, got %d", cli.CodeFor(err))
+	}
+	if !strings.Contains(err.Error(), "unknown help topic") {
+		t.Errorf("error message: %q", err.Error())
+	}
+}
+
+// `help <group> <subcommand>` and bare `help` keep printing help with
+// exit 0 after the unknown-topic hardening.
+func TestHelpKnownTopicsPrintHelp(t *testing.T) {
+	t.Parallel()
+	for _, args := range [][]string{
+		{"help"},
+		{"help", "mail"},
+		{"help", "mail", "accounts"},
+	} {
+		root, opts := cli.NewRootCmd()
+		root.AddCommand(cli.NewMailCmd(opts))
+		cli.Finalize(root)
+		var out bytes.Buffer
+		root.SetOut(&out)
+		root.SetErr(&out)
+		root.SetArgs(args)
+		if err := root.Execute(); err != nil {
+			t.Fatalf("Execute %v: %v", args, err)
+		}
+		if out.Len() == 0 {
+			t.Errorf("Execute %v printed no help output", args)
+		}
+	}
+}
+
 // TestMarkArgErrorsAsUserErrors pins the exit-code contract for a
 // positional-args validation failure (e.g. a missing required argument
 // on an ExactArgs(1) subcommand) after the cmd/kasapi-cli wiring has

@@ -2,6 +2,12 @@
 
 List configured profiles and their auth_type (auth_data redacted)
 
+### Synopsis
+
+List configured profiles alphabetically, one per line, with the default profile marked "*" and auth_data never shown.
+
+The output is plain text; the global --output format flag has no effect here.
+
 ```
 kasapi-cli config list-profiles [flags]
 ```

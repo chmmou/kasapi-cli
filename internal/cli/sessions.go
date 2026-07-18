@@ -45,7 +45,9 @@ func newSessionsDeleteCmd(opts *RootOptions) *cobra.Command {
 			"fresh token just to delete it. Idempotent: a missing or " +
 			"already-invalid session is reported and exits 0. No confirmation " +
 			"prompt — deleting a session merely forces a re-authentication on " +
-			"the next session-mode call.",
+			"the next session-mode call.\n\n" +
+			"The output is plain text; the global --output format flag has " +
+			"no effect here.",
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			logger := buildLogger(opts.Verbose)

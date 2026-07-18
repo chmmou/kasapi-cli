@@ -48,7 +48,10 @@ func newConfigPathCmd(opts *RootOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "path",
 		Short: "Print the resolved config-file path",
-		Args:  cobra.NoArgs,
+		Long: "Print the resolved config-file path.\n\n" +
+			"The output is a single plain-text line; the global --output " +
+			"format flag has no effect here.",
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			path, err := resolveConfigPath(opts.ConfigPath)
 			if err != nil {
@@ -66,7 +69,12 @@ func newConfigShowCmd(opts *RootOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "show",
 		Short: "Print the resolved effective config (auth_data redacted)",
-		Args:  cobra.NoArgs,
+		Long: "Print the resolved effective config: config path, profiles, " +
+			"and the config+env+flag credential resolution result, with " +
+			"auth_data redacted.\n\n" +
+			"The output is plain key: value text; the global --output " +
+			"format flag has no effect here.",
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return runConfigShow(opts, cmd.OutOrStdout())
 		},
@@ -508,7 +516,11 @@ func newConfigListProfilesCmd(opts *RootOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list-profiles",
 		Short: "List configured profiles and their auth_type (auth_data redacted)",
-		Args:  cobra.NoArgs,
+		Long: "List configured profiles alphabetically, one per line, with " +
+			"the default profile marked \"*\" and auth_data never shown.\n\n" +
+			"The output is plain text; the global --output format flag has " +
+			"no effect here.",
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return runConfigListProfiles(opts.ConfigPath, cmd.OutOrStdout())
 		},

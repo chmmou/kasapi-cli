@@ -10,11 +10,11 @@ kasapi-cli ddnsusers update <dyndns-login> [password/target/dual-stack flags] [f
 
 ```
       --comment string       replacement user comment / label
-      --dual-stack           enable dual-stack (Y) for this user; pass --dual-stack=false to disable
+      --dual-stack           replacement dual-stack setting: Y when set, --dual-stack=false sends N
   -h, --help                 help for update
       --password string      replacement DDNS password
-      --target-ipv4 string   IPv4 target (undocumented but verified)
-      --target-ipv6 string   IPv6 target (undocumented but verified)
+      --target-ipv4 string   replacement IPv4 target (undocumented but verified)
+      --target-ipv6 string   replacement IPv6 target (undocumented but verified)
 ```
 
 ### Options inherited from parent commands

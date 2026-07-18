@@ -9,23 +9,23 @@ kasapi-cli mail accounts update <mail-login> [field flags] [flags]
 ### Options
 
 ```
-      --active string                   mailbox status (Y|N)
-      --allow-nets string               restrict access to these IP/CIDR networks
-      --copy-address string             BCC copy recipient address(es)
+      --active string                   replacement mailbox status (Y|N)
+      --allow-nets string               replacement IP/CIDR network access restriction (an explicitly empty value clears it)
+      --copy-address string             replacement BCC copy recipient address(es)
   -h, --help                            help for update
       --password string                 replacement mailbox password (sent as mail_new_password)
-      --responder string                auto-responder: "N", "Y", or a "<start>|<end>" timestamp range
-      --responder-content-type string   auto-responder body format (html|text)
-      --responder-displayname string    auto-responder sender display name
-      --responder-text string           auto-responder message body
-      --sender-alias string             permitted FROM alias address(es)
-      --webmail-autologin string        allow KAS-to-webmail auto-login (Y|N)
-      --xlist-archiv string             XLIST archive folder name
-      --xlist-drafts string             XLIST drafts folder name
-      --xlist-enabled string            enable XLIST special-folder mapping (Y|N)
-      --xlist-sent string               XLIST sent-items folder name
-      --xlist-spam string               XLIST spam folder name
-      --xlist-trash string              XLIST trash folder name
+      --responder string                replacement auto-responder setting: "N", "Y", or a "<start>|<end>" timestamp range
+      --responder-content-type string   replacement auto-responder body format (html|text)
+      --responder-displayname string    replacement auto-responder sender display name
+      --responder-text string           replacement auto-responder message body
+      --sender-alias string             replacement permitted FROM alias address(es)
+      --webmail-autologin string        replacement KAS-to-webmail auto-login setting (Y|N)
+      --xlist-archiv string             replacement XLIST archive folder name
+      --xlist-drafts string             replacement XLIST drafts folder name
+      --xlist-enabled string            replacement XLIST special-folder mapping setting (Y|N)
+      --xlist-sent string               replacement XLIST sent-items folder name
+      --xlist-spam string               replacement XLIST spam folder name
+      --xlist-trash string              replacement XLIST trash folder name
 ```
 
 ### Options inherited from parent commands

@@ -126,10 +126,11 @@ additionally appends the same record as one JSON object per line
 
 Secret request parameters (`auth_data`, `*password`, `*token`,
 `*secret`, …) are replaced with `<redacted>` in **both** sinks and never
-written. Multi-line or oversized values (e.g. the `mail lists update`
-`--config-file` / `--subscriber` blobs, which can contain the list
-password) are elided to `<elided N bytes>`. Read commands produce no
-audit record.
+written. The `mail lists update` `--config-file` / `--subscriber` blobs
+(which can contain the list password) are always elided to
+`<elided N bytes>`, keyed on the parameter name and independent of
+their size; any other multi-line or oversized value is elided the same
+way. Read commands produce no audit record.
 
 ## `--dry-run`: preview without dispatching
 

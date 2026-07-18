@@ -170,9 +170,9 @@ func (f *ddnsuserUpdateFlags) bind(cmd *cobra.Command) {
 	fl := cmd.Flags()
 	fl.StringVar(&f.password, "password", "", "replacement DDNS password")
 	fl.StringVar(&f.comment, "comment", "", "replacement user comment / label")
-	fl.StringVar(&f.targetIPv4, "target-ipv4", "", "IPv4 target (undocumented but verified)")
-	fl.StringVar(&f.targetIPv6, "target-ipv6", "", "IPv6 target (undocumented but verified)")
-	fl.BoolVar(&f.dualStack, "dual-stack", false, "enable dual-stack (Y) for this user; pass --dual-stack=false to disable")
+	fl.StringVar(&f.targetIPv4, "target-ipv4", "", "replacement IPv4 target (undocumented but verified)")
+	fl.StringVar(&f.targetIPv6, "target-ipv6", "", "replacement IPv6 target (undocumented but verified)")
+	fl.BoolVar(&f.dualStack, "dual-stack", false, "replacement dual-stack setting: Y when set, --dual-stack=false sends N")
 }
 
 // ddnsuserUpdateChangedFields collects only the flags the user

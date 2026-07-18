@@ -8,6 +8,8 @@ Invalidate the resolved profile's cached session token, both server-side (kas_ac
 
 Acts on the *currently cached* token only; it never bootstraps a fresh token just to delete it. Idempotent: a missing or already-invalid session is reported and exits 0. No confirmation prompt — deleting a session merely forces a re-authentication on the next session-mode call.
 
+The output is plain text; the global --output format flag has no effect here.
+
 ```
 kasapi-cli sessions delete [flags]
 ```

@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -23,12 +24,18 @@ import (
 // in the success audit record (created_id), not only in the rendered
 // success line.
 func TestRunWriteESuccessAuditCarriesCreatedID(t *testing.T) {
-	t.Parallel()
+	// No t.Parallel(): t.Setenv forbids it. The env override and the
+	// nonexistent --config path keep the test hermetic — without them
+	// resolveCreds would read the developer's real config file and a
+	// host-set KAS_AUDIT_LOG would make runWriteE append to the real
+	// audit log.
+	t.Setenv("KAS_AUDIT_LOG", "")
 	opts := &RootOptions{
-		Login:    "w0000000",
-		AuthData: "x",
-		AuthType: "plain",
-		Output:   FormatTable,
+		ConfigPath: filepath.Join(t.TempDir(), "config.toml"),
+		Login:      "w0000000",
+		AuthData:   "x",
+		AuthType:   "plain",
+		Output:     FormatTable,
 	}
 	var createdID string
 	run := runWriteE(opts, func([]string) (writeSpec, error) {

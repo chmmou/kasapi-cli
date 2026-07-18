@@ -79,6 +79,17 @@ var auditSecretParams = map[string]struct{}{
 
 const auditRedacted = "<redacted>"
 
+// auditBlobParams are wholesale-replacement blob keys
+// (update_mailinglist's config / subscriber) whose content is always
+// elided by key, independent of the size/shape heuristic below: the
+// list config can embed the list password in cleartext, and a
+// single-line config under maxAuditValueLen would otherwise reach both
+// audit sinks verbatim.
+var auditBlobParams = map[string]struct{}{
+	"config":     {},
+	"subscriber": {},
+}
+
 // maxAuditValueLen caps how long a single parameter value may be before
 // RedactParams elides it. Normal write parameters (names, hosts, Y/N
 // toggles) are far shorter; only wholesale blobs like the mailing-list
@@ -106,12 +117,12 @@ func redactParam(key string) bool {
 
 // RedactParams converts a KAS request/response parameter map into the
 // string map stored on AuditRecord.Fields, replacing every secret value
-// (see redactParam) with auditRedacted. Multi-line or oversized values
-// (mailing-list config / subscriber blobs sent wholesale by
-// update_mailinglist) are elided to a "<elided N bytes>" marker: the
-// list config can carry the list password in cleartext, so the blob
-// content must never reach either audit sink. Non-string values are
-// rendered with %v. A nil/empty map yields nil so the field is omitted.
+// (see redactParam) with auditRedacted. Wholesale blob keys
+// (auditBlobParams) and any multi-line or oversized value are elided to
+// a "<elided N bytes>" marker: the mailing-list config can carry the
+// list password in cleartext, so the blob content must never reach
+// either audit sink. Non-string values are rendered with %v. A
+// nil/empty map yields nil so the field is omitted.
 func RedactParams(params map[string]any) map[string]string {
 	if len(params) == 0 {
 		return nil
@@ -123,7 +134,8 @@ func RedactParams(params map[string]any) map[string]string {
 			continue
 		}
 		s := fmt.Sprintf("%v", v)
-		if strings.ContainsAny(s, "\n\r") || len(s) > maxAuditValueLen {
+		_, blob := auditBlobParams[strings.ToLower(k)]
+		if blob || strings.ContainsAny(s, "\n\r") || len(s) > maxAuditValueLen {
 			s = fmt.Sprintf("<elided %d bytes>", len(s))
 		}
 		out[k] = s

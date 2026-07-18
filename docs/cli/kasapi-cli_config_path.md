@@ -2,6 +2,12 @@
 
 Print the resolved config-file path
 
+### Synopsis
+
+Print the resolved config-file path.
+
+The output is a single plain-text line; the global --output format flag has no effect here.
+
 ```
 kasapi-cli config path [flags]
 ```

@@ -143,8 +143,42 @@ func unknownSubcommandArgs(cmd *cobra.Command, args []string) error {
 // cmd/kasapi-cli, so tests exercise exactly the wiring the binary runs.
 func Finalize(root *cobra.Command) {
 	root.InitDefaultCompletionCmd()
+	rejectUnknownHelpTopics(root)
 	RejectUnknownSubcommands(root)
 	MarkArgErrorsAsUserErrors(root)
+}
+
+// rejectUnknownHelpTopics replaces the stock help command's Run with a
+// RunE so `kasapi-cli help nonsense` exits 1 like every other unknown
+// command. Cobra's default prints "Unknown help topic" (or, with a
+// non-nil root Args validator, the root help) and returns nil — a
+// typo'd topic would read as success to scripts, contradicting the
+// unknown-subcommand contract established by RejectUnknownSubcommands.
+func rejectUnknownHelpTopics(root *cobra.Command) {
+	root.InitDefaultHelpCmd()
+	for _, sub := range root.Commands() {
+		if sub.Name() != "help" {
+			continue
+		}
+		sub.Run = nil
+		sub.RunE = func(c *cobra.Command, args []string) error {
+			target, rest, err := c.Root().Find(args)
+			// Find only consumes resolved command names; leftover
+			// non-flag args are an unresolved topic path.
+			for _, a := range rest {
+				if !strings.HasPrefix(a, "-") {
+					err = errors.New("unresolved args")
+				}
+			}
+			if target == nil || err != nil {
+				return UserError(fmt.Errorf("unknown help topic %q for %q", strings.Join(args, " "), root.CommandPath()), "")
+			}
+			target.InitDefaultHelpFlag()
+			target.InitDefaultVersionFlag()
+			return target.Help()
+		}
+		return
+	}
 }
 
 // RejectUnknownSubcommands walks the command tree and gives every

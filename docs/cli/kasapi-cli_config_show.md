@@ -2,6 +2,12 @@
 
 Print the resolved effective config (auth_data redacted)
 
+### Synopsis
+
+Print the resolved effective config: config path, profiles, and the config+env+flag credential resolution result, with auth_data redacted.
+
+The output is plain key: value text; the global --output format flag has no effect here.
+
 ```
 kasapi-cli config show [flags]
 ```

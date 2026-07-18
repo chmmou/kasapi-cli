@@ -54,23 +54,29 @@ func TestRedactParams(t *testing.T) {
 	}
 }
 
-// Multi-line or oversized parameter values (the wholesale mailing-list
-// config / subscriber blobs of update_mailinglist) must never reach the
-// audit sinks verbatim: the list config can carry the list password in
-// cleartext.
+// The wholesale mailing-list config / subscriber blobs of
+// update_mailinglist must never reach the audit sinks verbatim: the
+// list config can carry the list password in cleartext. They are
+// elided by key — a single-line config short enough to pass the
+// size/shape heuristic must still be elided — and any other multi-line
+// or oversized value is elided by shape.
 func TestRedactParamsElidesBlobs(t *testing.T) {
 	t.Parallel()
 	got := cli.RedactParams(map[string]any{
-		"config":     "line1\npassword secret123\n",
-		"subscriber": "a@x.de\rb@x.de",
-		"long":       strings.Repeat("x", 300),
+		"config":     "keep_password secret123", // single-line, short: elided by key
+		"subscriber": "a@x.de",                  // single-line, short: elided by key
+		"notes":      "line1\nline2",            // elided by shape (multi-line)
+		"long":       strings.Repeat("x", 300),  // elided by shape (oversized)
 		"comment":    "short stays",
 	})
-	if got["config"] != "<elided 25 bytes>" {
-		t.Errorf("config = %q, want <elided 25 bytes>", got["config"])
+	if got["config"] != "<elided 23 bytes>" {
+		t.Errorf("config = %q, want <elided 23 bytes>", got["config"])
 	}
-	if got["subscriber"] != "<elided 13 bytes>" {
-		t.Errorf("subscriber = %q, want <elided 13 bytes>", got["subscriber"])
+	if got["subscriber"] != "<elided 6 bytes>" {
+		t.Errorf("subscriber = %q, want <elided 6 bytes>", got["subscriber"])
+	}
+	if got["notes"] != "<elided 11 bytes>" {
+		t.Errorf("notes = %q, want <elided 11 bytes>", got["notes"])
 	}
 	if got["long"] != "<elided 300 bytes>" {
 		t.Errorf("long = %q, want <elided 300 bytes>", got["long"])

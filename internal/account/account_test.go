@@ -158,7 +158,7 @@ func TestClientList(t *testing.T) {
 
 func TestClientGet(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "account/get_account_response_success.xml")
+	resp := testutil.DecodeFixture(t, "account/get_accounts_response_success_single.xml")
 	fc := &testutil.FakeCaller{Resp: resp}
 	got, err := account.NewClient(fc).Get(context.Background(), "w0000001")
 	if err != nil {
@@ -190,7 +190,7 @@ func TestClientGetNotFound(t *testing.T) {
 	t.Parallel()
 	// Synthesise an empty array response by reusing the singular
 	// fixture but with the array stripped to zero entries.
-	emptyResp := testutil.DecodeFixture(t, "account/get_account_response_success.xml")
+	emptyResp := testutil.DecodeFixture(t, "account/get_accounts_response_success_single.xml")
 	emptyResp.Body.ReturnInfo.Array = nil
 	c := account.NewClient(&testutil.FakeCaller{Resp: emptyResp})
 	if _, err := c.Get(context.Background(), "wXXXXXXX"); err == nil {
@@ -230,7 +230,7 @@ func TestAccountListTabular(t *testing.T) {
 
 func TestAccountTabular(t *testing.T) {
 	t.Parallel()
-	resp := testutil.DecodeFixture(t, "account/get_account_response_success.xml")
+	resp := testutil.DecodeFixture(t, "account/get_accounts_response_success_single.xml")
 	accs, _ := account.DecodeAccounts(resp.Body.ReturnInfo)
 	if len(accs) != 1 {
 		t.Fatalf("len = %d, want 1", len(accs))
