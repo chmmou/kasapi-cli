@@ -168,10 +168,12 @@ func (s *Store) Load(ctx context.Context, login string) (*Entry, error) {
 // ExpiresAt is zero, it is computed as Now+LifetimeSeconds (or
 // Now+DefaultLifetime when LifetimeSeconds is 0).
 //
-// Save serialises with concurrent Load / Delete / Save calls (including
-// from other kasapi-cli processes) via an advisory file lock at
-// LockPath so a Heartbeat from one process cannot lose another
-// process's update. ctx cancels the wait for the lock.
+// Save serialises with concurrent Load / Delete / Save / Refresh calls
+// (including from other kasapi-cli processes) via an advisory file lock
+// at LockPath. Heartbeats must go through Refresh, not Save — Save
+// replaces unconditionally and would clobber a newer token another
+// process has persisted in the meantime. ctx cancels the wait for the
+// lock.
 func (s *Store) Save(ctx context.Context, login string, e Entry) error {
 	if login == "" {
 		return errors.New("session: Save requires login")
@@ -189,6 +191,41 @@ func (s *Store) Save(ctx context.Context, login string, e Entry) error {
 		}
 		if file.Sessions == nil {
 			file.Sessions = map[string]Entry{}
+		}
+		file.Sessions[login] = e
+		return s.write(file)
+	})
+}
+
+// Refresh persists e under login only while the stored entry still
+// carries the same token as e.Token. It is the Heartbeat counterpart of
+// Save: a heartbeat re-persists the token its process authenticated
+// with plus a fresh expiry, so when another process has since saved a
+// different (newer) token, writing the stale one back would clobber
+// that update — the newer entry is left untouched instead. A missing
+// file or entry is likewise left alone: there is nothing the stale
+// token may extend. If ExpiresAt is zero it is computed as in Save.
+//
+// Refresh serialises with concurrent Load / Save / Delete calls via the
+// advisory file lock at LockPath. ctx cancels the wait for the lock.
+func (s *Store) Refresh(ctx context.Context, login string, e Entry) error {
+	if login == "" {
+		return errors.New("session: Refresh requires login")
+	}
+	if e.Token == "" {
+		return errors.New("session: Refresh requires token")
+	}
+	if e.ExpiresAt.IsZero() {
+		e.ExpiresAt = s.now().Add(s.lifetime(e))
+	}
+	return s.withLock(ctx, func() error {
+		file, err := s.read()
+		if err != nil {
+			return err
+		}
+		cur, ok := file.Sessions[login]
+		if !ok || cur.Token != e.Token {
+			return nil
 		}
 		file.Sessions[login] = e
 		return s.write(file)

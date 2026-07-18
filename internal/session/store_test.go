@@ -272,3 +272,56 @@ func TestStoreReleasesLockAfterSave(t *testing.T) {
 	}
 	_ = ext.Unlock()
 }
+
+func TestRefreshExtendsMatchingToken(t *testing.T) {
+	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	s := newStore(t, now)
+	if err := s.Save(t.Context(), "w0", session.Entry{Token: "tok", ExpiresAt: now.Add(time.Hour)}); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	next := session.Entry{Token: "tok", ExpiresAt: now.Add(2 * time.Hour), LifetimeSeconds: 7200}
+	if err := s.Refresh(t.Context(), "w0", next); err != nil {
+		t.Fatalf("Refresh: %v", err)
+	}
+	got, err := s.Load(t.Context(), "w0")
+	if err != nil || got == nil {
+		t.Fatalf("Load: %v %v", got, err)
+	}
+	if !got.ExpiresAt.Equal(next.ExpiresAt) || got.LifetimeSeconds != 7200 {
+		t.Errorf("entry after Refresh = %+v, want extended expiry %v", got, next.ExpiresAt)
+	}
+}
+
+// A heartbeat re-persists the token its process authenticated with;
+// when another process has since saved a different (newer) token,
+// Refresh must leave that newer entry untouched instead of clobbering
+// it with the stale token.
+func TestRefreshSkipsWhenTokenDiffers(t *testing.T) {
+	now := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	s := newStore(t, now)
+	newer := session.Entry{Token: "newer", ExpiresAt: now.Add(30 * time.Minute)}
+	if err := s.Save(t.Context(), "w0", newer); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	stale := session.Entry{Token: "stale", ExpiresAt: now.Add(2 * time.Hour)}
+	if err := s.Refresh(t.Context(), "w0", stale); err != nil {
+		t.Fatalf("Refresh: %v", err)
+	}
+	got, err := s.Load(t.Context(), "w0")
+	if err != nil || got == nil {
+		t.Fatalf("Load: %v %v", got, err)
+	}
+	if got.Token != "newer" || !got.ExpiresAt.Equal(newer.ExpiresAt) {
+		t.Errorf("entry after stale Refresh = %+v, want the newer entry kept", got)
+	}
+}
+
+func TestRefreshMissingEntryIsNoop(t *testing.T) {
+	s := newStore(t, time.Now())
+	if err := s.Refresh(t.Context(), "w0", session.Entry{Token: "tok"}); err != nil {
+		t.Errorf("Refresh on missing file: %v", err)
+	}
+	if got, _ := s.Load(t.Context(), "w0"); got != nil {
+		t.Errorf("Refresh created an entry: %+v", got)
+	}
+}

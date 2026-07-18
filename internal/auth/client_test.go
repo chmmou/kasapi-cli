@@ -331,6 +331,47 @@ func TestSessionTokenSourceHeartbeatExtendsExpiry(t *testing.T) {
 	}
 }
 
+// A heartbeat must not clobber a newer token another process persisted
+// after this process authenticated: the source's stale in-memory token
+// no longer matches the on-disk entry, so the rolling-window refresh is
+// skipped and the newer entry survives.
+func TestSessionTokenSourceHeartbeatKeepsNewerPersistedToken(t *testing.T) {
+	body := loadFixture(t, "session/add_session_response_success.xml")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	defer srv.Close()
+
+	tNow := time.Date(2026, 5, 3, 12, 0, 0, 0, time.UTC)
+	store := newStore(t, tNow)
+	src := auth.NewSessionTokenSource(newAuthClient(srv, "w0", "secret", soap.AuthPlain, auth.Options{}))
+	src.Store = store
+	src.Lifetime = time.Hour
+	src.UpdateLifetime = true
+	src.Now = func() time.Time { return tNow }
+
+	if _, _, _, err := src.Credentials(context.Background()); err != nil {
+		t.Fatalf("Credentials: %v", err)
+	}
+	// Another process re-authenticates and persists a newer token.
+	newer := session.Entry{Token: "newer-token", ExpiresAt: tNow.Add(30 * time.Minute)}
+	if err := store.Save(t.Context(), "w0", newer); err != nil {
+		t.Fatalf("Save newer: %v", err)
+	}
+
+	tNow = tNow.Add(15 * time.Minute)
+	store.Now = func() time.Time { return tNow }
+	src.Heartbeat(t.Context())
+
+	got, _ := store.Load(t.Context(), "w0")
+	if got == nil {
+		t.Fatal("expected the newer entry to survive the Heartbeat")
+	}
+	if got.Token != "newer-token" || !got.ExpiresAt.Equal(newer.ExpiresAt) {
+		t.Errorf("entry after Heartbeat = %+v, want the newer token kept", got)
+	}
+}
+
 func TestSessionTokenSourceAdoptsLifetimeFromCachedEntry(t *testing.T) {
 	// Source created with no lifetime / update flags (e.g. a CLI run
 	// without the KasAuth flags). It picks up a token persisted by an

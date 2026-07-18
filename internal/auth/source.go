@@ -190,8 +190,12 @@ func (s *SessionTokenSource) Heartbeat(ctx context.Context) {
 			LifetimeSeconds: int(s.lifetime() / time.Second),
 			UpdateLifetime:  true,
 		}
-		if err := s.Store.Save(ctx, s.Client.Login, entry); err != nil {
-			s.logger().Warn("auth: session store heartbeat save failed; rolling window stays in-memory", "err", err)
+		// Refresh, not Save: another process may have persisted a newer
+		// token since this one authenticated; re-saving the stale token
+		// with a fresh expiry would clobber that update. Refresh only
+		// extends the entry while the on-disk token still matches.
+		if err := s.Store.Refresh(ctx, s.Client.Login, entry); err != nil {
+			s.logger().Warn("auth: session store heartbeat refresh failed; rolling window stays in-memory", "err", err)
 		}
 	}
 }
