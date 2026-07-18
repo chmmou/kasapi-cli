@@ -5,7 +5,7 @@
             <faultcode>SOAP-ENV:Server</faultcode>
             <faultstring>no_active_listen_owner_found</faultstring>
             <faultactor>KasApi</faultactor>
-            <detail>info@example1.org</detail>
+            <detail>info@example.org</detail>
         </SOAP-ENV:Fault>
     </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

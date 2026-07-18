@@ -6,7 +6,7 @@
             {
                 "KasRequestParams": {
                     "domain_name": "example.com",
-                    "domain_path": "/example-new.com/",
+                    "domain_path": "/example.net/",
                     "redirect_status": "0",
                     "php_version": "8.4",
                     "is_active": "Y"

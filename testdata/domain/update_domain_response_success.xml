@@ -23,7 +23,7 @@
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">domain_path</key>
-                                    <value xsi:type="xsd:string">/example-new.com/</value>
+                                    <value xsi:type="xsd:string">/example.net/</value>
                                 </item>
                                 <item>
                                     <key xsi:type="xsd:string">redirect_status</key>
